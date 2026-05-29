@@ -92,13 +92,6 @@
                         <input type="text" id="localMissaOutro" name="localMissaOutro" placeholder="Especifique o local">
                     </div>
                     <div class="form-group">
-                        <label>Haverá adoração ao Santíssimo? *</label>
-                        <div class="radio-group">
-                            <label class="radio-label"><input type="radio" name="adoracao" value="Sim" required> Sim</label>
-                            <label class="radio-label"><input type="radio" name="adoracao" value="Não"> Não</label>
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label for="horarioAdoracao">Horário da adoração</label>
                         <input type="text" id="horarioAdoracao" name="horarioAdoracao" placeholder="Ex.: 15h às 17h">
                     </div>
@@ -109,28 +102,9 @@
             <section class="form-section">
                 <h2 class="section-title"><span class="section-icon">✟</span> 3. PROCISSÃO</h2>
                 <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>Haverá procissão? *</label>
-                        <div class="radio-group">
-                            <label class="radio-label"><input type="radio" name="procissao" value="Sim" required> Sim</label>
-                            <label class="radio-label"><input type="radio" name="procissao" value="Não"> Não</label>
-                        </div>
-                    </div>
                     <div class="form-group">
                         <label for="horarioProcissao">Horário de início da procissão</label>
                         <input type="text" id="horarioProcissao" name="horarioProcissao" placeholder="Ex.: 16h">
-                    </div>
-                    <div class="form-group">
-                        <label for="localSaida">Local de saída</label>
-                        <input type="text" id="localSaida" name="localSaida" placeholder="Digite o local de saída">
-                    </div>
-                    <div class="form-group">
-                        <label for="localChegada">Local de chegada</label>
-                        <input type="text" id="localChegada" name="localChegada" placeholder="Digite o local de chegada">
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="percurso">Percurso (descreva o trajeto da procissão)</label>
-                        <textarea id="percurso" name="percurso" placeholder="Descreva o percurso" rows="4"></textarea>
                     </div>
                 </div>
             </section>
@@ -149,10 +123,6 @@
                     <div class="form-group">
                         <label for="horarioTapetes">Horário de início da confecção</label>
                         <input type="text" id="horarioTapetes" name="horarioTapetes" placeholder="Ex.: 5h da manhã">
-                    </div>
-                    <div class="form-group">
-                        <label for="extensaoTapetes">Extensão aproximada dos tapetes</label>
-                        <input type="text" id="extensaoTapetes" name="extensaoTapetes" placeholder="Ex.: 500 metros">
                     </div>
                     <div class="form-group full-width">
                         <label for="materiaisTapetes">Materiais utilizados (opcional)</label>
@@ -173,17 +143,6 @@
                         <label for="novidadeAno">Haverá alguma novidade da atividade especial neste ano?</label>
                         <input type="text" id="novidadeAno" name="novidadeAno" placeholder="Descreva a novidade ou atividade especial">
                     </div>
-                    <div class="form-group full-width">
-                        <label>Haverá apresentações, momentos culturais ou testemunhos?</label>
-                        <div class="radio-group">
-                            <label class="radio-label"><input type="radio" name="apresentacoes" value="Sim"> Sim</label>
-                            <label class="radio-label"><input type="radio" name="apresentacoes" value="Não"> Não</label>
-                        </div>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="descricaoApresentacoes">Se sim, descreva</label>
-                        <textarea id="descricaoApresentacoes" name="descricaoApresentacoes" placeholder="Descreva as apresentações ou momentos previstos" rows="3"></textarea>
-                    </div>
                 </div>
             </section>
 
@@ -191,13 +150,6 @@
             <section class="form-section">
                 <h2 class="section-title"><span class="section-icon">✟</span> 6. DIVULGAÇÃO</h2>
                 <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>A programação pode ser divulgada nos canais oficiais da Arquidiocese? *</label>
-                        <div class="radio-group">
-                            <label class="radio-label"><input type="radio" name="divulgacao" value="Sim" required> Sim</label>
-                            <label class="radio-label"><input type="radio" name="divulgacao" value="Não"> Não</label>
-                        </div>
-                    </div>
                     <div class="form-group">
                         <label for="linkArte">Link para arte de divulgação (opcional)</label>
                         <input type="url" id="linkArte" name="linkArte" placeholder="Cole aqui o link (Drive, Google Fotos, etc.)">
@@ -209,23 +161,9 @@
                 </div>
             </section>
 
-            <!-- Seção 7 - Registro Fotográfico -->
+            <!-- Seção 7 - Informações Adicionais -->
             <section class="form-section">
-                <h2 class="section-title"><span class="section-icon">✟</span> 7. REGISTRO FOTOGRÁFICO</h2>
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>A paróquia pretende enviar fotos após a celebração? *</label>
-                        <div class="radio-group">
-                            <label class="radio-label"><input type="radio" name="registroFoto" value="Sim" required> Sim</label>
-                            <label class="radio-label"><input type="radio" name="registroFoto" value="Não"> Não</label>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Seção 8 - Informações Adicionais -->
-            <section class="form-section">
-                <h2 class="section-title"><span class="section-icon">✟</span> 8. INFORMAÇÕES ADICIONAIS</h2>
+                <h2 class="section-title"><span class="section-icon">✟</span> 7. INFORMAÇÕES ADICIONAIS</h2>
                 <div class="form-grid">
                     <div class="form-group full-width">
                         <label for="infoAdicionais">Existe alguma informação adicional que a Arquidiocese deve saber sobre a programação de Corpus Christi em sua paróquia?</label>
