@@ -8,7 +8,7 @@
 // 4. Implante como aplicativo web (acesso: qualquer pessoa)
 // 5. Copie a URL gerada e cole abaixo:
 
-const GOOGLE_SCRIPT_URL = 'COLE_SUA_URL_AQUI';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwYfh3w4aC6lvA5zgnGzw8EXJrpqyrrlw-E3CNCFhNp5zrLyweAKHovdbOz7yzkZ8XF/exec';
 
 // ============================================================
 
