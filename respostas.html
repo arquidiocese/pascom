@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respostas - Corpus Christi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Open Sans', sans-serif; background: #faf8f5; color: #333; }
+
+        .header {
+            background: linear-gradient(135deg, #8B6914 0%, #C9A84C 30%, #E8D48B 50%, #C9A84C 70%, #8B6914 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            color: #fff;
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
+        .header p { color: #fff; opacity: 0.9; margin-top: 5px; font-size: 14px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Open Sans', sans-serif;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .btn-primary { background: linear-gradient(135deg, #8B6914, #C9A84C); color: #fff; }
+        .btn-secondary { background: #fff; color: #8B6914; border: 1px solid #C9A84C; }
+        .btn-danger { background: #dc3545; color: #fff; }
+
+        .stats {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 28px; font-weight: 700; color: #8B6914; }
+        .stat-label { font-size: 12px; color: #888; }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Open Sans', sans-serif;
+        }
+        .search-box:focus { outline: none; border-color: #C9A84C; box-shadow: 0 0 0 3px rgba(201,168,76,0.15); }
+
+        .table-wrapper {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            overflow-x: auto;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead { background: #8B6914; color: #fff; }
+        th { padding: 12px 10px; text-align: left; font-weight: 600; white-space: nowrap; }
+        td { padding: 10px; border-bottom: 1px solid #f0ebe3; vertical-align: top; }
+        tr:hover td { background: #fdf8ed; }
+        tr:last-child td { border-bottom: none; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-sim { background: #d4edda; color: #155724; }
+        .badge-nao { background: #f8d7da; color: #721c24; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+        .empty-state h3 { font-family: 'Cinzel', serif; color: #8B6914; margin-bottom: 10px; }
+
+        .loading { text-align: center; padding: 40px; color: #8B6914; }
+
+        .card-view { display: none; }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border-left: 4px solid #C9A84C;
+        }
+        .card h3 { font-size: 16px; color: #8B6914; margin-bottom: 8px; }
+        .card-info { font-size: 13px; color: #555; margin-bottom: 4px; }
+        .card-info strong { color: #333; }
+
+        .password-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .password-box {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .password-box h2 { font-family: 'Cinzel', serif; color: #8B6914; margin-bottom: 16px; }
+        .password-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .password-box input:focus { outline: none; border-color: #C9A84C; }
+        .password-error { color: #dc3545; font-size: 13px; margin-bottom: 10px; display: none; }
+
+        @media (max-width: 768px) {
+            .table-wrapper { display: none; }
+            .card-view { display: block; }
+            .controls { flex-direction: column; }
+            .stats { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de senha -->
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-box">
+            <h2>🔒 Área Restrita</h2>
+            <p style="margin-bottom: 16px; color: #666;">Digite a senha para acessar as respostas</p>
+            <input type="password" id="passwordInput" placeholder="Senha" autofocus>
+            <p class="password-error" id="passwordError">Senha incorreta. Tente novamente.</p>
+            <button class="btn btn-primary" onclick="checkPassword()" style="width: 100%;">Acessar</button>
+        </div>
+    </div>
+
+    <header class="header">
+        <h1>CORPUS CHRISTI</h1>
+        <p>Respostas cadastradas - Arquidiocese</p>
+    </header>
+
+    <main class="container" id="mainContent" style="display: none;">
+        <!-- Estatísticas -->
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalRespostas">0</div>
+                <div class="stat-label">Total de respostas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalForanias">0</div>
+                <div class="stat-label">Foranias</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalProcissao">0</div>
+                <div class="stat-label">Com procissão</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalTapetes">0</div>
+                <div class="stat-label">Com tapetes</div>
+            </div>
+        </div>
+
+        <!-- Controles -->
+        <div class="controls">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Buscar por paróquia, cidade ou forania...">
+            <button class="btn btn-primary" onclick="exportCSV()">📥 Exportar CSV</button>
+            <button class="btn btn-secondary" onclick="loadData()">🔄 Atualizar</button>
+        </div>
+
+        <!-- Tabela -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Data</th>
+                        <th>Paróquia</th>
+                        <th>Cidade</th>
+                        <th>Forania</th>
+                        <th>Responsável</th>
+                        <th>Telefone</th>
+                        <th>Missas</th>
+                        <th>Procissão</th>
+                        <th>Tapetes</th>
+                        <th>Divulgação</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Cards (mobile) -->
+        <div class="card-view" id="cardView"></div>
+
+        <!-- Estado vazio -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <h3>Nenhuma resposta ainda</h3>
+            <p>As respostas aparecerão aqui conforme forem enviadas.</p>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <p>Carregando respostas...</p>
+        </div>
+    </main>
+
+    <script>
+    // ============================================================
+    // CONFIGURAÇÃO
+    // ============================================================
+    // Cole a MESMA URL do Google Apps Script usada no formulário
+    const GOOGLE_SCRIPT_URL = 'COLE_SUA_URL_AQUI';
+
+    // Senha para acessar esta página (mude para a senha que quiser)
+    const SENHA_ACESSO = 'corpus2025';
+    // ============================================================
+
+    let allData = [];
+
+    // Verificar senha
+    function checkPassword() {
+        const input = document.getElementById('passwordInput');
+        const error = document.getElementById('passwordError');
+
+        if (input.value === SENHA_ACESSO) {
+            document.getElementById('passwordOverlay').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            loadData();
+        } else {
+            error.style.display = 'block';
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') checkPassword();
+    });
+
+    // Carregar dados
+    function loadData() {
+        const loading = document.getElementById('loading');
+        loading.style.display = 'block';
+
+        if (GOOGLE_SCRIPT_URL === 'COLE_SUA_URL_AQUI') {
+            loading.innerHTML = '<p style="color: #dc3545;">⚠️ Configure a URL do Google Apps Script neste arquivo (respostas.html)</p>';
+            return;
+        }
+
+        fetch(GOOGLE_SCRIPT_URL + '?action=getAll')
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                allData = data;
+                renderData(data);
+                updateStats(data);
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                console.error('Erro:', error);
+                document.getElementById('emptyState').style.display = 'block';
+            });
+    }
+
+    // Renderizar dados na tabela
+    function renderData(data) {
+        const tbody = document.getElementById('tableBody');
+        const cardView = document.getElementById('cardView');
+        const emptyState = document.getElementById('emptyState');
+
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '';
+            cardView.innerHTML = '';
+            emptyState.style.display = 'block';
+            return;
+        }
+
+        emptyState.style.display = 'none';
+
+        tbody.innerHTML = data.map((row, i) => `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${row.timestamp || ''}</td>
+                <td><strong>${row.nomeParoquia || ''}</strong></td>
+                <td>${row.cidade || ''}</td>
+                <td>${row.forania || ''}</td>
+                <td>${row.nomeResponsavel || ''}</td>
+                <td>${row.telefone || ''}</td>
+                <td>${row.horarioMissas || ''}</td>
+                <td><span class="badge ${row.procissao === 'Sim' ? 'badge-sim' : 'badge-nao'}">${row.procissao || '-'}</span></td>
+                <td><span class="badge ${row.tapetes === 'Sim' ? 'badge-sim' : 'badge-nao'}">${row.tapetes || '-'}</span></td>
+                <td><span class="badge ${row.divulgacao === 'Sim' ? 'badge-sim' : 'badge-nao'}">${row.divulgacao || '-'}</span></td>
+            </tr>
+        `).join('');
+
+        cardView.innerHTML = data.map((row, i) => `
+            <div class="card">
+                <h3>${row.nomeParoquia || 'Sem nome'}</h3>
+                <p class="card-info"><strong>Cidade:</strong> ${row.cidade || '-'}</p>
+                <p class="card-info"><strong>Forania:</strong> ${row.forania || '-'}</p>
+                <p class="card-info"><strong>Responsável:</strong> ${row.nomeResponsavel || '-'} | ${row.telefone || '-'}</p>
+                <p class="card-info"><strong>Missas:</strong> ${row.horarioMissas || '-'}</p>
+                <p class="card-info"><strong>Procissão:</strong> ${row.procissao || '-'} | <strong>Tapetes:</strong> ${row.tapetes || '-'}</p>
+            </div>
+        `).join('');
+    }
+
+    // Atualizar estatísticas
+    function updateStats(data) {
+        document.getElementById('totalRespostas').textContent = data.length;
+        const foranias = new Set(data.map(r => r.forania).filter(Boolean));
+        document.getElementById('totalForanias').textContent = foranias.size;
+        document.getElementById('totalProcissao').textContent = data.filter(r => r.procissao === 'Sim').length;
+        document.getElementById('totalTapetes').textContent = data.filter(r => r.tapetes === 'Sim').length;
+    }
+
+    // Busca
+    document.getElementById('searchBox').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        const filtered = allData.filter(row =>
+            (row.nomeParoquia || '').toLowerCase().includes(term) ||
+            (row.cidade || '').toLowerCase().includes(term) ||
+            (row.forania || '').toLowerCase().includes(term) ||
+            (row.nomeResponsavel || '').toLowerCase().includes(term)
+        );
+        renderData(filtered);
+    });
+
+    // Exportar CSV
+    function exportCSV() {
+        if (!allData || allData.length === 0) {
+            alert('Nenhum dado para exportar.');
+            return;
+        }
+
+        const headers = Object.keys(allData[0]);
+        const csvContent = [
+            headers.join(';'),
+            ...allData.map(row => headers.map(h => `"${(row[h] || '').replace(/"/g, '""')}"`).join(';'))
+        ].join('\n');
+
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `corpus-christi-respostas-${new Date().toISOString().slice(0,10)}.csv`;
+        link.click();
+    }
+    </script>
+</body>
+</html>

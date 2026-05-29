@@ -78,6 +78,27 @@ body {
     padding: 30px 20px;
 }
 
+/* Comunicado */
+.comunicado {
+    background: #fff8e1;
+    border: 2px solid #C9A84C;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+}
+
+.comunicado-prazo {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.comunicado-atencao {
+    font-size: 14px;
+    color: #8B6914;
+    line-height: 1.5;
+}
+
 /* Seções do formulário */
 .form-section {
     background: #fff;
