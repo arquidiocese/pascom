@@ -487,17 +487,25 @@
             return;
         }
 
-        const headers = Object.keys(allData[0]);
+        const exportHeaders = ['timestamp','nomeParoquia','nomeResponsavel','cidade','telefone','forania','horarioMissas','localMissa','localMissaOutro','adoracao','horarioAdoracao','procissao','horarioProcissao','localSaida','localChegada','percurso','tapetes','horarioTapetes','extensaoTapetes','materiaisTapetes','comunidadesEnvolvidas','novidadeAno','apresentacoes','descricaoApresentacoes','divulgacao','linkArte','linkRedes','registroFoto','infoAdicionais'];
+        const headerLabels = ['Data/Hora','Paróquia','Responsável','Cidade','Telefone','Forania','Horário Missas','Local Missa','Local (Outro)','Adoração','Horário Adoração','Procissão','Horário Procissão','Local Saída','Local Chegada','Percurso','Tapetes','Horário Tapetes','Extensão Tapetes','Materiais','Comunidades','Novidade','Apresentações','Descrição Apresentações','Divulgação','Link Arte','Link Redes','Fotos','Info Adicionais'];
+
         const csvContent = [
-            headers.join(';'),
-            ...allData.map(row => headers.map(h => `"${(row[h] || '').replace(/"/g, '""')}"`).join(';'))
+            headerLabels.join(';'),
+            ...allData.map(row => exportHeaders.map(h => {
+                let val = row[h] || '';
+                val = String(val).replace(/"/g, '""');
+                return `"${val}"`;
+            }).join(';'))
         ].join('\n');
 
         const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = `corpus-christi-respostas-${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
     }
     </script>
 </body>
