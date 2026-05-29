@@ -238,6 +238,30 @@
                 <div class="stat-number" id="totalTapetes">0</div>
                 <div class="stat-label">Com tapetes</div>
             </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalMatriz">0</div>
+                <div class="stat-label">Missa na Matriz</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalCapela">0</div>
+                <div class="stat-label">Missa em Capela</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalPraca">0</div>
+                <div class="stat-label">Missa em Praça</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalAdoracao">0</div>
+                <div class="stat-label">Com adoração</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalFotos">0</div>
+                <div class="stat-label">Enviarão fotos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalDivulgacao">0</div>
+                <div class="stat-label">Autorizam divulgação</div>
+            </div>
         </div>
 
         <!-- Respostas por Forania -->
@@ -442,6 +466,12 @@
         document.getElementById('totalForanias').textContent = foranias.size;
         document.getElementById('totalProcissao').textContent = data.filter(r => r.procissao === 'Sim').length;
         document.getElementById('totalTapetes').textContent = data.filter(r => r.tapetes === 'Sim').length;
+        document.getElementById('totalMatriz').textContent = data.filter(r => r.localMissa === 'Igreja Matriz').length;
+        document.getElementById('totalCapela').textContent = data.filter(r => r.localMissa === 'Capela').length;
+        document.getElementById('totalPraca').textContent = data.filter(r => r.localMissa === 'Praça').length;
+        document.getElementById('totalAdoracao').textContent = data.filter(r => r.adoracao === 'Sim').length;
+        document.getElementById('totalFotos').textContent = data.filter(r => r.registroFoto === 'Sim').length;
+        document.getElementById('totalDivulgacao').textContent = data.filter(r => r.divulgacao === 'Sim').length;
 
         // Contagem por forania
         const foraniaCount = {};
