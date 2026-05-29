@@ -33,6 +33,24 @@ document.addEventListener('DOMContentLoaded', function() {
         e.target.value = value;
     });
 
+    // Mostrar/esconder campo "Especifique o local" da missa
+    const localMissaRadios = document.querySelectorAll('input[name="localMissa"]');
+    const localMissaOutroGroup = document.getElementById('localMissaOutroGroup');
+    const localMissaOutroInput = document.getElementById('localMissaOutro');
+
+    localMissaRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'Capela' || this.value === 'Praça' || this.value === 'Outro') {
+                localMissaOutroGroup.style.display = 'flex';
+                localMissaOutroInput.required = true;
+            } else {
+                localMissaOutroGroup.style.display = 'none';
+                localMissaOutroInput.required = false;
+                localMissaOutroInput.value = '';
+            }
+        });
+    });
+
     // Submit do formulário
     form.addEventListener('submit', function(e) {
         e.preventDefault();
