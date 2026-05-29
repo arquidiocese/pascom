@@ -231,10 +231,6 @@
                 <div class="stat-label">Foranias</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" id="totalProcissao">0</div>
-                <div class="stat-label">Com procissão</div>
-            </div>
-            <div class="stat-item">
                 <div class="stat-number" id="totalTapetes">0</div>
                 <div class="stat-label">Com tapetes</div>
             </div>
@@ -249,18 +245,6 @@
             <div class="stat-item">
                 <div class="stat-number" id="totalPraca">0</div>
                 <div class="stat-label">Missa em Praça</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalAdoracao">0</div>
-                <div class="stat-label">Com adoração</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalFotos">0</div>
-                <div class="stat-label">Enviarão fotos</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalDivulgacao">0</div>
-                <div class="stat-label">Autorizam divulgação</div>
             </div>
         </div>
 
@@ -290,9 +274,8 @@
                         <th>Responsável</th>
                         <th>Telefone</th>
                         <th>Missas</th>
-                        <th>Procissão</th>
+                        <th>Local</th>
                         <th>Tapetes</th>
-                        <th>Divulgação</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -399,9 +382,8 @@
                 <td>${row.nomeResponsavel || ''}</td>
                 <td>${row.telefone || ''}</td>
                 <td>${row.horarioMissas || ''}</td>
-                <td><span class="badge ${row.procissao === 'Sim' ? 'badge-sim' : 'badge-nao'}">${row.procissao || '-'}</span></td>
+                <td>${row.localMissa || ''}${row.localMissaOutro ? ' - ' + row.localMissaOutro : ''}</td>
                 <td><span class="badge ${row.tapetes === 'Sim' ? 'badge-sim' : 'badge-nao'}">${row.tapetes || '-'}</span></td>
-                <td><span class="badge ${row.divulgacao === 'Sim' ? 'badge-sim' : 'badge-nao'}">${row.divulgacao || '-'}</span></td>
                 <td><button class="btn-delete" onclick="confirmDelete(${row.rowIndex}, '${(row.nomeParoquia || '').replace(/'/g, "\\'")}')" title="Excluir">🗑️</button></td>
             </tr>
         `).join('');
@@ -464,14 +446,10 @@
         document.getElementById('totalRespostas').textContent = data.length;
         const foranias = new Set(data.map(r => r.forania).filter(Boolean));
         document.getElementById('totalForanias').textContent = foranias.size;
-        document.getElementById('totalProcissao').textContent = data.filter(r => r.procissao === 'Sim').length;
         document.getElementById('totalTapetes').textContent = data.filter(r => r.tapetes === 'Sim').length;
         document.getElementById('totalMatriz').textContent = data.filter(r => r.localMissa === 'Igreja Matriz').length;
         document.getElementById('totalCapela').textContent = data.filter(r => r.localMissa === 'Capela').length;
         document.getElementById('totalPraca').textContent = data.filter(r => r.localMissa === 'Praça').length;
-        document.getElementById('totalAdoracao').textContent = data.filter(r => r.adoracao === 'Sim').length;
-        document.getElementById('totalFotos').textContent = data.filter(r => r.registroFoto === 'Sim').length;
-        document.getElementById('totalDivulgacao').textContent = data.filter(r => r.divulgacao === 'Sim').length;
 
         // Contagem por forania
         const foraniaCount = {};
