@@ -98,6 +98,38 @@
         .badge-sim { background: #d4edda; color: #155724; }
         .badge-nao { background: #f8d7da; color: #721c24; }
 
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .btn-delete:hover { background: #f8d7da; }
+
+        .confirm-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000;
+        }
+        .confirm-box {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+        }
+        .confirm-box h3 { color: #dc3545; margin-bottom: 12px; font-size: 18px; }
+        .confirm-box p { color: #555; margin-bottom: 20px; font-size: 14px; }
+        .confirm-box .confirm-paroquia { font-weight: 700; color: #333; }
+        .confirm-actions { display: flex; gap: 12px; justify-content: center; }
+        .confirm-actions .btn { min-width: 120px; }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -216,6 +248,7 @@
                         <th>Procissão</th>
                         <th>Tapetes</th>
                         <th>Divulgação</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -324,12 +357,13 @@
                 <td><span class="badge ${row.procissao === 'Sim' ? 'badge-sim' : 'badge-nao'}">${row.procissao || '-'}</span></td>
                 <td><span class="badge ${row.tapetes === 'Sim' ? 'badge-sim' : 'badge-nao'}">${row.tapetes || '-'}</span></td>
                 <td><span class="badge ${row.divulgacao === 'Sim' ? 'badge-sim' : 'badge-nao'}">${row.divulgacao || '-'}</span></td>
+                <td><button class="btn-delete" onclick="confirmDelete(${row.rowIndex}, '${(row.nomeParoquia || '').replace(/'/g, "\\'")}')" title="Excluir">🗑️</button></td>
             </tr>
         `).join('');
 
         cardView.innerHTML = data.map((row, i) => `
             <div class="card">
-                <h3>${row.nomeParoquia || 'Sem nome'}</h3>
+                <h3>${row.nomeParoquia || 'Sem nome'} <button class="btn-delete" onclick="confirmDelete(${row.rowIndex}, '${(row.nomeParoquia || '').replace(/'/g, "\\'")}')" title="Excluir">🗑️</button></h3>
                 <p class="card-info"><strong>Cidade:</strong> ${row.cidade || '-'}</p>
                 <p class="card-info"><strong>Forania:</strong> ${row.forania || '-'}</p>
                 <p class="card-info"><strong>Responsável:</strong> ${row.nomeResponsavel || '-'} | ${row.telefone || '-'}</p>
@@ -337,6 +371,47 @@
                 <p class="card-info"><strong>Procissão:</strong> ${row.procissao || '-'} | <strong>Tapetes:</strong> ${row.tapetes || '-'}</p>
             </div>
         `).join('');
+    }
+
+    // Confirmar exclusão
+    function confirmDelete(rowIndex, paroquiaNome) {
+        const overlay = document.createElement('div');
+        overlay.className = 'confirm-overlay';
+        overlay.innerHTML = `
+            <div class="confirm-box">
+                <h3>⚠️ Confirmar exclusão</h3>
+                <p>Tem certeza que deseja excluir o registro da paróquia:<br><span class="confirm-paroquia">${paroquiaNome}</span></p>
+                <p style="font-size: 12px; color: #888;">Esta ação não pode ser desfeita.</p>
+                <div class="confirm-actions">
+                    <button class="btn btn-secondary" onclick="this.closest('.confirm-overlay').remove()">Cancelar</button>
+                    <button class="btn btn-danger" onclick="deleteRow(${rowIndex}, this)">Excluir</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+
+    // Excluir registro
+    function deleteRow(rowIndex, btnElement) {
+        const overlay = btnElement.closest('.confirm-overlay');
+        btnElement.textContent = 'Excluindo...';
+        btnElement.disabled = true;
+
+        fetch(GOOGLE_SCRIPT_URL + '?action=delete&row=' + rowIndex)
+            .then(response => response.json())
+            .then(result => {
+                overlay.remove();
+                if (result.result === 'success') {
+                    loadData();
+                } else {
+                    alert('Erro ao excluir: ' + (result.message || 'Tente novamente.'));
+                }
+            })
+            .catch(error => {
+                overlay.remove();
+                alert('Erro ao excluir. Tente novamente.');
+                console.error('Erro:', error);
+            });
     }
 
     // Atualizar estatísticas
