@@ -125,6 +125,19 @@
         }
         .btn-delete:hover { background: #f8d7da; }
 
+        .btn-confirmar-pag {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-confirmar-pag:hover { background: #218838; }
+
         .confirm-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5);
@@ -238,6 +251,14 @@
                 <div class="stat-number" id="totalRestricao">0</div>
                 <div class="stat-label">Restri&#231;&#227;o alimentar</div>
             </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalPagos">0</div>
+                <div class="stat-label">Pagamentos confirmados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalPendentes">0</div>
+                <div class="stat-label">Pagamentos pendentes</div>
+            </div>
         </div>
 
         <!-- Inscricoes por Diocese -->
@@ -267,6 +288,7 @@
                         <th>Cargo</th>
                         <th>Telefone</th>
                         <th>Restri&#231;&#227;o</th>
+                        <th>Pagamento</th>
                         <th>A&#231;&#245;es</th>
                     </tr>
                 </thead>
@@ -357,6 +379,10 @@
 
         tbody.innerHTML = data.map(function(row, i) {
             var nomeEscapado = (row.nomeCompleto || '').replace(/'/g, "\\'");
+            var statusPag = row.statusPagamento || '';
+            var pagBadge = statusPag === 'Confirmado'
+                ? '<span class="badge" style="background:#d4edda;color:#155724;">Confirmado</span>'
+                : '<button class="btn-confirmar-pag" onclick="confirmarPagamento(' + row.rowIndex + ', this)">Confirmar</button>';
             return '<tr>' +
                 '<td>' + (i + 1) + '</td>' +
                 '<td>' + (row.timestamp || '') + '</td>' +
@@ -367,12 +393,14 @@
                 '<td>' + (row.cargoFuncao || '') + (row.cargoOutro ? ' - ' + row.cargoOutro : '') + '</td>' +
                 '<td>' + (row.telefone || '') + '</td>' +
                 '<td>' + (row.restricaoAlimentar || '-') + '</td>' +
+                '<td>' + pagBadge + '</td>' +
                 '<td><button class="btn-delete" onclick="confirmDelete(' + row.rowIndex + ', \'' + nomeEscapado + '\')" title="Excluir">&#128465;</button></td>' +
                 '</tr>';
         }).join('');
 
         cardView.innerHTML = data.map(function(row, i) {
             var nomeEscapado = (row.nomeCompleto || '').replace(/'/g, "\\'");
+            var statusPag = row.statusPagamento || 'Aguardando';
             return '<div class="card">' +
                 '<h3>' + (row.nomeCompleto || 'Sem nome') + ' <button class="btn-delete" onclick="confirmDelete(' + row.rowIndex + ', \'' + nomeEscapado + '\')" title="Excluir">&#128465;</button></h3>' +
                 '<p class="card-info"><strong>Cidade:</strong> ' + (row.cidade || '-') + '</p>' +
@@ -381,6 +409,7 @@
                 '<p class="card-info"><strong>Cargo:</strong> ' + (row.cargoFuncao || '-') + '</p>' +
                 '<p class="card-info"><strong>Telefone:</strong> ' + (row.telefone || '-') + '</p>' +
                 '<p class="card-info"><strong>Restri\u00e7\u00e3o alimentar:</strong> ' + (row.restricaoAlimentar || '-') + '</p>' +
+                '<p class="card-info"><strong>Pagamento:</strong> ' + statusPag + '</p>' +
                 '</div>';
         }).join('');
     }
@@ -441,6 +470,10 @@
 
         document.getElementById('totalRestricao').textContent = data.filter(function(r) { return r.restricaoAlimentar === 'Sim'; }).length;
 
+        var pagos = data.filter(function(r) { return r.statusPagamento === 'Confirmado'; }).length;
+        document.getElementById('totalPagos').textContent = pagos;
+        document.getElementById('totalPendentes').textContent = data.length - pagos;
+
         // Contagem por diocese
         var dioceseCount = {};
         data.forEach(function(r) {
@@ -478,6 +511,29 @@
         });
         renderData(filtered);
     });
+
+    // Confirmar pagamento
+    function confirmarPagamento(rowIndex, btnElement) {
+        btnElement.textContent = '...';
+        btnElement.disabled = true;
+
+        fetch(GOOGLE_SCRIPT_URL + '?action=confirmarPagamento&row=' + rowIndex)
+            .then(function(response) { return response.json(); })
+            .then(function(result) {
+                if (result.result === 'success') {
+                    loadData();
+                } else {
+                    alert('Erro ao confirmar pagamento.');
+                    btnElement.textContent = 'Confirmar';
+                    btnElement.disabled = false;
+                }
+            })
+            .catch(function(error) {
+                alert('Erro ao confirmar pagamento.');
+                btnElement.textContent = 'Confirmar';
+                btnElement.disabled = false;
+            });
+    }
 
     // Exportar CSV
     function exportCSV() {

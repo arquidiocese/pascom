@@ -138,6 +138,88 @@ body {
 }
 
 /* ============================================================
+   CONSULTA INSCRICAO
+   ============================================================ */
+.consulta-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border-left: 4px solid #E87C2A;
+    text-align: center;
+}
+
+.consulta-titulo {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: #C41E3A;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.consulta-texto {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.consulta-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.consulta-input {
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Open Sans', sans-serif;
+    min-width: 180px;
+    flex: 1;
+    max-width: 250px;
+}
+
+.consulta-input:focus {
+    outline: none;
+    border-color: #C41E3A;
+    box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+}
+
+.btn-consulta {
+    background: linear-gradient(135deg, #E87C2A, #C41E3A);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Open Sans', sans-serif;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-consulta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.consulta-erro {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.consulta-loading {
+    color: #E87C2A;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+/* ============================================================
    COMUNICADO
    ============================================================ */
 .comunicado {
@@ -418,6 +500,68 @@ body {
     color: #888 !important;
     margin-top: 12px !important;
     margin-bottom: 0 !important;
+}
+
+/* Resumo da inscricao */
+.inscricao-resumo {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.inscricao-resumo h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: #C41E3A;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.inscricao-resumo p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+.inscricao-resumo p strong {
+    color: #333;
+}
+
+/* Status pagamento */
+.status-pago {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #d4edda;
+    color: #155724;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 16px 0;
+}
+
+.status-aguardando {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff3cd;
+    color: #856404;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 16px 0;
+}
+
+.status-icon {
+    font-size: 20px;
 }
 
 /* ============================================================
