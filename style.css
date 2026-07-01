@@ -170,6 +170,16 @@ body {
     font-weight: 600;
 }
 
+.comunicado-taxa {
+    font-size: 15px;
+    color: #C41E3A;
+    margin-bottom: 8px;
+    padding: 8px 16px;
+    background: #fff3f3;
+    border-radius: 8px;
+    display: inline-block;
+}
+
 /* ============================================================
    FORM SECTIONS
    ============================================================ */

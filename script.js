@@ -30,22 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
         e.target.value = value;
     });
 
-    // Mascara de CPF
-    const cpfInput = document.getElementById('cpf');
-    cpfInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 11) value = value.slice(0, 11);
-
-        if (value.length > 9) {
-            value = value.slice(0,3) + '.' + value.slice(3,6) + '.' + value.slice(6,9) + '-' + value.slice(9);
-        } else if (value.length > 6) {
-            value = value.slice(0,3) + '.' + value.slice(3,6) + '.' + value.slice(6);
-        } else if (value.length > 3) {
-            value = value.slice(0,3) + '.' + value.slice(3);
-        }
-        e.target.value = value;
-    });
-
     // ============================================================
     // CAMPOS CONDICIONAIS
     // ============================================================
