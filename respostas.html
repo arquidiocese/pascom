@@ -224,33 +224,25 @@
         <div class="stats" id="stats">
             <div class="stat-item">
                 <div class="stat-number" id="totalInscricoes">0</div>
-                <div class="stat-label">Total de inscricoes</div>
+                <div class="stat-label">Total de inscri&#231;&#245;es</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" id="totalForanias">0</div>
-                <div class="stat-label">Foranias</div>
+                <div class="stat-number" id="totalDioceses">0</div>
+                <div class="stat-label">Dioceses</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" id="totalPresencial">0</div>
-                <div class="stat-label">Presencial</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalOnline">0</div>
-                <div class="stat-label">Online</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalTransporte">0</div>
-                <div class="stat-label">Precisam transporte</div>
+                <div class="stat-number" id="totalCidades">0</div>
+                <div class="stat-label">Cidades</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" id="totalRestricao">0</div>
-                <div class="stat-label">Restricao alimentar</div>
+                <div class="stat-label">Restri&#231;&#227;o alimentar</div>
             </div>
         </div>
 
-        <!-- Inscricoes por Forania -->
+        <!-- Inscricoes por Diocese -->
         <div class="stats foranias-stats" id="foraniaStats" style="display: none;">
-            <h3 class="foranias-title">Inscricoes por Forania</h3>
+            <h3 class="foranias-title">Inscri&#231;&#245;es por Diocese</h3>
             <div class="foranias-grid" id="foraniaGrid"></div>
         </div>
 
@@ -270,13 +262,12 @@
                         <th>Data</th>
                         <th>Nome</th>
                         <th>Cidade</th>
-                        <th>Paroquia</th>
-                        <th>Forania</th>
+                        <th>Diocese</th>
+                        <th>Par&#243;quia</th>
                         <th>Cargo</th>
                         <th>Telefone</th>
-                        <th>Participacao</th>
-                        <th>Transporte</th>
-                        <th>Acoes</th>
+                        <th>Restri&#231;&#227;o</th>
+                        <th>A&#231;&#245;es</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -365,19 +356,17 @@
         emptyState.style.display = 'none';
 
         tbody.innerHTML = data.map(function(row, i) {
-            var badgeClass = row.formaParticipacao === 'Presencial' ? 'badge-presencial' : 'badge-online';
             var nomeEscapado = (row.nomeCompleto || '').replace(/'/g, "\\'");
             return '<tr>' +
                 '<td>' + (i + 1) + '</td>' +
                 '<td>' + (row.timestamp || '') + '</td>' +
                 '<td><strong>' + (row.nomeCompleto || '') + '</strong></td>' +
                 '<td>' + (row.cidade || '') + '</td>' +
+                '<td>' + (row.diocese || '') + '</td>' +
                 '<td>' + (row.paroquia || '') + '</td>' +
-                '<td>' + (row.forania || '') + '</td>' +
                 '<td>' + (row.cargoFuncao || '') + (row.cargoOutro ? ' - ' + row.cargoOutro : '') + '</td>' +
                 '<td>' + (row.telefone || '') + '</td>' +
-                '<td><span class="badge ' + badgeClass + '">' + (row.formaParticipacao || '-') + '</span></td>' +
-                '<td>' + (row.transporte || '-') + '</td>' +
+                '<td>' + (row.restricaoAlimentar || '-') + '</td>' +
                 '<td><button class="btn-delete" onclick="confirmDelete(' + row.rowIndex + ', \'' + nomeEscapado + '\')" title="Excluir">&#128465;</button></td>' +
                 '</tr>';
         }).join('');
@@ -387,11 +376,11 @@
             return '<div class="card">' +
                 '<h3>' + (row.nomeCompleto || 'Sem nome') + ' <button class="btn-delete" onclick="confirmDelete(' + row.rowIndex + ', \'' + nomeEscapado + '\')" title="Excluir">&#128465;</button></h3>' +
                 '<p class="card-info"><strong>Cidade:</strong> ' + (row.cidade || '-') + '</p>' +
-                '<p class="card-info"><strong>Paroquia:</strong> ' + (row.paroquia || '-') + '</p>' +
-                '<p class="card-info"><strong>Forania:</strong> ' + (row.forania || '-') + '</p>' +
+                '<p class="card-info"><strong>Diocese:</strong> ' + (row.diocese || '-') + '</p>' +
+                '<p class="card-info"><strong>Par\u00f3quia:</strong> ' + (row.paroquia || '-') + '</p>' +
                 '<p class="card-info"><strong>Cargo:</strong> ' + (row.cargoFuncao || '-') + '</p>' +
                 '<p class="card-info"><strong>Telefone:</strong> ' + (row.telefone || '-') + '</p>' +
-                '<p class="card-info"><strong>Participacao:</strong> ' + (row.formaParticipacao || '-') + ' | <strong>Transporte:</strong> ' + (row.transporte || '-') + '</p>' +
+                '<p class="card-info"><strong>Restri\u00e7\u00e3o alimentar:</strong> ' + (row.restricaoAlimentar || '-') + '</p>' +
                 '</div>';
         }).join('');
     }
@@ -438,31 +427,34 @@
     function updateStats(data) {
         document.getElementById('totalInscricoes').textContent = data.length;
 
-        var foranias = {};
+        var dioceses = {};
         data.forEach(function(r) {
-            if (r.forania) foranias[r.forania] = true;
+            if (r.diocese) dioceses[r.diocese] = true;
         });
-        document.getElementById('totalForanias').textContent = Object.keys(foranias).length;
+        document.getElementById('totalDioceses').textContent = Object.keys(dioceses).length;
 
-        document.getElementById('totalPresencial').textContent = data.filter(function(r) { return r.formaParticipacao === 'Presencial'; }).length;
-        document.getElementById('totalOnline').textContent = data.filter(function(r) { return r.formaParticipacao === 'Online (se disponivel)'; }).length;
-        document.getElementById('totalTransporte').textContent = data.filter(function(r) { return r.transporte === 'Sim'; }).length;
+        var cidades = {};
+        data.forEach(function(r) {
+            if (r.cidade) cidades[r.cidade] = true;
+        });
+        document.getElementById('totalCidades').textContent = Object.keys(cidades).length;
+
         document.getElementById('totalRestricao').textContent = data.filter(function(r) { return r.restricaoAlimentar === 'Sim'; }).length;
 
-        // Contagem por forania
-        var foraniaCount = {};
+        // Contagem por diocese
+        var dioceseCount = {};
         data.forEach(function(r) {
-            if (r.forania) {
-                foraniaCount[r.forania] = (foraniaCount[r.forania] || 0) + 1;
+            if (r.diocese) {
+                dioceseCount[r.diocese] = (dioceseCount[r.diocese] || 0) + 1;
             }
         });
 
         var foraniaGrid = document.getElementById('foraniaGrid');
         var foraniaStats = document.getElementById('foraniaStats');
 
-        if (Object.keys(foraniaCount).length > 0) {
+        if (Object.keys(dioceseCount).length > 0) {
             foraniaStats.style.display = 'flex';
-            var sorted = Object.entries(foraniaCount).sort(function(a, b) { return b[1] - a[1]; });
+            var sorted = Object.entries(dioceseCount).sort(function(a, b) { return b[1] - a[1]; });
             foraniaGrid.innerHTML = sorted.map(function(item) {
                 return '<div class="forania-item">' +
                     '<span class="forania-item-name">' + item[0] + '</span>' +
@@ -481,7 +473,7 @@
             return (row.nomeCompleto || '').toLowerCase().indexOf(term) !== -1 ||
                 (row.cidade || '').toLowerCase().indexOf(term) !== -1 ||
                 (row.paroquia || '').toLowerCase().indexOf(term) !== -1 ||
-                (row.forania || '').toLowerCase().indexOf(term) !== -1 ||
+                (row.diocese || '').toLowerCase().indexOf(term) !== -1 ||
                 (row.cargoFuncao || '').toLowerCase().indexOf(term) !== -1;
         });
         renderData(filtered);
@@ -494,8 +486,8 @@
             return;
         }
 
-        var exportHeaders = ['timestamp','nomeCompleto','cpf','dataNascimento','telefone','email','cidade','paroquia','forania','diocese','comunidade','cargoFuncao','cargoOutro','tempoAtuacao','areasAtuacao','formaParticipacao','transporte','restricaoAlimentar','restricaoDetalhe','acessibilidade','acessibilidadeDetalhe','expectativas','temasSugeridos','observacoes'];
-        var headerLabels = ['Data/Hora','Nome Completo','CPF','Data Nascimento','Telefone','E-mail','Cidade','Paroquia','Forania','Diocese','Comunidade','Cargo/Funcao','Cargo (Outro)','Tempo Atuacao','Areas de Atuacao','Forma Participacao','Transporte','Restricao Alimentar','Qual Restricao','Acessibilidade','Qual Necessidade','Expectativas','Temas Sugeridos','Observacoes'];
+        var exportHeaders = ['timestamp','nomeCompleto','dataNascimento','telefone','cidade','diocese','paroquia','comunidade','cargoFuncao','cargoOutro','tempoAtuacao','areasAtuacao','restricaoAlimentar','restricaoDetalhe','acessibilidade','acessibilidadeDetalhe','expectativas','temasSugeridos','observacoes'];
+        var headerLabels = ['Data/Hora','Nome Completo','Data Nascimento','Telefone','Cidade','Diocese','Par\u00f3quia','Comunidade','Cargo/Fun\u00e7\u00e3o','Cargo (Outro)','Tempo Atua\u00e7\u00e3o','\u00c1reas de Atua\u00e7\u00e3o','Restri\u00e7\u00e3o Alimentar','Qual Restri\u00e7\u00e3o','Acessibilidade','Qual Necessidade','Expectativas','Temas Sugeridos','Observa\u00e7\u00f5es'];
 
         var csvContent = [
             headerLabels.join(';'),
