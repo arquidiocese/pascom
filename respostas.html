@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Respostas - Corpus Christi</title>
+    <title>Inscricoes - 1º Encontro das Caritas Subregional</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Open Sans', sans-serif; background: #faf8f5; color: #333; }
+        body { font-family: 'Open Sans', sans-serif; background: #FDF5E6; color: #333; }
 
         .header {
-            background: linear-gradient(135deg, #8B6914 0%, #C9A84C 30%, #E8D48B 50%, #C9A84C 70%, #8B6914 100%);
+            background: linear-gradient(135deg, #C41E3A 0%, #E87C2A 50%, #C41E3A 100%);
             padding: 30px 20px;
             text-align: center;
         }
         .header h1 {
-            font-family: 'Cinzel', serif;
+            font-family: 'Playfair Display', serif;
             color: #fff;
-            font-size: 28px;
-            letter-spacing: 2px;
+            font-size: 26px;
+            letter-spacing: 1px;
         }
-        .header p { color: #fff; opacity: 0.9; margin-top: 5px; font-size: 14px; }
+        .header p { color: rgba(255,255,255,0.9); margin-top: 5px; font-size: 14px; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
 
@@ -45,8 +45,8 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
         .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-        .btn-primary { background: linear-gradient(135deg, #8B6914, #C9A84C); color: #fff; }
-        .btn-secondary { background: #fff; color: #8B6914; border: 1px solid #C9A84C; }
+        .btn-primary { background: linear-gradient(135deg, #C41E3A, #E87C2A); color: #fff; }
+        .btn-secondary { background: #fff; color: #C41E3A; border: 1px solid #C41E3A; }
         .btn-danger { background: #dc3545; color: #fff; }
 
         .stats {
@@ -60,7 +60,7 @@
             flex-wrap: wrap;
         }
         .stat-item { text-align: center; }
-        .stat-number { font-size: 28px; font-weight: 700; color: #8B6914; }
+        .stat-number { font-size: 28px; font-weight: 700; color: #C41E3A; }
         .stat-label { font-size: 12px; color: #888; }
 
         .search-box {
@@ -72,14 +72,14 @@
             font-size: 14px;
             font-family: 'Open Sans', sans-serif;
         }
-        .search-box:focus { outline: none; border-color: #C9A84C; box-shadow: 0 0 0 3px rgba(201,168,76,0.15); }
+        .search-box:focus { outline: none; border-color: #C41E3A; box-shadow: 0 0 0 3px rgba(196,30,58,0.1); }
 
         .foranias-stats { flex-direction: column; gap: 16px; }
-        .foranias-title { font-family: 'Cinzel', serif; font-size: 16px; color: #8B6914; }
+        .foranias-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #C41E3A; }
         .foranias-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; width: 100%; }
         .forania-item {
-            background: #fdf8ed;
-            border: 1px solid #f0ebe3;
+            background: #fff9f0;
+            border: 1px solid #f0e8dc;
             border-radius: 8px;
             padding: 12px 16px;
             display: flex;
@@ -87,7 +87,7 @@
             align-items: center;
         }
         .forania-item-name { font-size: 13px; color: #555; font-weight: 500; }
-        .forania-item-count { font-size: 20px; font-weight: 700; color: #8B6914; }
+        .forania-item-count { font-size: 20px; font-weight: 700; color: #C41E3A; }
 
         .table-wrapper {
             background: #fff;
@@ -97,10 +97,10 @@
         }
 
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        thead { background: #8B6914; color: #fff; }
+        thead { background: #C41E3A; color: #fff; }
         th { padding: 12px 10px; text-align: left; font-weight: 600; white-space: nowrap; }
-        td { padding: 10px; border-bottom: 1px solid #f0ebe3; vertical-align: top; }
-        tr:hover td { background: #fdf8ed; }
+        td { padding: 10px; border-bottom: 1px solid #f0e8dc; vertical-align: top; }
+        tr:hover td { background: #fff9f0; }
         tr:last-child td { border-bottom: none; }
 
         .badge {
@@ -110,8 +110,8 @@
             font-size: 11px;
             font-weight: 600;
         }
-        .badge-sim { background: #d4edda; color: #155724; }
-        .badge-nao { background: #f8d7da; color: #721c24; }
+        .badge-presencial { background: #d4edda; color: #155724; }
+        .badge-online { background: #cce5ff; color: #004085; }
 
         .btn-delete {
             background: none;
@@ -141,7 +141,7 @@
         }
         .confirm-box h3 { color: #dc3545; margin-bottom: 12px; font-size: 18px; }
         .confirm-box p { color: #555; margin-bottom: 20px; font-size: 14px; }
-        .confirm-box .confirm-paroquia { font-weight: 700; color: #333; }
+        .confirm-box .confirm-nome { font-weight: 700; color: #333; }
         .confirm-actions { display: flex; gap: 12px; justify-content: center; }
         .confirm-actions .btn { min-width: 120px; }
 
@@ -150,9 +150,9 @@
             padding: 60px 20px;
             color: #888;
         }
-        .empty-state h3 { font-family: 'Cinzel', serif; color: #8B6914; margin-bottom: 10px; }
+        .empty-state h3 { font-family: 'Playfair Display', serif; color: #C41E3A; margin-bottom: 10px; }
 
-        .loading { text-align: center; padding: 40px; color: #8B6914; }
+        .loading { text-align: center; padding: 40px; color: #C41E3A; }
 
         .card-view { display: none; }
         .card {
@@ -161,9 +161,9 @@
             padding: 20px;
             margin-bottom: 16px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            border-left: 4px solid #C9A84C;
+            border-left: 4px solid #C41E3A;
         }
-        .card h3 { font-size: 16px; color: #8B6914; margin-bottom: 8px; }
+        .card h3 { font-size: 16px; color: #C41E3A; margin-bottom: 8px; }
         .card-info { font-size: 13px; color: #555; margin-bottom: 4px; }
         .card-info strong { color: #333; }
 
@@ -181,7 +181,7 @@
             max-width: 400px;
             width: 90%;
         }
-        .password-box h2 { font-family: 'Cinzel', serif; color: #8B6914; margin-bottom: 16px; }
+        .password-box h2 { font-family: 'Playfair Display', serif; color: #C41E3A; margin-bottom: 16px; }
         .password-box input {
             width: 100%;
             padding: 12px 16px;
@@ -191,7 +191,7 @@
             margin-bottom: 16px;
             text-align: center;
         }
-        .password-box input:focus { outline: none; border-color: #C9A84C; }
+        .password-box input:focus { outline: none; border-color: #C41E3A; }
         .password-error { color: #dc3545; font-size: 13px; margin-bottom: 10px; display: none; }
 
         @media (max-width: 768px) {
@@ -206,8 +206,8 @@
     <!-- Tela de senha -->
     <div class="password-overlay" id="passwordOverlay">
         <div class="password-box">
-            <h2>🔒 Área Restrita</h2>
-            <p style="margin-bottom: 16px; color: #666;">Digite a senha para acessar as respostas</p>
+            <h2>&#128274; Area Restrita</h2>
+            <p style="margin-bottom: 16px; color: #666;">Digite a senha para acessar as inscricoes</p>
             <input type="password" id="passwordInput" placeholder="Senha" autofocus>
             <p class="password-error" id="passwordError">Senha incorreta. Tente novamente.</p>
             <button class="btn btn-primary" onclick="checkPassword()" style="width: 100%;">Acessar</button>
@@ -215,50 +215,50 @@
     </div>
 
     <header class="header">
-        <h1>CORPUS CHRISTI</h1>
-        <p>Respostas cadastradas - Arquidiocese</p>
+        <h1>1º ENCONTRO DAS CARITAS</h1>
+        <p>Painel de Inscricoes - Subregional</p>
     </header>
 
     <main class="container" id="mainContent" style="display: none;">
-        <!-- Estatísticas -->
+        <!-- Estatisticas -->
         <div class="stats" id="stats">
             <div class="stat-item">
-                <div class="stat-number" id="totalRespostas">0</div>
-                <div class="stat-label">Total de respostas</div>
+                <div class="stat-number" id="totalInscricoes">0</div>
+                <div class="stat-label">Total de inscricoes</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" id="totalForanias">0</div>
                 <div class="stat-label">Foranias</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" id="totalTapetes">0</div>
-                <div class="stat-label">Com tapetes</div>
+                <div class="stat-number" id="totalPresencial">0</div>
+                <div class="stat-label">Presencial</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" id="totalMatriz">0</div>
-                <div class="stat-label">Missa na Matriz</div>
+                <div class="stat-number" id="totalOnline">0</div>
+                <div class="stat-label">Online</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" id="totalCapela">0</div>
-                <div class="stat-label">Missa em Capela</div>
+                <div class="stat-number" id="totalTransporte">0</div>
+                <div class="stat-label">Precisam transporte</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" id="totalPraca">0</div>
-                <div class="stat-label">Missa em Praça</div>
+                <div class="stat-number" id="totalRestricao">0</div>
+                <div class="stat-label">Restricao alimentar</div>
             </div>
         </div>
 
-        <!-- Respostas por Forania -->
+        <!-- Inscricoes por Forania -->
         <div class="stats foranias-stats" id="foraniaStats" style="display: none;">
-            <h3 class="foranias-title">📊 Respostas por Forania</h3>
+            <h3 class="foranias-title">Inscricoes por Forania</h3>
             <div class="foranias-grid" id="foraniaGrid"></div>
         </div>
 
         <!-- Controles -->
         <div class="controls">
-            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Buscar por paróquia, cidade ou forania...">
-            <button class="btn btn-primary" onclick="exportCSV()">📥 Exportar CSV</button>
-            <button class="btn btn-secondary" onclick="loadData()">🔄 Atualizar</button>
+            <input type="text" class="search-box" id="searchBox" placeholder="Buscar por nome, paroquia, cidade ou forania...">
+            <button class="btn btn-primary" onclick="exportCSV()">Exportar CSV</button>
+            <button class="btn btn-secondary" onclick="loadData()">Atualizar</button>
         </div>
 
         <!-- Tabela -->
@@ -268,15 +268,15 @@
                     <tr>
                         <th>#</th>
                         <th>Data</th>
-                        <th>Paróquia</th>
+                        <th>Nome</th>
                         <th>Cidade</th>
+                        <th>Paroquia</th>
                         <th>Forania</th>
-                        <th>Responsável</th>
+                        <th>Cargo</th>
                         <th>Telefone</th>
-                        <th>Missas</th>
-                        <th>Local</th>
-                        <th>Tapetes</th>
-                        <th>Ações</th>
+                        <th>Participacao</th>
+                        <th>Transporte</th>
+                        <th>Acoes</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -289,33 +289,30 @@
 
         <!-- Estado vazio -->
         <div class="empty-state" id="emptyState" style="display: none;">
-            <h3>Nenhuma resposta ainda</h3>
-            <p>As respostas aparecerão aqui conforme forem enviadas.</p>
+            <h3>Nenhuma inscricao ainda</h3>
+            <p>As inscricoes aparecerrao aqui conforme forem realizadas.</p>
         </div>
 
         <!-- Loading -->
         <div class="loading" id="loading">
-            <p>Carregando respostas...</p>
+            <p>Carregando inscricoes...</p>
         </div>
     </main>
 
     <script>
     // ============================================================
-    // CONFIGURAÇÃO
+    // CONFIGURACAO
     // ============================================================
-    // Cole a MESMA URL do Google Apps Script usada no formulário
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzIZHasyTBPEgo2HwJOPT7-pFm1icRNBLFGIoHDdRAkeddQZ207DLv4aU4rGoQ_d6uj/exec';
-
-    // Senha para acessar esta página (mude para a senha que quiser)
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwYfh3w4aC6lvA5zgnGzw8EXJrpqyrrlw-E3CNCFhNp5zrLyweAKHovdbOz7yzkZ8XF/exec';
     const SENHA_ACESSO = 'pascom2026';
     // ============================================================
 
-    let allData = [];
+    var allData = [];
 
     // Verificar senha
     function checkPassword() {
-        const input = document.getElementById('passwordInput');
-        const error = document.getElementById('passwordError');
+        var input = document.getElementById('passwordInput');
+        var error = document.getElementById('passwordError');
 
         if (input.value === SENHA_ACESSO) {
             document.getElementById('passwordOverlay').style.display = 'none';
@@ -334,23 +331,18 @@
 
     // Carregar dados
     function loadData() {
-        const loading = document.getElementById('loading');
+        var loading = document.getElementById('loading');
         loading.style.display = 'block';
 
-        if (GOOGLE_SCRIPT_URL === 'COLE_SUA_URL_AQUI') {
-            loading.innerHTML = '<p style="color: #dc3545;">⚠️ Configure a URL do Google Apps Script neste arquivo (respostas.html)</p>';
-            return;
-        }
-
         fetch(GOOGLE_SCRIPT_URL + '?action=getAll')
-            .then(response => response.json())
-            .then(data => {
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
                 loading.style.display = 'none';
                 allData = data;
                 renderData(data);
                 updateStats(data);
             })
-            .catch(error => {
+            .catch(function(error) {
                 loading.style.display = 'none';
                 console.error('Erro:', error);
                 document.getElementById('emptyState').style.display = 'block';
@@ -359,9 +351,9 @@
 
     // Renderizar dados na tabela
     function renderData(data) {
-        const tbody = document.getElementById('tableBody');
-        const cardView = document.getElementById('cardView');
-        const emptyState = document.getElementById('emptyState');
+        var tbody = document.getElementById('tableBody');
+        var cardView = document.getElementById('cardView');
+        var emptyState = document.getElementById('emptyState');
 
         if (!data || data.length === 0) {
             tbody.innerHTML = '';
@@ -372,61 +364,62 @@
 
         emptyState.style.display = 'none';
 
-        tbody.innerHTML = data.map((row, i) => `
-            <tr>
-                <td>${i + 1}</td>
-                <td>${row.timestamp || ''}</td>
-                <td><strong>${row.nomeParoquia || ''}</strong></td>
-                <td>${row.cidade || ''}</td>
-                <td>${row.forania || ''}</td>
-                <td>${row.nomeResponsavel || ''}</td>
-                <td>${row.telefone || ''}</td>
-                <td>${row.horarioMissas || ''}</td>
-                <td>${row.localMissa || ''}${row.localMissaOutro ? ' - ' + row.localMissaOutro : ''}</td>
-                <td><span class="badge ${row.tapetes === 'Sim' ? 'badge-sim' : 'badge-nao'}">${row.tapetes || '-'}</span></td>
-                <td><button class="btn-delete" onclick="confirmDelete(${row.rowIndex}, '${(row.nomeParoquia || '').replace(/'/g, "\\'")}')" title="Excluir">🗑️</button></td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = data.map(function(row, i) {
+            var badgeClass = row.formaParticipacao === 'Presencial' ? 'badge-presencial' : 'badge-online';
+            var nomeEscapado = (row.nomeCompleto || '').replace(/'/g, "\\'");
+            return '<tr>' +
+                '<td>' + (i + 1) + '</td>' +
+                '<td>' + (row.timestamp || '') + '</td>' +
+                '<td><strong>' + (row.nomeCompleto || '') + '</strong></td>' +
+                '<td>' + (row.cidade || '') + '</td>' +
+                '<td>' + (row.paroquia || '') + '</td>' +
+                '<td>' + (row.forania || '') + '</td>' +
+                '<td>' + (row.cargoFuncao || '') + (row.cargoOutro ? ' - ' + row.cargoOutro : '') + '</td>' +
+                '<td>' + (row.telefone || '') + '</td>' +
+                '<td><span class="badge ' + badgeClass + '">' + (row.formaParticipacao || '-') + '</span></td>' +
+                '<td>' + (row.transporte || '-') + '</td>' +
+                '<td><button class="btn-delete" onclick="confirmDelete(' + row.rowIndex + ', \'' + nomeEscapado + '\')" title="Excluir">&#128465;</button></td>' +
+                '</tr>';
+        }).join('');
 
-        cardView.innerHTML = data.map((row, i) => `
-            <div class="card">
-                <h3>${row.nomeParoquia || 'Sem nome'} <button class="btn-delete" onclick="confirmDelete(${row.rowIndex}, '${(row.nomeParoquia || '').replace(/'/g, "\\'")}')" title="Excluir">🗑️</button></h3>
-                <p class="card-info"><strong>Cidade:</strong> ${row.cidade || '-'}</p>
-                <p class="card-info"><strong>Forania:</strong> ${row.forania || '-'}</p>
-                <p class="card-info"><strong>Responsável:</strong> ${row.nomeResponsavel || '-'} | ${row.telefone || '-'}</p>
-                <p class="card-info"><strong>Missas:</strong> ${row.horarioMissas || '-'}</p>
-                <p class="card-info"><strong>Procissão:</strong> ${row.procissao || '-'} | <strong>Tapetes:</strong> ${row.tapetes || '-'}</p>
-            </div>
-        `).join('');
+        cardView.innerHTML = data.map(function(row, i) {
+            var nomeEscapado = (row.nomeCompleto || '').replace(/'/g, "\\'");
+            return '<div class="card">' +
+                '<h3>' + (row.nomeCompleto || 'Sem nome') + ' <button class="btn-delete" onclick="confirmDelete(' + row.rowIndex + ', \'' + nomeEscapado + '\')" title="Excluir">&#128465;</button></h3>' +
+                '<p class="card-info"><strong>Cidade:</strong> ' + (row.cidade || '-') + '</p>' +
+                '<p class="card-info"><strong>Paroquia:</strong> ' + (row.paroquia || '-') + '</p>' +
+                '<p class="card-info"><strong>Forania:</strong> ' + (row.forania || '-') + '</p>' +
+                '<p class="card-info"><strong>Cargo:</strong> ' + (row.cargoFuncao || '-') + '</p>' +
+                '<p class="card-info"><strong>Telefone:</strong> ' + (row.telefone || '-') + '</p>' +
+                '<p class="card-info"><strong>Participacao:</strong> ' + (row.formaParticipacao || '-') + ' | <strong>Transporte:</strong> ' + (row.transporte || '-') + '</p>' +
+                '</div>';
+        }).join('');
     }
 
-    // Confirmar exclusão
-    function confirmDelete(rowIndex, paroquiaNome) {
-        const overlay = document.createElement('div');
+    // Confirmar exclusao
+    function confirmDelete(rowIndex, nome) {
+        var overlay = document.createElement('div');
         overlay.className = 'confirm-overlay';
-        overlay.innerHTML = `
-            <div class="confirm-box">
-                <h3>⚠️ Confirmar exclusão</h3>
-                <p>Tem certeza que deseja excluir o registro da paróquia:<br><span class="confirm-paroquia">${paroquiaNome}</span></p>
-                <p style="font-size: 12px; color: #888;">Esta ação não pode ser desfeita.</p>
-                <div class="confirm-actions">
-                    <button class="btn btn-secondary" onclick="this.closest('.confirm-overlay').remove()">Cancelar</button>
-                    <button class="btn btn-danger" onclick="deleteRow(${rowIndex}, this)">Excluir</button>
-                </div>
-            </div>
-        `;
+        overlay.innerHTML = '<div class="confirm-box">' +
+            '<h3>Confirmar exclusao</h3>' +
+            '<p>Tem certeza que deseja excluir a inscricao de:<br><span class="confirm-nome">' + nome + '</span></p>' +
+            '<p style="font-size: 12px; color: #888;">Esta acao nao pode ser desfeita.</p>' +
+            '<div class="confirm-actions">' +
+            '<button class="btn btn-secondary" onclick="this.closest(\'.confirm-overlay\').remove()">Cancelar</button>' +
+            '<button class="btn btn-danger" onclick="deleteRow(' + rowIndex + ', this)">Excluir</button>' +
+            '</div></div>';
         document.body.appendChild(overlay);
     }
 
     // Excluir registro
     function deleteRow(rowIndex, btnElement) {
-        const overlay = btnElement.closest('.confirm-overlay');
+        var overlay = btnElement.closest('.confirm-overlay');
         btnElement.textContent = 'Excluindo...';
         btnElement.disabled = true;
 
         fetch(GOOGLE_SCRIPT_URL + '?action=delete&row=' + rowIndex)
-            .then(response => response.json())
-            .then(result => {
+            .then(function(response) { return response.json(); })
+            .then(function(result) {
                 overlay.remove();
                 if (result.result === 'success') {
                     loadData();
@@ -434,43 +427,48 @@
                     alert('Erro ao excluir: ' + (result.message || 'Tente novamente.'));
                 }
             })
-            .catch(error => {
+            .catch(function(error) {
                 overlay.remove();
                 alert('Erro ao excluir. Tente novamente.');
                 console.error('Erro:', error);
             });
     }
 
-    // Atualizar estatísticas
+    // Atualizar estatisticas
     function updateStats(data) {
-        document.getElementById('totalRespostas').textContent = data.length;
-        const foranias = new Set(data.map(r => r.forania).filter(Boolean));
-        document.getElementById('totalForanias').textContent = foranias.size;
-        document.getElementById('totalTapetes').textContent = data.filter(r => r.tapetes === 'Sim').length;
-        document.getElementById('totalMatriz').textContent = data.filter(r => r.localMissa === 'Igreja Matriz').length;
-        document.getElementById('totalCapela').textContent = data.filter(r => r.localMissa === 'Capela').length;
-        document.getElementById('totalPraca').textContent = data.filter(r => r.localMissa === 'Praça').length;
+        document.getElementById('totalInscricoes').textContent = data.length;
+
+        var foranias = {};
+        data.forEach(function(r) {
+            if (r.forania) foranias[r.forania] = true;
+        });
+        document.getElementById('totalForanias').textContent = Object.keys(foranias).length;
+
+        document.getElementById('totalPresencial').textContent = data.filter(function(r) { return r.formaParticipacao === 'Presencial'; }).length;
+        document.getElementById('totalOnline').textContent = data.filter(function(r) { return r.formaParticipacao === 'Online (se disponivel)'; }).length;
+        document.getElementById('totalTransporte').textContent = data.filter(function(r) { return r.transporte === 'Sim'; }).length;
+        document.getElementById('totalRestricao').textContent = data.filter(function(r) { return r.restricaoAlimentar === 'Sim'; }).length;
 
         // Contagem por forania
-        const foraniaCount = {};
-        data.forEach(r => {
+        var foraniaCount = {};
+        data.forEach(function(r) {
             if (r.forania) {
                 foraniaCount[r.forania] = (foraniaCount[r.forania] || 0) + 1;
             }
         });
 
-        const foraniaGrid = document.getElementById('foraniaGrid');
-        const foraniaStats = document.getElementById('foraniaStats');
+        var foraniaGrid = document.getElementById('foraniaGrid');
+        var foraniaStats = document.getElementById('foraniaStats');
 
         if (Object.keys(foraniaCount).length > 0) {
             foraniaStats.style.display = 'flex';
-            const sorted = Object.entries(foraniaCount).sort((a, b) => b[1] - a[1]);
-            foraniaGrid.innerHTML = sorted.map(([nome, count]) => `
-                <div class="forania-item">
-                    <span class="forania-item-name">${nome}</span>
-                    <span class="forania-item-count">${count}</span>
-                </div>
-            `).join('');
+            var sorted = Object.entries(foraniaCount).sort(function(a, b) { return b[1] - a[1]; });
+            foraniaGrid.innerHTML = sorted.map(function(item) {
+                return '<div class="forania-item">' +
+                    '<span class="forania-item-name">' + item[0] + '</span>' +
+                    '<span class="forania-item-count">' + item[1] + '</span>' +
+                    '</div>';
+            }).join('');
         } else {
             foraniaStats.style.display = 'none';
         }
@@ -478,13 +476,14 @@
 
     // Busca
     document.getElementById('searchBox').addEventListener('input', function(e) {
-        const term = e.target.value.toLowerCase();
-        const filtered = allData.filter(row =>
-            (row.nomeParoquia || '').toLowerCase().includes(term) ||
-            (row.cidade || '').toLowerCase().includes(term) ||
-            (row.forania || '').toLowerCase().includes(term) ||
-            (row.nomeResponsavel || '').toLowerCase().includes(term)
-        );
+        var term = e.target.value.toLowerCase();
+        var filtered = allData.filter(function(row) {
+            return (row.nomeCompleto || '').toLowerCase().indexOf(term) !== -1 ||
+                (row.cidade || '').toLowerCase().indexOf(term) !== -1 ||
+                (row.paroquia || '').toLowerCase().indexOf(term) !== -1 ||
+                (row.forania || '').toLowerCase().indexOf(term) !== -1 ||
+                (row.cargoFuncao || '').toLowerCase().indexOf(term) !== -1;
+        });
         renderData(filtered);
     });
 
@@ -495,22 +494,24 @@
             return;
         }
 
-        const exportHeaders = ['timestamp','nomeParoquia','nomeResponsavel','cidade','telefone','forania','horarioMissas','localMissa','localMissaOutro','adoracao','horarioAdoracao','procissao','horarioProcissao','localSaida','localChegada','percurso','tapetes','horarioTapetes','extensaoTapetes','materiaisTapetes','comunidadesEnvolvidas','novidadeAno','apresentacoes','descricaoApresentacoes','divulgacao','linkArte','linkRedes','registroFoto','infoAdicionais'];
-        const headerLabels = ['Data/Hora','Paróquia','Responsável','Cidade','Telefone','Forania','Horário Missas','Local Missa','Local (Outro)','Adoração','Horário Adoração','Procissão','Horário Procissão','Local Saída','Local Chegada','Percurso','Tapetes','Horário Tapetes','Extensão Tapetes','Materiais','Comunidades','Novidade','Apresentações','Descrição Apresentações','Divulgação','Link Arte','Link Redes','Fotos','Info Adicionais'];
+        var exportHeaders = ['timestamp','nomeCompleto','cpf','dataNascimento','telefone','email','cidade','paroquia','forania','diocese','comunidade','cargoFuncao','cargoOutro','tempoAtuacao','areasAtuacao','formaParticipacao','transporte','restricaoAlimentar','restricaoDetalhe','acessibilidade','acessibilidadeDetalhe','expectativas','temasSugeridos','observacoes'];
+        var headerLabels = ['Data/Hora','Nome Completo','CPF','Data Nascimento','Telefone','E-mail','Cidade','Paroquia','Forania','Diocese','Comunidade','Cargo/Funcao','Cargo (Outro)','Tempo Atuacao','Areas de Atuacao','Forma Participacao','Transporte','Restricao Alimentar','Qual Restricao','Acessibilidade','Qual Necessidade','Expectativas','Temas Sugeridos','Observacoes'];
 
-        const csvContent = [
+        var csvContent = [
             headerLabels.join(';'),
-            ...allData.map(row => exportHeaders.map(h => {
-                let val = row[h] || '';
-                val = String(val).replace(/"/g, '""');
-                return `"${val}"`;
-            }).join(';'))
+            ...allData.map(function(row) {
+                return exportHeaders.map(function(h) {
+                    var val = row[h] || '';
+                    val = String(val).replace(/"/g, '""');
+                    return '"' + val + '"';
+                }).join(';');
+            })
         ].join('\n');
 
-        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
+        var blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `corpus-christi-respostas-${new Date().toISOString().slice(0,10)}.csv`;
+        link.download = 'caritas-inscricoes-' + new Date().toISOString().slice(0,10) + '.csv';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

@@ -3,196 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corpus Christi - Informações das Paróquias</title>
+    <title>1º Encontro das Cáritas Subregional - Inscrição</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div class="header-ornament">✦</div>
-            <p class="header-subtitle-top">SOLENIDADE DE</p>
-            <h1 class="header-title">CORPUS CHRISTI</h1>
-            <p class="header-subtitle">Informações das atividades<br>nas paróquias da Arquidiocese</p>
+            <p class="header-vem-ai">Vem ai!</p>
+            <h1 class="header-title">1º ENCONTRO DAS<br><span class="highlight">CARITAS</span></h1>
+            <p class="header-subtitle-tag">SUBREGIONAL</p>
+            <p class="header-subtitle">Um momento de comunhao, formacao, partilha e<br>fortalecimento da missao das Caritas em nossa Igreja.</p>
+            <div class="header-badges">
+                <div class="badge-item">
+                    <span class="badge-icon">&#128197;</span>
+                    <span class="badge-text"><strong>11/07/2026</strong><br>SABADO - 08h30</span>
+                </div>
+                <div class="badge-item">
+                    <span class="badge-icon">&#128205;</span>
+                    <span class="badge-text"><strong>Centro de Pastoral</strong><br>Arquidiocese de S.J. Rio Preto</span>
+                </div>
+                <div class="badge-item">
+                    <span class="badge-icon">&#10084;</span>
+                    <span class="badge-text"><strong>Servir</strong><br>E A NOSSA MISSAO</span>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- Formulário -->
+    <!-- Formulario -->
     <main class="container">
         <!-- Comunicado -->
         <div class="comunicado">
-            <p class="comunicado-prazo">📅 Enviar as informações até <strong>terça-feira, 02 de junho</strong>.</p>
-            <p class="comunicado-atencao">⚠️ <strong>ATENÇÃO:</strong> em caso de Celebração em Capelas, favor preencher um formulário para a Matriz e outro para Capela. Em caso de mais de uma Capela, favor preencher um para cada Capela.</p>
+            <p class="comunicado-titulo">INSCRICOES ABERTAS!</p>
+            <p class="comunicado-texto">Preencha o formulario abaixo para garantir sua participacao no 1º Encontro das Caritas Subregional.</p>
+            <p class="comunicado-slogan"><em>"Caridade que transforma!"</em></p>
         </div>
 
-        <form id="cadastroForm">
+        <form id="inscricaoForm">
 
-            <!-- Seção 1 - Identificação da Paróquia -->
+            <!-- Secao 1 - Dados Pessoais -->
             <section class="form-section">
-                <h2 class="section-title"><span class="section-icon">✟</span> 1. IDENTIFICAÇÃO DA PARÓQUIA</h2>
+                <h2 class="section-title"><span class="section-icon">&#10010;</span> 1. DADOS PESSOAIS</h2>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="nomeParoquia">Nome da paróquia *</label>
-                        <input type="text" id="nomeParoquia" name="nomeParoquia" placeholder="Digite o nome da paróquia" required>
+                        <label for="nomeCompleto">Nome completo *</label>
+                        <input type="text" id="nomeCompleto" name="nomeCompleto" placeholder="Digite seu nome completo" required>
                     </div>
                     <div class="form-group">
-                        <label for="nomeResponsavel">Nome do responsável pelo preenchimento *</label>
-                        <input type="text" id="nomeResponsavel" name="nomeResponsavel" placeholder="Digite seu nome" required>
+                        <label for="cpf">CPF *</label>
+                        <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
                     </div>
                     <div class="form-group">
-                        <label for="cidade">Cidade *</label>
-                        <input type="text" id="cidade" name="cidade" placeholder="Digite a cidade" required>
+                        <label for="dataNascimento">Data de nascimento *</label>
+                        <input type="date" id="dataNascimento" name="dataNascimento" required>
                     </div>
                     <div class="form-group">
                         <label for="telefone">Telefone / WhatsApp *</label>
                         <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
                     </div>
                     <div class="form-group">
-                        <label for="forania">A qual forania sua paróquia pertence? *</label>
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" name="email" placeholder="seu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="cidade">Cidade *</label>
+                        <input type="text" id="cidade" name="cidade" placeholder="Digite sua cidade" required>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Secao 2 - Vinculo Eclesial -->
+            <section class="form-section">
+                <h2 class="section-title"><span class="section-icon">&#10010;</span> 2. VINCULO ECLESIAL</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="paroquia">Paroquia *</label>
+                        <input type="text" id="paroquia" name="paroquia" placeholder="Nome da paroquia" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="forania">Forania *</label>
                         <select id="forania" name="forania" required>
                             <option value="">Selecione a forania</option>
-                            <option value="Forania Sagrado Coração de Jesus">Forania Sagrado Coração de Jesus</option>
-                            <option value="Forania Santo Antônio de Pádua">Forania Santo Antônio de Pádua</option>
-                            <option value="Forania São Judas Tadeu">Forania São Judas Tadeu</option>
+                            <option value="Forania Sagrado Coracao de Jesus">Forania Sagrado Coracao de Jesus</option>
+                            <option value="Forania Santo Antonio de Padua">Forania Santo Antonio de Padua</option>
+                            <option value="Forania Sao Judas Tadeu">Forania Sao Judas Tadeu</option>
                             <option value="Forania Nossa Senhora do Carmo">Forania Nossa Senhora do Carmo</option>
-                            <option value="Forania São José">Forania São José</option>
+                            <option value="Forania Sao Jose">Forania Sao Jose</option>
                             <option value="Forania Madre Assunta">Forania Madre Assunta</option>
                             <option value="Forania Nossa Senhora Aparecida">Forania Nossa Senhora Aparecida</option>
-                            <option value="Forania Monsenhor Ângelo Angioni">Forania Monsenhor Ângelo Angioni</option>
+                            <option value="Forania Monsenhor Angelo Angioni">Forania Monsenhor Angelo Angioni</option>
                             <option value="Forania Senhor Bom Jesus dos Castores">Forania Senhor Bom Jesus dos Castores</option>
                         </select>
                     </div>
-
+                    <div class="form-group">
+                        <label for="diocese">Diocese / Arquidiocese *</label>
+                        <input type="text" id="diocese" name="diocese" placeholder="Ex.: Arquidiocese de..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="comunidade">Comunidade (se houver)</label>
+                        <input type="text" id="comunidade" name="comunidade" placeholder="Nome da comunidade">
+                    </div>
                 </div>
             </section>
 
-            <!-- Seção 2 - Programação Litúrgica -->
+            <!-- Secao 3 - Atuacao na Caritas -->
             <section class="form-section">
-                <h2 class="section-title"><span class="section-icon">✟</span> 2. PROGRAMAÇÃO LITÚRGICA</h2>
+                <h2 class="section-title"><span class="section-icon">&#10010;</span> 3. ATUACAO NA CARITAS</h2>
                 <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="horarioMissas">Horário(s) das missas de Corpus Christi *</label>
-                        <input type="text" id="horarioMissas" name="horarioMissas" placeholder="Ex.: 7h, 9h, 18h" required>
-                        <small>Informe todos os horários, se houver mais de uma missa.</small>
+                    <div class="form-group">
+                        <label for="cargoFuncao">Cargo / Funcao na Caritas *</label>
+                        <select id="cargoFuncao" name="cargoFuncao" required>
+                            <option value="">Selecione seu cargo/funcao</option>
+                            <option value="Coordenador(a) Diocesano(a)">Coordenador(a) Diocesano(a)</option>
+                            <option value="Coordenador(a) Paroquial">Coordenador(a) Paroquial</option>
+                            <option value="Coordenador(a) Comunitario(a)">Coordenador(a) Comunitario(a)</option>
+                            <option value="Vice-coordenador(a)">Vice-coordenador(a)</option>
+                            <option value="Secretario(a)">Secretario(a)</option>
+                            <option value="Tesoureiro(a)">Tesoureiro(a)</option>
+                            <option value="Agente de Caridade">Agente de Caridade</option>
+                            <option value="Voluntario(a)">Voluntario(a)</option>
+                            <option value="Assessor(a) Eclesiastico(a)">Assessor(a) Eclesiastico(a)</option>
+                            <option value="Membro da Diretoria">Membro da Diretoria</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="cargoOutroGroup" style="display: none;">
+                        <label for="cargoOutro">Especifique o cargo/funcao *</label>
+                        <input type="text" id="cargoOutro" name="cargoOutro" placeholder="Descreva seu cargo ou funcao">
+                    </div>
+                    <div class="form-group">
+                        <label for="tempoAtuacao">Tempo de atuacao na Caritas *</label>
+                        <select id="tempoAtuacao" name="tempoAtuacao" required>
+                            <option value="">Selecione</option>
+                            <option value="Menos de 1 ano">Menos de 1 ano</option>
+                            <option value="1 a 3 anos">1 a 3 anos</option>
+                            <option value="3 a 5 anos">3 a 5 anos</option>
+                            <option value="5 a 10 anos">5 a 10 anos</option>
+                            <option value="Mais de 10 anos">Mais de 10 anos</option>
+                        </select>
                     </div>
                     <div class="form-group full-width">
-                        <label>Local da missa principal *</label>
+                        <label for="areasAtuacao">Areas de atuacao / projetos que participa</label>
+                        <textarea id="areasAtuacao" name="areasAtuacao" placeholder="Ex.: Campanha da Fraternidade, atendimento a familias em vulnerabilidade, formacao de agentes..." rows="3"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Secao 4 - Participacao no Encontro -->
+            <section class="form-section">
+                <h2 class="section-title"><span class="section-icon">&#10010;</span> 4. PARTICIPACAO NO ENCONTRO</h2>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Forma de participacao *</label>
                         <div class="radio-group">
-                            <label class="radio-label"><input type="radio" name="localMissa" value="Igreja Matriz" required> Igreja Matriz</label>
-                            <label class="radio-label"><input type="radio" name="localMissa" value="Capela"> Capela</label>
-                            <label class="radio-label"><input type="radio" name="localMissa" value="Praça"> Praça</label>
-                            <label class="radio-label"><input type="radio" name="localMissa" value="Outro"> Outro</label>
+                            <label class="radio-label"><input type="radio" name="formaParticipacao" value="Presencial" required> Presencial</label>
+                            <label class="radio-label"><input type="radio" name="formaParticipacao" value="Online (se disponivel)"> Online (se disponivel)</label>
                         </div>
                     </div>
-                    <div class="form-group" id="localMissaOutroGroup" style="display: none;">
-                        <label for="localMissaOutro">Especifique o local *</label>
-                        <input type="text" id="localMissaOutro" name="localMissaOutro" placeholder="Especifique o local">
-                    </div>
-                </div>
-            </section>
-
-            <!-- Seção 3 - Procissão -->
-            <section class="form-section">
-                <h2 class="section-title"><span class="section-icon">✟</span> 3. PROCISSÃO</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="horarioProcissao">Horário de início da procissão</label>
-                        <input type="text" id="horarioProcissao" name="horarioProcissao" placeholder="Ex.: 16h">
-                    </div>
-                </div>
-            </section>
-
-            <!-- Seção 4 - Enfeites / Tapetes -->
-            <section class="form-section">
-                <h2 class="section-title"><span class="section-icon">✟</span> 4. ENFEITES / TAPETES</h2>
-                <div class="form-grid">
                     <div class="form-group full-width">
-                        <label>Haverá tapetes/enfeitos? *</label>
+                        <label>Necessita transporte? *</label>
                         <div class="radio-group">
-                            <label class="radio-label"><input type="radio" name="tapetes" value="Sim" required> Sim</label>
-                            <label class="radio-label"><input type="radio" name="tapetes" value="Não"> Não</label>
+                            <label class="radio-label"><input type="radio" name="transporte" value="Sim" required> Sim</label>
+                            <label class="radio-label"><input type="radio" name="transporte" value="Nao"> Nao</label>
+                            <label class="radio-label"><input type="radio" name="transporte" value="Talvez"> Talvez</label>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="horarioTapetes">Horário de início da confecção</label>
-                        <input type="text" id="horarioTapetes" name="horarioTapetes" placeholder="Ex.: 5h da manhã">
+                    <div class="form-group full-width">
+                        <label>Possui alguma restricao alimentar? *</label>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="restricaoAlimentar" value="Nao" required> Nao</label>
+                            <label class="radio-label"><input type="radio" name="restricaoAlimentar" value="Sim"> Sim</label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="restricaoDetalheGroup" style="display: none;">
+                        <label for="restricaoDetalhe">Qual restricao alimentar?</label>
+                        <input type="text" id="restricaoDetalhe" name="restricaoDetalhe" placeholder="Ex.: vegetariano, intolerancia a lactose...">
                     </div>
                     <div class="form-group full-width">
-                        <label for="materiaisTapetes">Materiais utilizados (opcional)</label>
-                        <input type="text" id="materiaisTapetes" name="materiaisTapetes" placeholder="Ex.: serragem, flores, sal, areia colorida...">
+                        <label>Possui alguma necessidade especial / acessibilidade?</label>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="acessibilidade" value="Nao"> Nao</label>
+                            <label class="radio-label"><input type="radio" name="acessibilidade" value="Sim"> Sim</label>
+                        </div>
                     </div>
-                    <div class="form-group full-width">
-                        <label for="comunidadesEnvolvidas">Comunidades, pastorais ou movimentos envolvidos</label>
-                        <textarea id="comunidadesEnvolvidas" name="comunidadesEnvolvidas" placeholder="Quais grupos estão envolvidos?" rows="3"></textarea>
+                    <div class="form-group" id="acessibilidadeDetalheGroup" style="display: none;">
+                        <label for="acessibilidadeDetalhe">Qual necessidade?</label>
+                        <input type="text" id="acessibilidadeDetalhe" name="acessibilidadeDetalhe" placeholder="Descreva a necessidade">
                     </div>
                 </div>
             </section>
 
-            <!-- Seção 5 - Ações Especiais -->
+            <!-- Secao 5 - Expectativas -->
             <section class="form-section">
-                <h2 class="section-title"><span class="section-icon">✟</span> 5. AÇÕES ESPECIAIS</h2>
+                <h2 class="section-title"><span class="section-icon">&#10010;</span> 5. EXPECTATIVAS E SUGESTOES</h2>
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label for="novidadeAno">Haverá alguma novidade da atividade especial neste ano?</label>
-                        <input type="text" id="novidadeAno" name="novidadeAno" placeholder="Descreva a novidade ou atividade especial">
+                        <label for="expectativas">O que voce espera deste encontro?</label>
+                        <textarea id="expectativas" name="expectativas" placeholder="Compartilhe suas expectativas para o encontro..." rows="3"></textarea>
                     </div>
-                </div>
-            </section>
-
-            <!-- Seção 6 - Divulgação -->
-            <section class="form-section">
-                <h2 class="section-title"><span class="section-icon">✟</span> 6. DIVULGAÇÃO</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="linkArte">Link para arte de divulgação (opcional)</label>
-                        <input type="url" id="linkArte" name="linkArte" placeholder="Cole aqui o link (Drive, Google Fotos, etc.)">
-                    </div>
-                    <div class="form-group">
-                        <label for="linkRedes">Link para evento / redes sociais (opcional)</label>
-                        <input type="url" id="linkRedes" name="linkRedes" placeholder="Cole aqui o link">
-                    </div>
-                </div>
-            </section>
-
-            <!-- Seção 7 - Informações Adicionais -->
-            <section class="form-section">
-                <h2 class="section-title"><span class="section-icon">✟</span> 7. INFORMAÇÕES ADICIONAIS</h2>
-                <div class="form-grid">
                     <div class="form-group full-width">
-                        <label for="infoAdicionais">Existe alguma informação adicional que a Arquidiocese deve saber sobre a programação de Corpus Christi em sua paróquia?</label>
-                        <textarea id="infoAdicionais" name="infoAdicionais" placeholder="Digite sua mensagem aqui..." rows="4"></textarea>
+                        <label for="temasSugeridos">Temas que gostaria que fossem abordados</label>
+                        <textarea id="temasSugeridos" name="temasSugeridos" placeholder="Sugira temas para as formacoes e rodas de conversa..." rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="observacoes">Observacoes adicionais</label>
+                        <textarea id="observacoes" name="observacoes" placeholder="Alguma informacao adicional que deseja compartilhar..." rows="3"></textarea>
                     </div>
                 </div>
             </section>
 
-            <!-- Botões -->
+            <!-- Botoes -->
             <div class="form-actions">
-                <button type="submit" class="btn-submit">Enviar respostas</button>
-                <button type="reset" class="btn-reset">Limpar formulário</button>
+                <button type="submit" class="btn-submit">Confirmar inscricao</button>
+                <button type="reset" class="btn-reset">Limpar formulario</button>
             </div>
         </form>
 
         <!-- Mensagem de sucesso -->
         <div id="successMessage" class="success-message" style="display: none;">
-            <div class="success-icon">✓</div>
-            <h3>Formulário enviado com sucesso!</h3>
-            <p>Muito obrigado pela sua colaboração!<br>Juntos, celebremos com fé e unidade o Mistério da Eucaristia.</p>
+            <div class="success-icon">&#10003;</div>
+            <h3>Inscricao realizada com sucesso!</h3>
+            <p>Sua participacao faz a diferenca!</p>
+            <div class="pagamento-box">
+                <h4>Taxa de inscricao: R$ 35,00</h4>
+                <p>Para confirmar sua participacao, efetue o pagamento clicando no botao abaixo:</p>
+                <a href="https://pag.ae/81WWPmv7M" target="_blank" class="btn-pagamento">Pagar R$ 35,00 via PagBank</a>
+                <p class="pagamento-obs">Aceita Pix, cartao de credito, debito e boleto.</p>
+            </div>
+            <p><em>"Unidos no amor, a servico da vida!"</em></p>
         </div>
 
         <!-- Loading -->
         <div id="loadingOverlay" class="loading-overlay" style="display: none;">
             <div class="loading-spinner"></div>
-            <p>Enviando respostas...</p>
+            <p>Enviando inscricao...</p>
         </div>
     </main>
 
     <!-- Footer -->
     <footer class="footer">
-        <p>Muito obrigado pela sua colaboração!</p>
-        <p><em>Juntos, celebremos com fé e unidade o Mistério da Eucaristia.</em></p>
+        <p><strong>Caritas Subregional</strong></p>
+        <p><em>Unidos no amor, a servico da vida!</em></p>
+        <p class="footer-small">Sua participacao faz a diferenca &#10084;</p>
     </footer>
 
     <script src="script.js"></script>
