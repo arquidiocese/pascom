@@ -207,6 +207,36 @@ main {
     font-weight: bold;
 }
 
+.autocomplete-list {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1a1a2e;
+    border: 1px solid #0f3460;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.autocomplete-item {
+    padding: 0.6rem 0.8rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #0f3460;
+}
+
+.autocomplete-item:hover {
+    background: #0f3460;
+    color: #00d4ff;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
 .medicamento-item {
     background: #0f3460;
     padding: 1rem;

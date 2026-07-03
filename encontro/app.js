@@ -282,7 +282,29 @@ function tocarAlerta(chave) {
 
 
 // === Opcoes de Medicamentos (aprende novos) ===
-const MEDICAMENTOS_PADRAO = ['Paracetamol', 'Dipirona', 'Ibuprofeno', 'Amoxicilina', 'Azitromicina', 'Loratadina', 'Dexametasona', 'Prednisolona', 'Omeprazol', 'Salbutamol (bombinha)', 'Ritalina', 'Insulina', 'Diazepam', 'Rivotril', 'Antialergico'];
+const MEDICAMENTOS_PADRAO = [
+    'Paracetamol', 'Dipirona', 'Ibuprofeno', 'Nimesulida', 'Diclofenaco',
+    'Amoxicilina', 'Azitromicina', 'Cefalexina', 'Metronidazol',
+    'Loratadina', 'Desloratadina', 'Allegra', 'Polaramine', 'Hixizine',
+    'Dexametasona', 'Prednisolona', 'Prednisona', 'Berotec', 'Aerolin',
+    'Salbutamol (bombinha)', 'Budesonida', 'Clenil',
+    'Omeprazol', 'Pantoprazol', 'Ranitidina', 'Domperidona', 'Plasil',
+    'Buscopan', 'Luftal', 'Lactulose', 'Floratil',
+    'Ritalina', 'Concerta', 'Venvanse',
+    'Rivotril', 'Diazepam', 'Clonazepam', 'Sertralina', 'Fluoxetina',
+    'Risperidona', 'Carbamazepina', 'Valproato', 'Fenobarbital', 'Topiramato',
+    'Insulina', 'Metformina', 'Glibenclamida',
+    'Losartana', 'Enalapril', 'Captopril', 'Atenolol', 'Propranolol',
+    'Amiodarona', 'Furosemida', 'Hidroclorotiazida',
+    'Levotiroxina', 'Puran T4',
+    'Vitamina D', 'Vitamina C', 'Complexo B', 'Sulfato ferroso', 'Acido folico',
+    'Melatonina', 'Pasalix', 'Maracugina',
+    'Dramin', 'Vonau', 'Ondansetrona',
+    'Benzetacil', 'Decadron', 'Tylenol', 'Novalgina', 'Dorflex',
+    'Neosaldina', 'Torsilax', 'Cimegripe', 'Resfenol',
+    'Cataflam', 'Voltaren', 'Tandrilax', 'Miosan',
+    'Antialergico', 'Antibiotico', 'Anti-inflamatorio', 'Analgesico'
+];
 
 function getMedicamentosPersonalizados() {
     return JSON.parse(localStorage.getItem('medicamentos_custom') || '[]');
@@ -451,14 +473,13 @@ function renderCadastro(container, fichaEditando = null) {
 function adicionarMedicamentoUI(container, med, index) {
     const div = document.createElement('div');
     div.className = 'medicamento-item';
-    const opcoesMeds = getTodosMedicamentos().map(m => `<option value="${m}">`).join('');
     div.innerHTML = `
         <button type="button" class="remover-med" onclick="this.parentElement.remove()">X</button>
         <div class="form-row">
-            <div class="form-group">
+            <div class="form-group" style="position:relative;">
                 <label>Nome do Medicamento</label>
-                <input type="text" class="med-nome" list="lista-meds-${index}" value="${med.nome || ''}" placeholder="Digite ou selecione...">
-                <datalist id="lista-meds-${index}">${opcoesMeds}</datalist>
+                <input type="text" class="med-nome" value="${med.nome || ''}" placeholder="Digite para buscar..." autocomplete="off">
+                <div class="autocomplete-list"></div>
             </div>
             <div class="form-group">
                 <label>Dosagem</label>
@@ -477,6 +498,34 @@ function adicionarMedicamentoUI(container, med, index) {
         </div>
     `;
     container.appendChild(div);
+
+    // Autocomplete para o campo de medicamento
+    const input = div.querySelector('.med-nome');
+    const lista = div.querySelector('.autocomplete-list');
+
+    input.addEventListener('focus', () => mostrarSugestoes(input, lista, ''));
+    input.addEventListener('input', () => mostrarSugestoes(input, lista, input.value));
+    input.addEventListener('blur', () => {
+        setTimeout(() => { lista.innerHTML = ''; lista.style.display = 'none'; }, 200);
+    });
+}
+
+function mostrarSugestoes(input, lista, termo) {
+    const todos = getTodosMedicamentos();
+    const filtrados = termo
+        ? todos.filter(m => m.toLowerCase().includes(termo.toLowerCase()))
+        : todos.slice(0, 15); // Mostra 15 primeiros se nao digitou nada
+
+    if (filtrados.length === 0) {
+        lista.innerHTML = '';
+        lista.style.display = 'none';
+        return;
+    }
+
+    lista.style.display = 'block';
+    lista.innerHTML = filtrados.slice(0, 10).map(m =>
+        `<div class="autocomplete-item" onmousedown="event.preventDefault()" onclick="this.parentElement.previousElementSibling.value='${m}'; this.parentElement.style.display='none'; this.parentElement.innerHTML='';">${m}</div>`
+    ).join('');
 }
 
 function salvarFicha(editId) {
