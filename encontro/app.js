@@ -218,21 +218,49 @@ function atualizarRelogio() {
 
     if (!temAlerta) {
         alertasHtml = '<p class="sem-alertas">Nenhum medicamento pendente no momento</p>';
-        const proximo = getProximoMedicamento(horaAtual);
-        if (proximo) {
+    }
+
+    // Mostrar todos os medicamentos do dia (proximos)
+    let proximosHtml = '';
+    let proximosLista = [];
+    fichas.forEach(ficha => {
+        if (!ficha.medicamentos) return;
+        ficha.medicamentos.forEach(med => {
+            if (!med.horarios) return;
+            med.horarios.forEach(horario => {
+                const diff = diffMinutos(horaAtual, horario);
+                const confirmado = foiConfirmado(ficha.id, med.nome, horario);
+                // Mostrar medicamentos futuros que nao estao no alerta
+                if (diff < -15 && !confirmado) {
+                    proximosLista.push({ ficha: ficha.nome, med: med.nome, dosagem: med.dosagem, horario, diff });
+                }
+            });
+        });
+    });
+
+    // Ordenar por horario
+    proximosLista.sort((a, b) => {
+        const [h1, m1] = a.horario.split(':').map(Number);
+        const [h2, m2] = b.horario.split(':').map(Number);
+        return (h1 * 60 + m1) - (h2 * 60 + m2);
+    });
+
+    if (proximosLista.length > 0) {
+        alertasHtml += '<h3 style="color:#aaa; margin-top:1.5rem; margin-bottom:0.8rem; text-align:center;">Proximos medicamentos</h3>';
+        proximosLista.forEach(p => {
             alertasHtml += `
-                <div class="alerta-card ok" style="margin-top:1rem;">
+                <div class="alerta-card ok">
                     <div class="alerta-info">
-                        <h3>${proximo.ficha}</h3>
-                        <p>${proximo.med} - ${proximo.dosagem || ''}</p>
+                        <h3>${p.ficha}</h3>
+                        <p>${p.med} - ${p.dosagem || ''}</p>
                     </div>
                     <div>
-                        <strong>${proximo.horario}</strong><br>
-                        <small>Proximo</small>
+                        <strong>${p.horario}</strong><br>
+                        <small>Em ${Math.abs(p.diff)} min</small>
                     </div>
                 </div>
             `;
-        }
+        });
     }
 
     if (listaEl) listaEl.innerHTML = alertasHtml;
