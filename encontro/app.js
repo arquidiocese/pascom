@@ -618,25 +618,124 @@ function salvarFicha(editId) {
 
 // === LISTAGEM DE FICHAS ===
 function renderFichas(container) {
+    // Ordenar por nome alfabeticamente
+    const fichasOrdenadas = [...fichas].sort((a, b) => 
+        (a.nome || '').localeCompare(b.nome || '', 'pt-BR')
+    );
+
     container.innerHTML = `
         <div class="fichas-container">
             <h2>Fichas Cadastradas (${fichas.length})</h2>
-            <input type="text" class="busca-input" id="busca" 
-                   placeholder="Buscar por nome ou alergia...">
+            <div class="filtros-container">
+                <input type="text" class="busca-input" id="busca" 
+                       placeholder="Buscar por nome ou alergia...">
+                <div class="filtros-btns">
+                    <button class="btn btn-secondary filtro-btn active" data-filtro="todos">Todos</button>
+                    <button class="btn btn-secondary filtro-btn" data-filtro="alergias">Com Alergias</button>
+                    <button class="btn btn-secondary filtro-btn" data-filtro="restricoes">Com Restricoes</button>
+                    <button class="btn btn-secondary filtro-btn" data-filtro="medicamentos">Com Medicamentos</button>
+                </div>
+            </div>
+            <div id="resumo-alergias"></div>
             <div id="lista-fichas"></div>
         </div>
     `;
 
-    renderListaFichas(fichas);
+    renderResumoAlergias();
+    renderListaFichas(fichasOrdenadas);
+
+    let filtroAtual = 'todos';
 
     document.getElementById('busca').addEventListener('input', (e) => {
-        const termo = e.target.value.toLowerCase();
-        const filtradas = fichas.filter(f =>
-            f.nome.toLowerCase().includes(termo) ||
-            (f.alergias && f.alergias.toLowerCase().includes(termo))
-        );
-        renderListaFichas(filtradas);
+        aplicarFiltros(e.target.value, filtroAtual);
     });
+
+    document.querySelectorAll('.filtro-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filtroAtual = btn.dataset.filtro;
+            aplicarFiltros(document.getElementById('busca').value, filtroAtual);
+        });
+    });
+}
+
+function aplicarFiltros(termo, filtro) {
+    let filtradas = [...fichas].sort((a, b) => 
+        (a.nome || '').localeCompare(b.nome || '', 'pt-BR')
+    );
+
+    if (termo) {
+        const t = termo.toLowerCase();
+        filtradas = filtradas.filter(f =>
+            f.nome.toLowerCase().includes(t) ||
+            (f.alergias && f.alergias.toLowerCase().includes(t)) ||
+            (f.restricoes && f.restricoes.toLowerCase().includes(t))
+        );
+    }
+
+    if (filtro === 'alergias') {
+        filtradas = filtradas.filter(f => f.alergias && f.alergias.trim());
+    } else if (filtro === 'restricoes') {
+        filtradas = filtradas.filter(f => f.restricoes && f.restricoes.trim());
+    } else if (filtro === 'medicamentos') {
+        filtradas = filtradas.filter(f => f.medicamentos && f.medicamentos.length > 0);
+    }
+
+    renderListaFichas(filtradas);
+}
+
+function renderResumoAlergias() {
+    const el = document.getElementById('resumo-alergias');
+    
+    // Contar alergias
+    const alergiaCount = {};
+    const restricaoCount = {};
+    fichas.forEach(f => {
+        if (f.alergias) {
+            f.alergias.split(',').forEach(a => {
+                const nome = a.trim();
+                if (nome) alergiaCount[nome] = (alergiaCount[nome] || 0) + 1;
+            });
+        }
+        if (f.restricoes) {
+            f.restricoes.split(',').forEach(r => {
+                const nome = r.trim();
+                if (nome) restricaoCount[nome] = (restricaoCount[nome] || 0) + 1;
+            });
+        }
+    });
+
+    const temAlergias = Object.keys(alergiaCount).length > 0;
+    const temRestricoes = Object.keys(restricaoCount).length > 0;
+
+    if (!temAlergias && !temRestricoes) {
+        el.innerHTML = '';
+        return;
+    }
+
+    let html = '<div class="resumo-card">';
+    
+    if (temAlergias) {
+        const alergias = Object.entries(alergiaCount).sort((a, b) => b[1] - a[1]);
+        html += '<div class="resumo-secao"><h4 style="color:#ff6b6b;">Alergias no grupo</h4><div class="resumo-tags">';
+        alergias.forEach(([nome, qtd]) => {
+            html += `<span class="tag tag-alergia">${nome} (${qtd})</span>`;
+        });
+        html += '</div></div>';
+    }
+
+    if (temRestricoes) {
+        const restricoes = Object.entries(restricaoCount).sort((a, b) => b[1] - a[1]);
+        html += '<div class="resumo-secao"><h4 style="color:#f39c12;">Restricoes alimentares no grupo</h4><div class="resumo-tags">';
+        restricoes.forEach(([nome, qtd]) => {
+            html += `<span class="tag tag-restricao">${nome} (${qtd})</span>`;
+        });
+        html += '</div></div>';
+    }
+
+    html += '</div>';
+    el.innerHTML = html;
 }
 
 function renderListaFichas(lista) {

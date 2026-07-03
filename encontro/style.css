@@ -282,7 +282,73 @@ main {
     background: #16213e;
     color: #eee;
     font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+}
+
+.filtros-container {
     margin-bottom: 1.5rem;
+}
+
+.filtros-btns {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.filtro-btn {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.7rem !important;
+}
+
+.filtro-btn.active {
+    background: #00d4ff !important;
+    color: #1a1a2e !important;
+}
+
+.resumo-card {
+    background: #16213e;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #0f3460;
+}
+
+.resumo-secao {
+    margin-bottom: 0.8rem;
+}
+
+.resumo-secao:last-child {
+    margin-bottom: 0;
+}
+
+.resumo-secao h4 {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.resumo-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.tag {
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.tag-alergia {
+    background: rgba(255, 107, 107, 0.2);
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+}
+
+.tag-restricao {
+    background: rgba(243, 156, 18, 0.2);
+    color: #f39c12;
+    border: 1px solid #f39c12;
 }
 
 .ficha-card {
