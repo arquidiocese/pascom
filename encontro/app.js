@@ -281,6 +281,23 @@ function tocarAlerta(chave) {
 }
 
 
+// === Opcoes de Medicamentos (aprende novos) ===
+const MEDICAMENTOS_PADRAO = ['Paracetamol', 'Dipirona', 'Ibuprofeno', 'Amoxicilina', 'Azitromicina', 'Loratadina', 'Dexametasona', 'Prednisolona', 'Omeprazol', 'Salbutamol (bombinha)', 'Ritalina', 'Insulina', 'Diazepam', 'Rivotril', 'Antialergico'];
+
+function getMedicamentosPersonalizados() {
+    return JSON.parse(localStorage.getItem('medicamentos_custom') || '[]');
+}
+function salvarMedicamentoCustom(novo) {
+    const custom = getMedicamentosPersonalizados();
+    if (!custom.includes(novo) && !MEDICAMENTOS_PADRAO.includes(novo)) {
+        custom.push(novo);
+        localStorage.setItem('medicamentos_custom', JSON.stringify(custom));
+    }
+}
+function getTodosMedicamentos() {
+    return [...MEDICAMENTOS_PADRAO, ...getMedicamentosPersonalizados()];
+}
+
 // === Opcoes de Alergias e Restricoes (aprende novas) ===
 const ALERGIAS_PADRAO = ['Dipirona', 'Penicilina', 'Ibuprofeno', 'AAS', 'Amendoim', 'Frutos do mar', 'Leite/Lactose', 'Ovo', 'Gluten', 'Picada de inseto'];
 const RESTRICOES_PADRAO = ['Vegetariano', 'Vegano', 'Intolerante a lactose', 'Celiaco (sem gluten)', 'Diabetico (sem acucar)', 'Sem carne vermelha', 'Sem carne de porco'];
@@ -434,12 +451,14 @@ function renderCadastro(container, fichaEditando = null) {
 function adicionarMedicamentoUI(container, med, index) {
     const div = document.createElement('div');
     div.className = 'medicamento-item';
+    const opcoesMeds = getTodosMedicamentos().map(m => `<option value="${m}">`).join('');
     div.innerHTML = `
         <button type="button" class="remover-med" onclick="this.parentElement.remove()">X</button>
         <div class="form-row">
             <div class="form-group">
                 <label>Nome do Medicamento</label>
-                <input type="text" class="med-nome" value="${med.nome || ''}" placeholder="Ex: Paracetamol">
+                <input type="text" class="med-nome" list="lista-meds-${index}" value="${med.nome || ''}" placeholder="Digite ou selecione...">
+                <datalist id="lista-meds-${index}">${opcoesMeds}</datalist>
             </div>
             <div class="form-group">
                 <label>Dosagem</label>
@@ -486,6 +505,8 @@ function salvarFicha(editId) {
                 .map(h => h.trim())
                 .filter(h => /^\d{2}:\d{2}$/.test(h));
             medicamentos.push({ nome: medNome, dosagem, horarios, observacoes: obs });
+            // Salvar medicamento na lista para proximos cadastros
+            salvarMedicamentoCustom(medNome);
         }
     });
 
