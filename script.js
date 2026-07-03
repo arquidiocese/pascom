@@ -1,11 +1,10 @@
 // ============================================================
 // CONFIGURACAO - Google Apps Script URL
 // ============================================================
-// Use a mesma URL do Google Apps Script implantado
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwYfh3w4aC6lvA5zgnGzw8EXJrpqyrrlw-E3CNCFhNp5zrLyweAKHovdbOz7yzkZ8XF/exec';
 // ============================================================
 
-// Funcao de consulta de inscricao (fora do DOMContentLoaded para ser global)
+// Funcao de consulta de inscricao (global)
 function consultarInscricao() {
     var nome = document.getElementById('consultaNome').value.trim();
     var telefone = document.getElementById('consultaTelefone').value.trim();
@@ -27,7 +26,6 @@ function consultarInscricao() {
         .then(function(result) {
             loading.style.display = 'none';
             if (result.found) {
-                // Esconder formulario e mostrar resumo da inscricao
                 document.getElementById('consultaBox').style.display = 'none';
                 document.querySelector('.comunicado').style.display = 'none';
                 document.getElementById('inscricaoForm').style.display = 'none';
@@ -87,18 +85,18 @@ function consultarInscricao() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('inscricaoForm');
-    const successMessage = document.getElementById('successMessage');
-    const loadingOverlay = document.getElementById('loadingOverlay');
+    var form = document.getElementById('inscricaoForm');
+    var successMessage = document.getElementById('successMessage');
+    var loadingOverlay = document.getElementById('loadingOverlay');
 
     // ============================================================
     // MASCARAS DE INPUT
     // ============================================================
 
     // Mascara de telefone
-    const telefoneInput = document.getElementById('telefone');
+    var telefoneInput = document.getElementById('telefone');
     telefoneInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
+        var value = e.target.value.replace(/\D/g, '');
         if (value.length > 11) value = value.slice(0, 11);
 
         if (value.length > 6) {
@@ -116,9 +114,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
 
     // Mostrar/esconder campo "Outro cargo"
-    const cargoSelect = document.getElementById('cargoFuncao');
-    const cargoOutroGroup = document.getElementById('cargoOutroGroup');
-    const cargoOutroInput = document.getElementById('cargoOutro');
+    var cargoSelect = document.getElementById('cargoFuncao');
+    var cargoOutroGroup = document.getElementById('cargoOutroGroup');
+    var cargoOutroInput = document.getElementById('cargoOutro');
 
     cargoSelect.addEventListener('change', function() {
         if (this.value === 'Outro') {
@@ -132,8 +130,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Mostrar/esconder campo "Restricao alimentar"
-    const restricaoRadios = document.querySelectorAll('input[name="restricaoAlimentar"]');
-    const restricaoDetalheGroup = document.getElementById('restricaoDetalheGroup');
+    var restricaoRadios = document.querySelectorAll('input[name="restricaoAlimentar"]');
+    var restricaoDetalheGroup = document.getElementById('restricaoDetalheGroup');
 
     restricaoRadios.forEach(function(radio) {
         radio.addEventListener('change', function() {
@@ -147,8 +145,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Mostrar/esconder campo "Acessibilidade"
-    const acessibilidadeRadios = document.querySelectorAll('input[name="acessibilidade"]');
-    const acessibilidadeDetalheGroup = document.getElementById('acessibilidadeDetalheGroup');
+    var acessibilidadeRadios = document.querySelectorAll('input[name="acessibilidade"]');
+    var acessibilidadeDetalheGroup = document.getElementById('acessibilidadeDetalheGroup');
 
     acessibilidadeRadios.forEach(function(radio) {
         radio.addEventListener('change', function() {
@@ -168,13 +166,11 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Validacao basica
         if (!form.checkValidity()) {
             form.reportValidity();
             return;
         }
 
-        // Coletar dados
         var formData = new FormData(form);
         var data = {};
 
@@ -182,38 +178,27 @@ document.addEventListener('DOMContentLoaded', function() {
             data[key] = value;
         });
 
-        // Adicionar timestamp
         data.timestamp = new Date().toLocaleString('pt-BR');
 
-        // Verificar se a URL foi configurada
-        if (GOOGLE_SCRIPT_URL === 'COLE_SUA_URL_AQUI') {
-            alert('Configure a URL do Google Apps Script no arquivo script.js antes de usar o formulario.');
-            return;
-        }
-
-        // Mostrar loading
         loadingOverlay.style.display = 'flex';
 
-        // Enviar para Google Sheets
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
         .then(function() {
-            // Sucesso
             loadingOverlay.style.display = 'none';
             form.style.display = 'none';
             document.querySelector('.comunicado').style.display = 'none';
+            document.getElementById('consultaBox').style.display = 'none';
             successMessage.style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         })
         .catch(function(error) {
             loadingOverlay.style.display = 'none';
-            alert('Erro ao enviar a inscricao. Tente novamente.');
+            alert('Erro ao enviar a inscri\u00e7\u00e3o. Tente novamente.');
             console.error('Erro:', error);
         });
     });

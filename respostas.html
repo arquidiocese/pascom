@@ -3,224 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscricoes - 1º Encontro das Caritas Subregional</title>
+    <title>Inscri&#231;&#245;es - 1&#186; Encontro das C&#225;ritas Subregional</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Open Sans', sans-serif; background: #FDF5E6; color: #333; }
-
-        .header {
-            background: linear-gradient(135deg, #C41E3A 0%, #E87C2A 50%, #C41E3A 100%);
-            padding: 30px 20px;
-            text-align: center;
-        }
-        .header h1 {
-            font-family: 'Playfair Display', serif;
-            color: #fff;
-            font-size: 26px;
-            letter-spacing: 1px;
-        }
+        .header { background: linear-gradient(135deg, #C41E3A 0%, #E87C2A 50%, #C41E3A 100%); padding: 30px 20px; text-align: center; }
+        .header h1 { font-family: 'Playfair Display', serif; color: #fff; font-size: 26px; }
         .header p { color: rgba(255,255,255,0.9); margin-top: 5px; font-size: 14px; }
-
         .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
-
-        .controls {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'Open Sans', sans-serif;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+        .controls { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Open Sans', sans-serif; transition: transform 0.2s, box-shadow 0.2s; }
         .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .btn-primary { background: linear-gradient(135deg, #C41E3A, #E87C2A); color: #fff; }
         .btn-secondary { background: #fff; color: #C41E3A; border: 1px solid #C41E3A; }
         .btn-danger { background: #dc3545; color: #fff; }
-
-        .stats {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
+        .stats { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; gap: 30px; flex-wrap: wrap; }
         .stat-item { text-align: center; }
         .stat-number { font-size: 28px; font-weight: 700; color: #C41E3A; }
         .stat-label { font-size: 12px; color: #888; }
-
-        .search-box {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px 16px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: 'Open Sans', sans-serif;
-        }
+        .search-box { flex: 1; min-width: 200px; padding: 10px 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: 'Open Sans', sans-serif; }
         .search-box:focus { outline: none; border-color: #C41E3A; box-shadow: 0 0 0 3px rgba(196,30,58,0.1); }
-
         .foranias-stats { flex-direction: column; gap: 16px; }
         .foranias-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #C41E3A; }
         .foranias-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; width: 100%; }
-        .forania-item {
-            background: #fff9f0;
-            border: 1px solid #f0e8dc;
-            border-radius: 8px;
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .forania-item { background: #fff9f0; border: 1px solid #f0e8dc; border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
         .forania-item-name { font-size: 13px; color: #555; font-weight: 500; }
         .forania-item-count { font-size: 20px; font-weight: 700; color: #C41E3A; }
-
-        .table-wrapper {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            overflow-x: auto;
-        }
-
+        .table-wrapper { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         thead { background: #C41E3A; color: #fff; }
         th { padding: 12px 10px; text-align: left; font-weight: 600; white-space: nowrap; }
         td { padding: 10px; border-bottom: 1px solid #f0e8dc; vertical-align: top; }
         tr:hover td { background: #fff9f0; }
-        tr:last-child td { border-bottom: none; }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .badge-presencial { background: #d4edda; color: #155724; }
-        .badge-online { background: #cce5ff; color: #004085; }
-
-        .btn-delete {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .btn-delete { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 4px; transition: background 0.2s; }
         .btn-delete:hover { background: #f8d7da; }
-
-        .btn-confirmar-pag {
-            background: #28a745;
-            color: #fff;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+        .btn-confirmar-pag { background: #28a745; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
         .btn-confirmar-pag:hover { background: #218838; }
-
-        .confirm-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 2000;
-        }
-        .confirm-box {
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            text-align: center;
-            max-width: 420px;
-            width: 90%;
-        }
+        .confirm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .confirm-box { background: #fff; padding: 30px; border-radius: 12px; text-align: center; max-width: 420px; width: 90%; }
         .confirm-box h3 { color: #dc3545; margin-bottom: 12px; font-size: 18px; }
         .confirm-box p { color: #555; margin-bottom: 20px; font-size: 14px; }
-        .confirm-box .confirm-nome { font-weight: 700; color: #333; }
         .confirm-actions { display: flex; gap: 12px; justify-content: center; }
         .confirm-actions .btn { min-width: 120px; }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #888;
-        }
+        .empty-state { text-align: center; padding: 60px 20px; color: #888; }
         .empty-state h3 { font-family: 'Playfair Display', serif; color: #C41E3A; margin-bottom: 10px; }
-
         .loading { text-align: center; padding: 40px; color: #C41E3A; }
-
         .card-view { display: none; }
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            border-left: 4px solid #C41E3A;
-        }
+        .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-left: 4px solid #C41E3A; }
         .card h3 { font-size: 16px; color: #C41E3A; margin-bottom: 8px; }
         .card-info { font-size: 13px; color: #555; margin-bottom: 4px; }
         .card-info strong { color: #333; }
-
-        .password-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 1000;
-        }
-        .password-box {
-            background: #fff;
-            padding: 40px;
-            border-radius: 12px;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
+        .password-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .password-box { background: #fff; padding: 40px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; }
         .password-box h2 { font-family: 'Playfair Display', serif; color: #C41E3A; margin-bottom: 16px; }
-        .password-box input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 16px;
-            text-align: center;
-        }
+        .password-box input { width: 100%; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 16px; text-align: center; }
         .password-box input:focus { outline: none; border-color: #C41E3A; }
         .password-error { color: #dc3545; font-size: 13px; margin-bottom: 10px; display: none; }
-
-        @media (max-width: 768px) {
-            .table-wrapper { display: none; }
-            .card-view { display: block; }
-            .controls { flex-direction: column; }
-            .stats { flex-direction: column; gap: 15px; }
-        }
+        @media (max-width: 768px) { .table-wrapper { display: none; } .card-view { display: block; } .controls { flex-direction: column; } .stats { flex-direction: column; gap: 15px; } }
     </style>
 </head>
 <body>
-    <!-- Tela de senha -->
     <div class="password-overlay" id="passwordOverlay">
         <div class="password-box">
-            <h2>&#128274; Area Restrita</h2>
-            <p style="margin-bottom: 16px; color: #666;">Digite a senha para acessar as inscricoes</p>
+            <h2>&#128274; &#193;rea Restrita</h2>
+            <p style="margin-bottom: 16px; color: #666;">Digite a senha para acessar as inscri&#231;&#245;es</p>
             <input type="password" id="passwordInput" placeholder="Senha" autofocus>
             <p class="password-error" id="passwordError">Senha incorreta. Tente novamente.</p>
             <button class="btn btn-primary" onclick="checkPassword()" style="width: 100%;">Acessar</button>
@@ -228,105 +78,50 @@
     </div>
 
     <header class="header">
-        <h1>1º ENCONTRO DAS CARITAS</h1>
-        <p>Painel de Inscricoes - Subregional</p>
+        <h1>1&#186; ENCONTRO DAS C&#193;RITAS</h1>
+        <p>Painel de Inscri&#231;&#245;es - Subregional</p>
     </header>
 
     <main class="container" id="mainContent" style="display: none;">
-        <!-- Estatisticas -->
         <div class="stats" id="stats">
-            <div class="stat-item">
-                <div class="stat-number" id="totalInscricoes">0</div>
-                <div class="stat-label">Total de inscri&#231;&#245;es</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalDioceses">0</div>
-                <div class="stat-label">Dioceses</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalCidades">0</div>
-                <div class="stat-label">Cidades</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalRestricao">0</div>
-                <div class="stat-label">Restri&#231;&#227;o alimentar</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalPagos">0</div>
-                <div class="stat-label">Pagamentos confirmados</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalPendentes">0</div>
-                <div class="stat-label">Pagamentos pendentes</div>
-            </div>
+            <div class="stat-item"><div class="stat-number" id="totalInscricoes">0</div><div class="stat-label">Total de inscri&#231;&#245;es</div></div>
+            <div class="stat-item"><div class="stat-number" id="totalDioceses">0</div><div class="stat-label">Dioceses</div></div>
+            <div class="stat-item"><div class="stat-number" id="totalCidades">0</div><div class="stat-label">Cidades</div></div>
+            <div class="stat-item"><div class="stat-number" id="totalRestricao">0</div><div class="stat-label">Restri&#231;&#227;o alimentar</div></div>
+            <div class="stat-item"><div class="stat-number" id="totalPagos">0</div><div class="stat-label">Pagos</div></div>
+            <div class="stat-item"><div class="stat-number" id="totalPendentes">0</div><div class="stat-label">Pendentes</div></div>
         </div>
 
-        <!-- Inscricoes por Diocese -->
         <div class="stats foranias-stats" id="foraniaStats" style="display: none;">
             <h3 class="foranias-title">Inscri&#231;&#245;es por Diocese</h3>
             <div class="foranias-grid" id="foraniaGrid"></div>
         </div>
 
-        <!-- Controles -->
         <div class="controls">
-            <input type="text" class="search-box" id="searchBox" placeholder="Buscar por nome, paroquia, cidade ou forania...">
+            <input type="text" class="search-box" id="searchBox" placeholder="Buscar por nome, par&#243;quia, cidade ou diocese...">
             <button class="btn btn-primary" onclick="exportCSV()">Exportar CSV</button>
             <button class="btn btn-secondary" onclick="loadData()">Atualizar</button>
         </div>
 
-        <!-- Tabela -->
         <div class="table-wrapper">
             <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Data</th>
-                        <th>Nome</th>
-                        <th>Cidade</th>
-                        <th>Diocese</th>
-                        <th>Par&#243;quia</th>
-                        <th>Cargo</th>
-                        <th>Telefone</th>
-                        <th>Restri&#231;&#227;o</th>
-                        <th>Pagamento</th>
-                        <th>A&#231;&#245;es</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                </tbody>
+                <thead><tr><th>#</th><th>Data</th><th>Nome</th><th>Cidade</th><th>Diocese</th><th>Par&#243;quia</th><th>Cargo</th><th>Telefone</th><th>Restri&#231;&#227;o</th><th>Pagamento</th><th>A&#231;&#245;es</th></tr></thead>
+                <tbody id="tableBody"></tbody>
             </table>
         </div>
-
-        <!-- Cards (mobile) -->
         <div class="card-view" id="cardView"></div>
-
-        <!-- Estado vazio -->
-        <div class="empty-state" id="emptyState" style="display: none;">
-            <h3>Nenhuma inscricao ainda</h3>
-            <p>As inscricoes aparecerrao aqui conforme forem realizadas.</p>
-        </div>
-
-        <!-- Loading -->
-        <div class="loading" id="loading">
-            <p>Carregando inscricoes...</p>
-        </div>
+        <div class="empty-state" id="emptyState" style="display: none;"><h3>Nenhuma inscri&#231;&#227;o ainda</h3><p>As inscri&#231;&#245;es aparecer&#227;o aqui conforme forem realizadas.</p></div>
+        <div class="loading" id="loading"><p>Carregando inscri&#231;&#245;es...</p></div>
     </main>
 
     <script>
-    // ============================================================
-    // CONFIGURACAO
-    // ============================================================
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwYfh3w4aC6lvA5zgnGzw8EXJrpqyrrlw-E3CNCFhNp5zrLyweAKHovdbOz7yzkZ8XF/exec';
-    const SENHA_ACESSO = 'caritas2026';
-    // ============================================================
-
+    var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwYfh3w4aC6lvA5zgnGzw8EXJrpqyrrlw-E3CNCFhNp5zrLyweAKHovdbOz7yzkZ8XF/exec';
+    var SENHA_ACESSO = 'caritas2026';
     var allData = [];
 
-    // Verificar senha
     function checkPassword() {
         var input = document.getElementById('passwordInput');
         var error = document.getElementById('passwordError');
-
         if (input.value === SENHA_ACESSO) {
             document.getElementById('passwordOverlay').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
@@ -337,232 +132,98 @@
             input.focus();
         }
     }
+    document.getElementById('passwordInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') checkPassword(); });
 
-    document.getElementById('passwordInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') checkPassword();
-    });
-
-    // Carregar dados
     function loadData() {
         var loading = document.getElementById('loading');
         loading.style.display = 'block';
-
         fetch(GOOGLE_SCRIPT_URL + '?action=getAll')
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
-                loading.style.display = 'none';
-                allData = data;
-                renderData(data);
-                updateStats(data);
-            })
-            .catch(function(error) {
-                loading.style.display = 'none';
-                console.error('Erro:', error);
-                document.getElementById('emptyState').style.display = 'block';
-            });
+            .then(function(r) { return r.json(); })
+            .then(function(data) { loading.style.display = 'none'; allData = data; renderData(data); updateStats(data); })
+            .catch(function(e) { loading.style.display = 'none'; document.getElementById('emptyState').style.display = 'block'; });
     }
 
-    // Renderizar dados na tabela
     function renderData(data) {
         var tbody = document.getElementById('tableBody');
         var cardView = document.getElementById('cardView');
         var emptyState = document.getElementById('emptyState');
-
-        if (!data || data.length === 0) {
-            tbody.innerHTML = '';
-            cardView.innerHTML = '';
-            emptyState.style.display = 'block';
-            return;
-        }
-
+        if (!data || data.length === 0) { tbody.innerHTML = ''; cardView.innerHTML = ''; emptyState.style.display = 'block'; return; }
         emptyState.style.display = 'none';
 
         tbody.innerHTML = data.map(function(row, i) {
-            var nomeEscapado = (row.nomeCompleto || '').replace(/'/g, "\\'");
-            var statusPag = row.statusPagamento || '';
-            var pagBadge = statusPag === 'Confirmado'
+            var nome = (row.nomeCompleto || '').replace(/'/g, "\\'");
+            var pag = row.statusPagamento === 'Confirmado'
                 ? '<span class="badge" style="background:#d4edda;color:#155724;">Confirmado</span>'
                 : '<button class="btn-confirmar-pag" onclick="confirmarPagamento(' + row.rowIndex + ', this)">Confirmar</button>';
-            return '<tr>' +
-                '<td>' + (i + 1) + '</td>' +
-                '<td>' + (row.timestamp || '') + '</td>' +
-                '<td><strong>' + (row.nomeCompleto || '') + '</strong></td>' +
-                '<td>' + (row.cidade || '') + '</td>' +
-                '<td>' + (row.diocese || '') + '</td>' +
-                '<td>' + (row.paroquia || '') + '</td>' +
-                '<td>' + (row.cargoFuncao || '') + (row.cargoOutro ? ' - ' + row.cargoOutro : '') + '</td>' +
-                '<td>' + (row.telefone || '') + '</td>' +
-                '<td>' + (row.restricaoAlimentar || '-') + '</td>' +
-                '<td>' + pagBadge + '</td>' +
-                '<td><button class="btn-delete" onclick="confirmDelete(' + row.rowIndex + ', \'' + nomeEscapado + '\')" title="Excluir">&#128465;</button></td>' +
-                '</tr>';
+            return '<tr><td>' + (i+1) + '</td><td>' + (row.timestamp||'') + '</td><td><strong>' + (row.nomeCompleto||'') + '</strong></td><td>' + (row.cidade||'') + '</td><td>' + (row.diocese||'') + '</td><td>' + (row.paroquia||'') + '</td><td>' + (row.cargoFuncao||'') + '</td><td>' + (row.telefone||'') + '</td><td>' + (row.restricaoAlimentar||'-') + '</td><td>' + pag + '</td><td><button class="btn-delete" onclick="confirmDelete(' + row.rowIndex + ',\'' + nome + '\')">&#128465;</button></td></tr>';
         }).join('');
 
-        cardView.innerHTML = data.map(function(row, i) {
-            var nomeEscapado = (row.nomeCompleto || '').replace(/'/g, "\\'");
-            var statusPag = row.statusPagamento || 'Aguardando';
-            return '<div class="card">' +
-                '<h3>' + (row.nomeCompleto || 'Sem nome') + ' <button class="btn-delete" onclick="confirmDelete(' + row.rowIndex + ', \'' + nomeEscapado + '\')" title="Excluir">&#128465;</button></h3>' +
-                '<p class="card-info"><strong>Cidade:</strong> ' + (row.cidade || '-') + '</p>' +
-                '<p class="card-info"><strong>Diocese:</strong> ' + (row.diocese || '-') + '</p>' +
-                '<p class="card-info"><strong>Par\u00f3quia:</strong> ' + (row.paroquia || '-') + '</p>' +
-                '<p class="card-info"><strong>Cargo:</strong> ' + (row.cargoFuncao || '-') + '</p>' +
-                '<p class="card-info"><strong>Telefone:</strong> ' + (row.telefone || '-') + '</p>' +
-                '<p class="card-info"><strong>Restri\u00e7\u00e3o alimentar:</strong> ' + (row.restricaoAlimentar || '-') + '</p>' +
-                '<p class="card-info"><strong>Pagamento:</strong> ' + statusPag + '</p>' +
-                '</div>';
+        cardView.innerHTML = data.map(function(row) {
+            var nome = (row.nomeCompleto || '').replace(/'/g, "\\'");
+            var statusPag = row.statusPagamento || 'Pendente';
+            return '<div class="card"><h3>' + (row.nomeCompleto||'') + ' <button class="btn-delete" onclick="confirmDelete(' + row.rowIndex + ',\'' + nome + '\')">&#128465;</button></h3><p class="card-info"><strong>Cidade:</strong> ' + (row.cidade||'-') + '</p><p class="card-info"><strong>Diocese:</strong> ' + (row.diocese||'-') + '</p><p class="card-info"><strong>Par\u00f3quia:</strong> ' + (row.paroquia||'-') + '</p><p class="card-info"><strong>Cargo:</strong> ' + (row.cargoFuncao||'-') + '</p><p class="card-info"><strong>Telefone:</strong> ' + (row.telefone||'-') + '</p><p class="card-info"><strong>Pagamento:</strong> ' + statusPag + '</p></div>';
         }).join('');
     }
 
-    // Confirmar exclusao
     function confirmDelete(rowIndex, nome) {
         var overlay = document.createElement('div');
         overlay.className = 'confirm-overlay';
-        overlay.innerHTML = '<div class="confirm-box">' +
-            '<h3>Confirmar exclusao</h3>' +
-            '<p>Tem certeza que deseja excluir a inscricao de:<br><span class="confirm-nome">' + nome + '</span></p>' +
-            '<p style="font-size: 12px; color: #888;">Esta acao nao pode ser desfeita.</p>' +
-            '<div class="confirm-actions">' +
-            '<button class="btn btn-secondary" onclick="this.closest(\'.confirm-overlay\').remove()">Cancelar</button>' +
-            '<button class="btn btn-danger" onclick="deleteRow(' + rowIndex + ', this)">Excluir</button>' +
-            '</div></div>';
+        overlay.innerHTML = '<div class="confirm-box"><h3>Confirmar exclus\u00e3o</h3><p>Excluir inscri\u00e7\u00e3o de: <strong>' + nome + '</strong>?</p><div class="confirm-actions"><button class="btn btn-secondary" onclick="this.closest(\'.confirm-overlay\').remove()">Cancelar</button><button class="btn btn-danger" onclick="deleteRow(' + rowIndex + ', this)">Excluir</button></div></div>';
         document.body.appendChild(overlay);
     }
 
-    // Excluir registro
-    function deleteRow(rowIndex, btnElement) {
-        var overlay = btnElement.closest('.confirm-overlay');
-        btnElement.textContent = 'Excluindo...';
-        btnElement.disabled = true;
-
+    function deleteRow(rowIndex, btn) {
+        var overlay = btn.closest('.confirm-overlay');
+        btn.textContent = '...'; btn.disabled = true;
         fetch(GOOGLE_SCRIPT_URL + '?action=delete&row=' + rowIndex)
-            .then(function(response) { return response.json(); })
-            .then(function(result) {
-                overlay.remove();
-                if (result.result === 'success') {
-                    loadData();
-                } else {
-                    alert('Erro ao excluir: ' + (result.message || 'Tente novamente.'));
-                }
-            })
-            .catch(function(error) {
-                overlay.remove();
-                alert('Erro ao excluir. Tente novamente.');
-                console.error('Erro:', error);
-            });
+            .then(function(r) { return r.json(); })
+            .then(function(res) { overlay.remove(); if (res.result === 'success') loadData(); else alert('Erro ao excluir.'); })
+            .catch(function() { overlay.remove(); alert('Erro ao excluir.'); });
     }
 
-    // Atualizar estatisticas
+    function confirmarPagamento(rowIndex, btn) {
+        btn.textContent = '...'; btn.disabled = true;
+        fetch(GOOGLE_SCRIPT_URL + '?action=confirmarPagamento&row=' + rowIndex)
+            .then(function(r) { return r.json(); })
+            .then(function(res) { if (res.result === 'success') loadData(); else { alert('Erro.'); btn.textContent = 'Confirmar'; btn.disabled = false; } })
+            .catch(function() { alert('Erro.'); btn.textContent = 'Confirmar'; btn.disabled = false; });
+    }
+
     function updateStats(data) {
         document.getElementById('totalInscricoes').textContent = data.length;
-
-        var dioceses = {};
-        data.forEach(function(r) {
-            if (r.diocese) dioceses[r.diocese] = true;
-        });
+        var dioceses = {}; var cidades = {};
+        data.forEach(function(r) { if (r.diocese) dioceses[r.diocese] = true; if (r.cidade) cidades[r.cidade] = true; });
         document.getElementById('totalDioceses').textContent = Object.keys(dioceses).length;
-
-        var cidades = {};
-        data.forEach(function(r) {
-            if (r.cidade) cidades[r.cidade] = true;
-        });
         document.getElementById('totalCidades').textContent = Object.keys(cidades).length;
-
         document.getElementById('totalRestricao').textContent = data.filter(function(r) { return r.restricaoAlimentar === 'Sim'; }).length;
-
         var pagos = data.filter(function(r) { return r.statusPagamento === 'Confirmado'; }).length;
         document.getElementById('totalPagos').textContent = pagos;
         document.getElementById('totalPendentes').textContent = data.length - pagos;
 
-        // Contagem por diocese
         var dioceseCount = {};
-        data.forEach(function(r) {
-            if (r.diocese) {
-                dioceseCount[r.diocese] = (dioceseCount[r.diocese] || 0) + 1;
-            }
-        });
-
-        var foraniaGrid = document.getElementById('foraniaGrid');
-        var foraniaStats = document.getElementById('foraniaStats');
-
+        data.forEach(function(r) { if (r.diocese) dioceseCount[r.diocese] = (dioceseCount[r.diocese]||0) + 1; });
+        var grid = document.getElementById('foraniaGrid');
+        var stats = document.getElementById('foraniaStats');
         if (Object.keys(dioceseCount).length > 0) {
-            foraniaStats.style.display = 'flex';
-            var sorted = Object.entries(dioceseCount).sort(function(a, b) { return b[1] - a[1]; });
-            foraniaGrid.innerHTML = sorted.map(function(item) {
-                return '<div class="forania-item">' +
-                    '<span class="forania-item-name">' + item[0] + '</span>' +
-                    '<span class="forania-item-count">' + item[1] + '</span>' +
-                    '</div>';
-            }).join('');
-        } else {
-            foraniaStats.style.display = 'none';
-        }
+            stats.style.display = 'flex';
+            grid.innerHTML = Object.entries(dioceseCount).sort(function(a,b){return b[1]-a[1];}).map(function(item) { return '<div class="forania-item"><span class="forania-item-name">' + item[0] + '</span><span class="forania-item-count">' + item[1] + '</span></div>'; }).join('');
+        } else { stats.style.display = 'none'; }
     }
 
-    // Busca
     document.getElementById('searchBox').addEventListener('input', function(e) {
-        var term = e.target.value.toLowerCase();
-        var filtered = allData.filter(function(row) {
-            return (row.nomeCompleto || '').toLowerCase().indexOf(term) !== -1 ||
-                (row.cidade || '').toLowerCase().indexOf(term) !== -1 ||
-                (row.paroquia || '').toLowerCase().indexOf(term) !== -1 ||
-                (row.diocese || '').toLowerCase().indexOf(term) !== -1 ||
-                (row.cargoFuncao || '').toLowerCase().indexOf(term) !== -1;
-        });
-        renderData(filtered);
+        var t = e.target.value.toLowerCase();
+        renderData(allData.filter(function(r) {
+            return (r.nomeCompleto||'').toLowerCase().indexOf(t)!==-1 || (r.cidade||'').toLowerCase().indexOf(t)!==-1 || (r.paroquia||'').toLowerCase().indexOf(t)!==-1 || (r.diocese||'').toLowerCase().indexOf(t)!==-1 || (r.cargoFuncao||'').toLowerCase().indexOf(t)!==-1;
+        }));
     });
 
-    // Confirmar pagamento
-    function confirmarPagamento(rowIndex, btnElement) {
-        btnElement.textContent = '...';
-        btnElement.disabled = true;
-
-        fetch(GOOGLE_SCRIPT_URL + '?action=confirmarPagamento&row=' + rowIndex)
-            .then(function(response) { return response.json(); })
-            .then(function(result) {
-                if (result.result === 'success') {
-                    loadData();
-                } else {
-                    alert('Erro ao confirmar pagamento.');
-                    btnElement.textContent = 'Confirmar';
-                    btnElement.disabled = false;
-                }
-            })
-            .catch(function(error) {
-                alert('Erro ao confirmar pagamento.');
-                btnElement.textContent = 'Confirmar';
-                btnElement.disabled = false;
-            });
-    }
-
-    // Exportar CSV
     function exportCSV() {
-        if (!allData || allData.length === 0) {
-            alert('Nenhum dado para exportar.');
-            return;
-        }
-
-        var exportHeaders = ['timestamp','nomeCompleto','dataNascimento','telefone','cidade','diocese','paroquia','comunidade','cargoFuncao','cargoOutro','tempoAtuacao','areasAtuacao','restricaoAlimentar','restricaoDetalhe','acessibilidade','acessibilidadeDetalhe','expectativas','temasSugeridos','observacoes'];
-        var headerLabels = ['Data/Hora','Nome Completo','Data Nascimento','Telefone','Cidade','Diocese','Par\u00f3quia','Comunidade','Cargo/Fun\u00e7\u00e3o','Cargo (Outro)','Tempo Atua\u00e7\u00e3o','\u00c1reas de Atua\u00e7\u00e3o','Restri\u00e7\u00e3o Alimentar','Qual Restri\u00e7\u00e3o','Acessibilidade','Qual Necessidade','Expectativas','Temas Sugeridos','Observa\u00e7\u00f5es'];
-
-        var csvContent = [
-            headerLabels.join(';'),
-            ...allData.map(function(row) {
-                return exportHeaders.map(function(h) {
-                    var val = row[h] || '';
-                    val = String(val).replace(/"/g, '""');
-                    return '"' + val + '"';
-                }).join(';');
-            })
-        ].join('\n');
-
-        var blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-        var link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'caritas-inscricoes-' + new Date().toISOString().slice(0,10) + '.csv';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        if (!allData || allData.length === 0) { alert('Nenhum dado.'); return; }
+        var h = ['timestamp','nomeCompleto','dataNascimento','telefone','cidade','diocese','paroquia','comunidade','cargoFuncao','cargoOutro','tempoAtuacao','areasAtuacao','restricaoAlimentar','restricaoDetalhe','acessibilidade','acessibilidadeDetalhe','expectativas','temasSugeridos','observacoes','statusPagamento'];
+        var labels = ['Data/Hora','Nome','Nascimento','Telefone','Cidade','Diocese','Par\u00f3quia','Comunidade','Cargo','Cargo Outro','Tempo','Areas','Restri\u00e7\u00e3o','Qual','Acessibilidade','Qual Nec.','Expectativas','Temas','Obs.','Pagamento'];
+        var csv = [labels.join(';')].concat(allData.map(function(row){return h.map(function(k){var v=String(row[k]||'').replace(/"/g,'""');return '"'+v+'"';}).join(';');})).join('\n');
+        var blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+        var a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='caritas-inscricoes-'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
     </script>
 </body>
