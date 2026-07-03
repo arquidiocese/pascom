@@ -281,6 +281,44 @@ function tocarAlerta(chave) {
 }
 
 
+// === Opcoes de Alergias e Restricoes (aprende novas) ===
+const ALERGIAS_PADRAO = ['Dipirona', 'Penicilina', 'Ibuprofeno', 'AAS', 'Amendoim', 'Frutos do mar', 'Leite/Lactose', 'Ovo', 'Gluten', 'Picada de inseto'];
+const RESTRICOES_PADRAO = ['Vegetariano', 'Vegano', 'Intolerante a lactose', 'Celiaco (sem gluten)', 'Diabetico (sem acucar)', 'Sem carne vermelha', 'Sem carne de porco'];
+
+function getAlergiasPersonalizadas() {
+    return JSON.parse(localStorage.getItem('alergias_custom') || '[]');
+}
+function getRestricoesPersonalizadas() {
+    return JSON.parse(localStorage.getItem('restricoes_custom') || '[]');
+}
+function salvarAlergiaCustom(nova) {
+    const custom = getAlergiasPersonalizadas();
+    if (!custom.includes(nova) && !ALERGIAS_PADRAO.includes(nova)) {
+        custom.push(nova);
+        localStorage.setItem('alergias_custom', JSON.stringify(custom));
+    }
+}
+function salvarRestricaoCustom(nova) {
+    const custom = getRestricoesPersonalizadas();
+    if (!custom.includes(nova) && !RESTRICOES_PADRAO.includes(nova)) {
+        custom.push(nova);
+        localStorage.setItem('restricoes_custom', JSON.stringify(custom));
+    }
+}
+
+function renderCheckboxGroup(opcoesPadrao, opcoesCustom, selecionadas) {
+    const todas = [...opcoesPadrao, ...opcoesCustom];
+    const selArray = selecionadas ? selecionadas.split(',').map(s => s.trim()).filter(Boolean) : [];
+    
+    let html = '<div class="checkbox-group">';
+    todas.forEach(opcao => {
+        const checked = selArray.includes(opcao) ? 'checked' : '';
+        html += `<label class="checkbox-item"><input type="checkbox" value="${opcao}" ${checked}><span>${opcao}</span></label>`;
+    });
+    html += '</div>';
+    return html;
+}
+
 // === CADASTRO DE FICHA ===
 function renderCadastro(container, fichaEditando = null) {
     const f = fichaEditando || {};
@@ -312,11 +350,23 @@ function renderCadastro(container, fichaEditando = null) {
                 </div>
                 <div class="form-group">
                     <label>Alergias</label>
-                    <textarea id="alergias" placeholder="Ex: Dipirona, Amendoim, Lactose...">${f.alergias || ''}</textarea>
+                    <div id="alergias-checks">
+                        ${renderCheckboxGroup(ALERGIAS_PADRAO, getAlergiasPersonalizadas(), f.alergias)}
+                    </div>
+                    <div class="outros-input">
+                        <input type="text" id="alergia-outra" placeholder="Outra alergia...">
+                        <button type="button" class="btn btn-secondary btn-add-outro" id="btn-add-alergia">+</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Restricoes Alimentares</label>
-                    <textarea id="restricoes" placeholder="Ex: Vegetariano, intolerante a lactose...">${f.restricoes || ''}</textarea>
+                    <div id="restricoes-checks">
+                        ${renderCheckboxGroup(RESTRICOES_PADRAO, getRestricoesPersonalizadas(), f.restricoes)}
+                    </div>
+                    <div class="outros-input">
+                        <input type="text" id="restricao-outra" placeholder="Outra restricao...">
+                        <button type="button" class="btn btn-secondary btn-add-outro" id="btn-add-restricao">+</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Observacoes Medicas</label>
@@ -343,6 +393,36 @@ function renderCadastro(container, fichaEditando = null) {
 
     document.getElementById('btn-add-med').addEventListener('click', () => {
         adicionarMedicamentoUI(medContainer, {}, medContainer.children.length);
+    });
+
+    // Botao adicionar nova alergia
+    document.getElementById('btn-add-alergia').addEventListener('click', () => {
+        const input = document.getElementById('alergia-outra');
+        const nova = input.value.trim();
+        if (nova) {
+            salvarAlergiaCustom(nova);
+            const container = document.getElementById('alergias-checks').querySelector('.checkbox-group');
+            const label = document.createElement('label');
+            label.className = 'checkbox-item';
+            label.innerHTML = `<input type="checkbox" value="${nova}" checked><span>${nova}</span>`;
+            container.appendChild(label);
+            input.value = '';
+        }
+    });
+
+    // Botao adicionar nova restricao
+    document.getElementById('btn-add-restricao').addEventListener('click', () => {
+        const input = document.getElementById('restricao-outra');
+        const nova = input.value.trim();
+        if (nova) {
+            salvarRestricaoCustom(nova);
+            const container = document.getElementById('restricoes-checks').querySelector('.checkbox-group');
+            const label = document.createElement('label');
+            label.className = 'checkbox-item';
+            label.innerHTML = `<input type="checkbox" value="${nova}" checked><span>${nova}</span>`;
+            container.appendChild(label);
+            input.value = '';
+        }
     });
 
     document.getElementById('form-ficha').addEventListener('submit', (e) => {
@@ -384,6 +464,14 @@ function salvarFicha(editId) {
     const nome = document.getElementById('nome').value.trim();
     if (!nome) { alert('Nome e obrigatorio!'); return; }
 
+    // Coletar alergias dos checkboxes
+    const alergiasChecks = document.querySelectorAll('#alergias-checks input[type="checkbox"]:checked');
+    const alergias = Array.from(alergiasChecks).map(cb => cb.value).join(', ');
+
+    // Coletar restricoes dos checkboxes
+    const restricoesChecks = document.querySelectorAll('#restricoes-checks input[type="checkbox"]:checked');
+    const restricoes = Array.from(restricoesChecks).map(cb => cb.value).join(', ');
+
     const medItems = document.querySelectorAll('.medicamento-item');
     const medicamentos = [];
     medItems.forEach(item => {
@@ -407,8 +495,8 @@ function salvarFicha(editId) {
         idade: document.getElementById('idade').value,
         telefone: document.getElementById('telefone').value.trim(),
         responsavel: document.getElementById('responsavel').value.trim(),
-        alergias: document.getElementById('alergias').value.trim(),
-        restricoes: document.getElementById('restricoes').value.trim(),
+        alergias,
+        restricoes,
         observacoes: document.getElementById('observacoes').value.trim(),
         medicamentos
     };
