@@ -7,16 +7,31 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Adolecrist - Fichas do Encontro</h1>
-        <nav>
-            <button class="nav-btn active" data-page="painel">Painel de Alertas</button>
-            <button class="nav-btn" data-page="cadastro">Cadastrar Ficha</button>
-            <button class="nav-btn" data-page="fichas">Ver Fichas</button>
-        </nav>
-    </header>
-    <div id="status-sync" class="status-sync"></div>
-    <main id="app"></main>
+    <!-- Tela de Login -->
+    <div id="tela-login" class="login-container">
+        <div class="login-box">
+            <h1 style="color:#00d4ff; margin-bottom:0.5rem;">Adolecrist</h1>
+            <p style="color:#aaa; margin-bottom:1.5rem;">Fichas do Encontro</p>
+            <input type="password" id="input-senha" placeholder="Digite a senha..." class="login-input">
+            <button id="btn-login" class="btn btn-primary" style="width:100%; margin-top:0.8rem;">Entrar</button>
+            <p id="login-erro" style="color:#e74c3c; margin-top:0.5rem; display:none;">Senha incorreta</p>
+        </div>
+    </div>
+
+    <!-- App principal (escondido ate login) -->
+    <div id="app-container" style="display:none;">
+        <header>
+            <h1>Adolecrist - Fichas do Encontro</h1>
+            <nav>
+                <button class="nav-btn active" data-page="painel">Painel de Alertas</button>
+                <button class="nav-btn" data-page="cadastro">Cadastrar Ficha</button>
+                <button class="nav-btn" data-page="fichas">Ver Fichas</button>
+                <button class="nav-btn" data-page="historico">Historico</button>
+            </nav>
+        </header>
+        <div id="status-sync" class="status-sync"></div>
+        <main id="app"></main>
+    </div>
     <script src="app.js"></script>
 </body>
 </html>

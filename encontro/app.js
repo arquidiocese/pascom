@@ -2,7 +2,40 @@
 // CONFIGURACAO - URL do Google Apps Script
 // ============================================================
 const SCRIPT_URL = 'https://script.google.com/a/macros/tvtem.com/s/AKfycbyCFi0sRGh348Tc0HpP9CVYQNBxrrXk_RlqEb7luKRSOjXzRsaNhiJf6aL4cVFvqLVN/exec';
+const SENHA_APP = '16727';
 // ============================================================
+
+// === Login ===
+function verificarLogin() {
+    if (sessionStorage.getItem('logado') === 'sim') {
+        mostrarApp();
+        return;
+    }
+    document.getElementById('tela-login').style.display = 'flex';
+    document.getElementById('app-container').style.display = 'none';
+
+    document.getElementById('btn-login').addEventListener('click', tentarLogin);
+    document.getElementById('input-senha').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') tentarLogin();
+    });
+}
+
+function tentarLogin() {
+    const senha = document.getElementById('input-senha').value;
+    if (senha === SENHA_APP) {
+        sessionStorage.setItem('logado', 'sim');
+        mostrarApp();
+    } else {
+        document.getElementById('login-erro').style.display = 'block';
+        document.getElementById('input-senha').value = '';
+    }
+}
+
+function mostrarApp() {
+    document.getElementById('tela-login').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+    iniciarApp();
+}
 
 // === Estado da Aplicacao ===
 let fichas = JSON.parse(localStorage.getItem('fichas_encontro') || '[]');
@@ -70,10 +103,7 @@ async function salvarNoServidor() {
     sincronizando = false;
 }
 
-// Carregar dados ao iniciar
-carregarDoServidor();
-// Sincronizar a cada 10 segundos
-setInterval(carregarDoServidor, 10000);
+// Carregar dados ao iniciar e sincronizar (chamado por iniciarApp)
 
 // === Confirmacoes ===
 function getChaveConfirmacao(fichaId, medNome, horario) {
@@ -103,17 +133,22 @@ function limparConfirmacoesAntigas() {
     });
     if (mudou) salvarNoServidor();
 }
-limparConfirmacoesAntigas();
 
 // === Navegacao ===
-document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        paginaAtual = btn.dataset.page;
-        renderizar();
+function iniciarApp() {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            paginaAtual = btn.dataset.page;
+            renderizar();
+        });
     });
-});
+    carregarDoServidor();
+    setInterval(carregarDoServidor, 10000);
+    limparConfirmacoesAntigas();
+    renderizar();
+}
 
 function renderizar() {
     clearInterval(intervalRelogio);
@@ -122,6 +157,7 @@ function renderizar() {
         case 'painel': renderPainel(app); break;
         case 'cadastro': renderCadastro(app); break;
         case 'fichas': renderFichas(app); break;
+        case 'historico': renderHistorico(app); break;
     }
 }
 
@@ -752,7 +788,7 @@ function renderListaFichas(lista) {
             <h3>${f.nome}</h3>
             <div class="info-row">
                 ${f.idade ? `<span>Idade: ${f.idade}</span>` : ''}
-                ${f.telefone ? `<span>Tel: ${f.telefone}</span>` : ''}
+                ${f.telefone ? `<span><a href="tel:${f.telefone}" class="btn-ligar">Tel: ${f.telefone}</a></span>` : ''}
                 ${f.responsavel ? `<span>Resp: ${f.responsavel}</span>` : ''}
             </div>
             ${f.alergias ? `<p class="alergias"><strong>Alergias:</strong> ${f.alergias}</p>` : ''}
@@ -760,6 +796,7 @@ function renderListaFichas(lista) {
             ${f.observacoes ? `<p style="color:#aaa;font-size:0.9rem;"><strong>Obs Medicas:</strong> ${f.observacoes}</p>` : ''}
             ${renderMedicamentosFicha(f.medicamentos)}
             <div class="acoes">
+                ${f.telefone ? `<a href="tel:${f.telefone}" class="btn btn-secondary" style="text-decoration:none;">Ligar</a>` : ''}
                 <button class="btn btn-secondary" onclick="editarFicha('${f.id}')">Editar</button>
                 <button class="btn btn-danger" onclick="excluirFicha('${f.id}')">Excluir</button>
             </div>
@@ -799,5 +836,98 @@ function excluirFicha(id) {
     renderFichas(document.getElementById('app'));
 }
 
+// === HISTORICO DE CONFIRMACOES ===
+function renderHistorico(container) {
+    const hoje = new Date().toISOString().slice(0, 10);
+    const confirmHoje = Object.entries(confirmacoes)
+        .filter(([chave]) => chave.startsWith(hoje))
+        .map(([chave, hora]) => {
+            const partes = chave.replace(hoje + '_', '').split('_');
+            const fichaId = partes[0];
+            const medNome = partes[1];
+            const horario = partes[2];
+            const ficha = fichas.find(f => f.id === fichaId);
+            return {
+                nome: ficha ? ficha.nome : 'Desconhecido',
+                medicamento: medNome,
+                horario,
+                confirmadoEm: new Date(hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            };
+        })
+        .sort((a, b) => a.confirmadoEm.localeCompare(b.confirmadoEm));
+
+    container.innerHTML = `
+        <div class="fichas-container">
+            <h2>Historico de Hoje</h2>
+            <p style="text-align:center; color:#aaa; margin-bottom:1rem;">${hoje.split('-').reverse().join('/')}</p>
+            ${confirmHoje.length === 0 
+                ? '<p class="sem-fichas">Nenhum medicamento confirmado hoje.</p>'
+                : confirmHoje.map(c => `
+                    <div class="ficha-card" style="padding:1rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <strong>${c.nome}</strong><br>
+                                <span style="color:#aaa; font-size:0.85rem;">${c.medicamento} - Horario: ${c.horario}</span>
+                            </div>
+                            <div style="text-align:right;">
+                                <span style="color:#27ae60; font-weight:bold;">Confirmado</span><br>
+                                <span style="color:#aaa; font-size:0.8rem;">as ${c.confirmadoEm}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')
+            }
+            <div style="margin-top:2rem; text-align:center;">
+                <button class="btn btn-primary" onclick="exportarPDF()">Exportar / Imprimir Lista</button>
+            </div>
+        </div>
+    `;
+}
+
+// === EXPORTAR / IMPRIMIR ===
+function exportarPDF() {
+    const fichasOrdenadas = [...fichas].sort((a, b) => 
+        (a.nome || '').localeCompare(b.nome || '', 'pt-BR')
+    );
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <html><head><title>Fichas do Encontro - Adolecrist</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; font-size: 12px; }
+            h1 { text-align: center; color: #333; }
+            .ficha { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 8px; page-break-inside: avoid; }
+            .ficha h3 { margin: 0 0 5px 0; color: #1a4a8a; }
+            .info { color: #666; font-size: 11px; }
+            .alergias { color: #e74c3c; font-weight: bold; }
+            .restricoes { color: #f39c12; }
+            .med { background: #f0f0f0; padding: 4px 8px; margin: 2px 0; border-radius: 4px; font-size: 11px; }
+            .telefone { color: #27ae60; font-weight: bold; }
+            @media print { .no-print { display: none; } }
+        </style></head><body>
+        <h1>Fichas do Encontro - Adolecrist</h1>
+        <p style="text-align:center; color:#666;">Total: ${fichasOrdenadas.length} participantes | Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
+        <button class="no-print" onclick="window.print()" style="padding:10px 20px; margin:10px auto; display:block; cursor:pointer;">Imprimir</button>
+        ${fichasOrdenadas.map(f => `
+            <div class="ficha">
+                <h3>${f.nome}</h3>
+                <div class="info">
+                    ${f.idade ? `Idade: ${f.idade} | ` : ''}
+                    ${f.telefone ? `<span class="telefone">Tel: ${f.telefone}</span> | ` : ''}
+                    ${f.responsavel ? `Resp: ${f.responsavel}` : ''}
+                </div>
+                ${f.alergias ? `<div class="alergias">ALERGIAS: ${f.alergias}</div>` : ''}
+                ${f.restricoes ? `<div class="restricoes">Restricoes: ${f.restricoes}</div>` : ''}
+                ${f.observacoes ? `<div class="info">Obs: ${f.observacoes}</div>` : ''}
+                ${f.medicamentos && f.medicamentos.length > 0 ? 
+                    f.medicamentos.map(m => `<div class="med">${m.nome} ${m.dosagem || ''} - ${m.horarios ? m.horarios.join(', ') : 'Sem horario'}</div>`).join('') 
+                    : ''}
+            </div>
+        `).join('')}
+        </body></html>
+    `);
+    win.document.close();
+}
+
 // === Iniciar ===
-renderizar();
+verificarLogin();
