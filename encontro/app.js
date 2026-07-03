@@ -57,9 +57,8 @@ function mostrarStatus(msg, tipo) {
 
 async function carregarDoServidor() {
     if (SCRIPT_URL === 'COLE_AQUI_A_URL_DO_GOOGLE_APPS_SCRIPT') return;
-    // Nao sincronizar se estiver no cadastro (para nao apagar o formulario)
+    // Nao sincronizar se estiver no cadastro ou fichas (para nao apagar interacoes)
     if (paginaAtual === 'cadastro') return;
-    mostrarStatus('Sincronizando...', 'sincronizando');
     try {
         const resp = await fetch(SCRIPT_URL + '?action=getFichas');
         if (resp.ok) {
@@ -72,13 +71,13 @@ async function carregarDoServidor() {
                 confirmacoes = dados.confirmacoes;
                 localStorage.setItem('confirmacoes_encontro', JSON.stringify(confirmacoes));
             }
-            mostrarStatus('Sincronizado', 'online');
-            if (paginaAtual !== 'cadastro') {
-                renderizar();
+            // So renderizar se estiver no painel (unica tela que precisa atualizar em tempo real)
+            if (paginaAtual === 'painel') {
+                // Nao chamar renderizar() para nao resetar o relogio, so atualizar dados
             }
         }
     } catch(e) {
-        mostrarStatus('Offline - usando dados locais', 'offline');
+        // silencioso
     }
 }
 
@@ -751,6 +750,7 @@ function renderResumoAlergias() {
     }
 
     let html = '<div class="resumo-card">';
+    html += '<div style="text-align:right; margin-bottom:0.5rem;"><button class="btn btn-secondary" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick="exportarAlergias()">Exportar Lista</button></div>';
     
     if (temAlergias) {
         const alergias = Object.entries(alergiaCount).sort((a, b) => b[1] - a[1]);
@@ -924,6 +924,84 @@ function exportarPDF() {
                     : ''}
             </div>
         `).join('')}
+        </body></html>
+    `);
+    win.document.close();
+}
+
+// === EXPORTAR ALERGIAS E RESTRICOES ===
+function exportarAlergias() {
+    const fichasOrdenadas = [...fichas].sort((a, b) => 
+        (a.nome || '').localeCompare(b.nome || '', 'pt-BR')
+    );
+
+    const comAlergias = fichasOrdenadas.filter(f => f.alergias && f.alergias.trim());
+    const comRestricoes = fichasOrdenadas.filter(f => f.restricoes && f.restricoes.trim());
+    const comMedicamentos = fichasOrdenadas.filter(f => f.medicamentos && f.medicamentos.length > 0);
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <html><head><title>Alergias e Restricoes - Adolecrist</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; font-size: 12px; }
+            h1 { text-align: center; color: #333; font-size: 18px; }
+            h2 { color: #c0392b; border-bottom: 2px solid #c0392b; padding-bottom: 5px; margin-top: 20px; font-size: 14px; }
+            h3 { color: #f39c12; border-bottom: 2px solid #f39c12; padding-bottom: 5px; margin-top: 20px; font-size: 14px; }
+            h4 { color: #2980b9; border-bottom: 2px solid #2980b9; padding-bottom: 5px; margin-top: 20px; font-size: 14px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; font-size: 11px; }
+            th { background: #f0f0f0; font-weight: bold; }
+            .alerta { color: #c0392b; font-weight: bold; }
+            @media print { .no-print { display: none; } }
+        </style></head><body>
+        <h1>Adolecrist - Encontro<br>Alergias, Restricoes e Medicamentos</h1>
+        <p style="text-align:center; color:#666;">Total: ${fichas.length} participantes | Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
+        <button class="no-print" onclick="window.print()" style="padding:10px 20px; margin:10px auto; display:block; cursor:pointer; font-size:14px;">Imprimir / Salvar PDF</button>
+
+        <h2>ALERGIAS (${comAlergias.length} participantes)</h2>
+        ${comAlergias.length > 0 ? `
+        <table>
+            <tr><th>Nome</th><th>Idade</th><th>Alergias</th><th>Tel. Emergencia</th></tr>
+            ${comAlergias.map(f => `
+                <tr>
+                    <td>${f.nome}</td>
+                    <td>${f.idade || '-'}</td>
+                    <td class="alerta">${f.alergias}</td>
+                    <td>${f.telefone || '-'}</td>
+                </tr>
+            `).join('')}
+        </table>` : '<p>Nenhum participante com alergias.</p>'}
+
+        <h3>RESTRICOES ALIMENTARES (${comRestricoes.length} participantes)</h3>
+        ${comRestricoes.length > 0 ? `
+        <table>
+            <tr><th>Nome</th><th>Idade</th><th>Restricoes</th></tr>
+            ${comRestricoes.map(f => `
+                <tr>
+                    <td>${f.nome}</td>
+                    <td>${f.idade || '-'}</td>
+                    <td>${f.restricoes}</td>
+                </tr>
+            `).join('')}
+        </table>` : '<p>Nenhum participante com restricoes.</p>'}
+
+        <h4>MEDICAMENTOS (${comMedicamentos.length} participantes)</h4>
+        ${comMedicamentos.length > 0 ? `
+        <table>
+            <tr><th>Nome</th><th>Medicamento</th><th>Dosagem</th><th>Horarios</th><th>Obs</th></tr>
+            ${comMedicamentos.map(f => 
+                f.medicamentos.map((m, i) => `
+                    <tr>
+                        ${i === 0 ? `<td rowspan="${f.medicamentos.length}">${f.nome}</td>` : ''}
+                        <td>${m.nome}</td>
+                        <td>${m.dosagem || '-'}</td>
+                        <td>${m.horarios ? m.horarios.join(', ') : '-'}</td>
+                        <td>${m.observacoes || '-'}</td>
+                    </tr>
+                `).join('')
+            ).join('')}
+        </table>` : '<p>Nenhum participante com medicamentos.</p>'}
+
         </body></html>
     `);
     win.document.close();
