@@ -38,7 +38,10 @@ async function carregarDoServidor() {
                 localStorage.setItem('confirmacoes_encontro', JSON.stringify(confirmacoes));
             }
             mostrarStatus('Sincronizado', 'online');
-            renderizar();
+            // Nao renderizar se estiver no cadastro (para nao apagar o formulario)
+            if (paginaAtual !== 'cadastro') {
+                renderizar();
+            }
         }
     } catch(e) {
         mostrarStatus('Offline - usando dados locais', 'offline');
