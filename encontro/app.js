@@ -24,6 +24,8 @@ function mostrarStatus(msg, tipo) {
 
 async function carregarDoServidor() {
     if (SCRIPT_URL === 'COLE_AQUI_A_URL_DO_GOOGLE_APPS_SCRIPT') return;
+    // Nao sincronizar se estiver no cadastro (para nao apagar o formulario)
+    if (paginaAtual === 'cadastro') return;
     mostrarStatus('Sincronizando...', 'sincronizando');
     try {
         const resp = await fetch(SCRIPT_URL + '?action=getFichas');
@@ -38,7 +40,6 @@ async function carregarDoServidor() {
                 localStorage.setItem('confirmacoes_encontro', JSON.stringify(confirmacoes));
             }
             mostrarStatus('Sincronizado', 'online');
-            // Nao renderizar se estiver no cadastro (para nao apagar o formulario)
             if (paginaAtual !== 'cadastro') {
                 renderizar();
             }
