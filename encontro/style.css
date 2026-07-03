@@ -1,0 +1,233 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #1a1a2e;
+    color: #eee;
+    min-height: 100vh;
+}
+
+header {
+    background: #16213e;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+header h1 {
+    text-align: center;
+    color: #00d4ff;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    background: #0f3460;
+    color: #eee;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.nav-btn:hover { background: #00d4ff; color: #1a1a2e; }
+.nav-btn.active { background: #00d4ff; color: #1a1a2e; font-weight: bold; }
+
+.status-sync {
+    text-align: center;
+    padding: 0.3rem;
+    font-size: 0.8rem;
+    display: none;
+}
+.status-sync.online { display: block; background: #27ae60; color: white; }
+.status-sync.offline { display: block; background: #e74c3c; color: white; }
+.status-sync.sincronizando { display: block; background: #f39c12; color: white; }
+
+main {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.relogio {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #00d4ff;
+    margin: 1rem 0;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+}
+
+.data-atual {
+    font-size: 1.2rem;
+    color: #aaa;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.alertas-titulo {
+    font-size: 1.3rem;
+    color: #ff6b6b;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.alerta-card {
+    background: #e74c3c;
+    color: white;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: pulse 2s infinite;
+}
+.alerta-card.proximo { background: #f39c12; animation: none; }
+.alerta-card.agora { background: #e74c3c; animation: pulse 1.5s infinite; }
+.alerta-card.atrasado { background: #c0392b; animation: pulse 2s infinite; }
+.alerta-card.confirmado { background: #27ae60; animation: none; opacity: 0.8; }
+.alerta-card.ok { background: #27ae60; animation: none; }
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+.alerta-info h3 { margin-bottom: 0.3rem; }
+.alerta-info p { font-size: 0.85rem; opacity: 0.9; }
+
+.sem-alertas {
+    color: #27ae60;
+    font-size: 1.2rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.btn-confirmar {
+    margin-top: 0.4rem;
+    padding: 0.3rem 0.8rem;
+    border: 2px solid white;
+    border-radius: 6px;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+.btn-confirmar:hover { background: white; color: #e74c3c; }
+
+.form-container {
+    background: #16213e;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.form-container h2 { color: #00d4ff; margin-bottom: 1.5rem; text-align: center; }
+
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; margin-bottom: 0.3rem; color: #aaa; font-size: 0.85rem; }
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    background: #1a1a2e;
+    color: #eee;
+    font-size: 0.95rem;
+}
+.form-group textarea { min-height: 60px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.medicamento-item {
+    background: #0f3460;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.8rem;
+    position: relative;
+}
+.medicamento-item .remover-med {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #e74c3c;
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.btn {
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+.btn-primary { background: #00d4ff; color: #1a1a2e; font-weight: bold; }
+.btn-primary:hover { background: #00b8d4; }
+.btn-secondary { background: #0f3460; color: #eee; }
+.btn-secondary:hover { background: #1a4a8a; }
+.btn-danger { background: #e74c3c; color: white; }
+.btn-danger:hover { background: #c0392b; }
+
+.fichas-container h2 { color: #00d4ff; margin-bottom: 1.5rem; text-align: center; }
+
+.busca-input {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    background: #16213e;
+    color: #eee;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.ficha-card {
+    background: #16213e;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.ficha-card h3 { color: #00d4ff; margin-bottom: 0.5rem; }
+.ficha-card .info-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem; font-size: 0.9rem; }
+.ficha-card .info-row span { color: #aaa; }
+.ficha-card .alergias { color: #ff6b6b; margin: 0.5rem 0; }
+.ficha-card .medicamentos-lista { margin-top: 0.5rem; }
+.ficha-card .med-item {
+    background: #0f3460;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+}
+.ficha-card .acoes { margin-top: 1rem; display: flex; gap: 0.5rem; }
+.sem-fichas { text-align: center; color: #aaa; margin-top: 2rem; }
+
+@media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .relogio { font-size: 2.5rem; }
+    header h1 { font-size: 1.2rem; }
+    .nav-btn { font-size: 0.8rem; padding: 0.5rem 0.8rem; }
+}

@@ -1,5 +1,5 @@
 // ============================================================
-// CONFIGURACAO - Coloque aqui a URL do Google Apps Script
+// CONFIGURACAO - URL do Google Apps Script
 // ============================================================
 const SCRIPT_URL = 'https://script.google.com/a/macros/tvtem.com/s/AKfycbyCFi0sRGh348Tc0HpP9CVYQNBxrrXk_RlqEb7luKRSOjXzRsaNhiJf6aL4cVFvqLVN/exec';
 // ============================================================
@@ -23,10 +23,7 @@ function mostrarStatus(msg, tipo) {
 }
 
 async function carregarDoServidor() {
-    if (SCRIPT_URL === 'COLE_AQUI_A_URL_DO_GOOGLE_APPS_SCRIPT') {
-        console.log('Apps Script nao configurado, usando localStorage');
-        return;
-    }
+    if (SCRIPT_URL === 'COLE_AQUI_A_URL_DO_GOOGLE_APPS_SCRIPT') return;
     mostrarStatus('Sincronizando...', 'sincronizando');
     try {
         const resp = await fetch(SCRIPT_URL + '?action=getFichas');
@@ -71,10 +68,8 @@ async function salvarNoServidor() {
 
 // Carregar dados ao iniciar
 carregarDoServidor();
-
 // Sincronizar a cada 10 segundos
 setInterval(carregarDoServidor, 10000);
-
 
 // === Confirmacoes ===
 function getChaveConfirmacao(fichaId, medNome, horario) {
@@ -93,7 +88,6 @@ function foiConfirmado(fichaId, medNome, horario) {
     return !!confirmacoes[chave];
 }
 
-// Limpar confirmacoes de dias anteriores
 function limparConfirmacoesAntigas() {
     const hoje = new Date().toISOString().slice(0, 10);
     let mudou = false;
@@ -131,7 +125,6 @@ function salvarFichas() {
     salvarNoServidor();
 }
 
-
 // === PAINEL DE ALERTAS ===
 function renderPainel(container) {
     container.innerHTML = `
@@ -164,7 +157,6 @@ function atualizarRelogio() {
     const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     dataEl.textContent = `${dias[agora.getDay()]}, ${agora.getDate()} de ${meses[agora.getMonth()]} de ${agora.getFullYear()}`;
 
-    // Verificar alertas
     const horaAtual = `${horas}:${minutos}`;
     let alertasHtml = '';
     let temAlerta = false;
@@ -242,7 +234,6 @@ function atualizarRelogio() {
     if (listaEl) listaEl.innerHTML = alertasHtml;
 }
 
-
 function diffMinutos(horaAtual, horario) {
     const [h1, m1] = horaAtual.split(':').map(Number);
     const [h2, m2] = horario.split(':').map(Number);
@@ -252,7 +243,6 @@ function diffMinutos(horaAtual, horario) {
 function getProximoMedicamento(horaAtual) {
     let proximo = null;
     let menorDiff = Infinity;
-
     fichas.forEach(ficha => {
         if (!ficha.medicamentos) return;
         ficha.medicamentos.forEach(med => {
@@ -261,24 +251,17 @@ function getProximoMedicamento(horaAtual) {
                 const diff = diffMinutos(horario, horaAtual);
                 if (diff > 0 && diff < menorDiff && !foiConfirmado(ficha.id, med.nome, horario)) {
                     menorDiff = diff;
-                    proximo = {
-                        ficha: ficha.nome,
-                        med: med.nome,
-                        dosagem: med.dosagem,
-                        horario: horario
-                    };
+                    proximo = { ficha: ficha.nome, med: med.nome, dosagem: med.dosagem, horario };
                 }
             });
         });
     });
-
     return proximo;
 }
 
 function tocarAlerta(chave) {
     if (alertasAtivos.has(chave)) return;
     alertasAtivos.add(chave);
-
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
@@ -290,7 +273,6 @@ function tocarAlerta(chave) {
         osc.start();
         setTimeout(() => { osc.stop(); ctx.close(); }, 500);
     } catch(e) {}
-
     setTimeout(() => alertasAtivos.delete(chave), 60000);
 }
 
@@ -393,7 +375,6 @@ function adicionarMedicamentoUI(container, med, index) {
     `;
     container.appendChild(div);
 }
-
 
 function salvarFicha(editId) {
     const nome = document.getElementById('nome').value.trim();
