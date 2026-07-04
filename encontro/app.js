@@ -174,12 +174,14 @@ function renderPainel(container) {
 
     let cronoHtml = '';
     if (dia) {
+        let encontrouAtual = false;
         cronoHtml = dia.atividades.map(atv => {
             let classe = 'crono-item';
             if (horaAtual >= atv.inicio && horaAtual < atv.fim) {
                 classe += ' crono-atual';
+                encontrouAtual = true;
             } else if (horaAtual >= atv.fim) {
-                classe += ' crono-passado';
+                classe += ' crono-passado crono-hide';
             }
             return `<div class="${classe}">
                 <div class="crono-hora"><strong>${atv.inicio}</strong></div>
@@ -189,6 +191,7 @@ function renderPainel(container) {
                 </div>
             </div>`;
         }).join('');
+        cronoHtml = `<button class="btn-ver-passados" onclick="document.querySelectorAll('.crono-hide').forEach(e=>e.classList.toggle('crono-hide'))">Ver anteriores</button>` + cronoHtml;
     } else {
         cronoHtml = '<p style="color:#aaa; text-align:center;">Sem programacao para hoje</p>';
     }
