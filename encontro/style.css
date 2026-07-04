@@ -423,3 +423,66 @@ main {
 .btn-ligar:hover {
     text-decoration: underline;
 }
+
+
+/* Cronograma */
+.crono-item {
+    display: flex;
+    gap: 1rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 0.4rem;
+    background: #16213e;
+    border-left: 3px solid #0f3460;
+    transition: all 0.3s;
+}
+
+.crono-item.crono-atual {
+    background: #0f3460;
+    border-left: 3px solid #00d4ff;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+.crono-item.crono-passado {
+    opacity: 0.5;
+}
+
+.crono-hora {
+    min-width: 50px;
+    text-align: center;
+    color: #00d4ff;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.crono-hora small {
+    color: #666;
+    font-size: 0.7rem;
+}
+
+.crono-info {
+    flex: 1;
+}
+
+.crono-atividade {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.crono-resp {
+    color: #aaa;
+    font-size: 0.75rem;
+    margin-top: 0.2rem;
+}
+
+.crono-badge {
+    background: #00d4ff;
+    color: #1a1a2e;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    margin-left: 0.5rem;
+    animation: pulse 1.5s infinite;
+}

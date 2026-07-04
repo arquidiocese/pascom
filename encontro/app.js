@@ -154,6 +154,7 @@ function renderizar() {
     const app = document.getElementById('app');
     switch (paginaAtual) {
         case 'painel': renderPainel(app); break;
+        case 'cronograma': renderCronograma(app); break;
         case 'cadastro': renderCadastro(app); break;
         case 'fichas': renderFichas(app); break;
         case 'historico': renderHistorico(app); break;
@@ -834,6 +835,159 @@ function excluirFicha(id) {
     fichas = fichas.filter(f => f.id !== id);
     salvarFichas();
     renderFichas(document.getElementById('app'));
+}
+
+// === CRONOGRAMA DO ENCONTRO ===
+const CRONOGRAMA = {
+    '2026-07-03': {
+        titulo: 'Sexta - 03/07/2026',
+        atividades: [
+            { inicio: '19:00', fim: '19:30', atividade: 'Abertura do Encontro na Vigilia', resp: '' },
+            { inicio: '19:30', fim: '20:00', atividade: 'Recebimento dos Jovens', resp: 'Visitacao' },
+            { inicio: '20:00', fim: '20:10', atividade: 'Inicio do Encontro na Igreja', resp: 'Padre Natal' },
+            { inicio: '20:10', fim: '20:30', atividade: 'Capela (Como e Grande)', resp: 'Jovens' },
+            { inicio: '20:30', fim: '20:50', atividade: 'Salao (Apresentacao Equipe de Sala)', resp: 'Equipe de Sala' },
+            { inicio: '20:50', fim: '21:10', atividade: 'Lanche', resp: 'Copa' },
+            { inicio: '21:10', fim: '22:40', atividade: '1a Palestra - SENTIDO DA VIDA (AMOR DE DEUS) e QUEM SOU EU', resp: 'Marco Antonio' },
+            { inicio: '22:45', fim: '23:05', atividade: 'TEATRO - A Cadeira Vazia', resp: 'Teatro' },
+            { inicio: '23:05', fim: '23:30', atividade: 'CAPELA - Filme de vida, tentar se desligar do mundo de fora', resp: 'Marco Antonio' },
+            { inicio: '23:30', fim: '23:45', atividade: 'Oracao da Noite', resp: 'Jovens' },
+            { inicio: '23:45', fim: '23:59', atividade: 'Lanche', resp: 'Copa' }
+        ]
+    },
+    '2026-07-04': {
+        titulo: 'Sabado - 04/07/2026',
+        atividades: [
+            { inicio: '07:15', fim: '08:00', atividade: 'Despertar', resp: 'Equipe de sala' },
+            { inicio: '08:00', fim: '08:20', atividade: 'Cafe', resp: 'Copa' },
+            { inicio: '08:20', fim: '08:40', atividade: 'Oracao da manha - Quem e Deus', resp: 'Jovens' },
+            { inicio: '08:40', fim: '09:40', atividade: '2a Pregacao - AMIZADE', resp: 'Lucas Watanabe' },
+            { inicio: '09:40', fim: '09:55', atividade: 'Lanche', resp: 'COPA' },
+            { inicio: '09:55', fim: '10:10', atividade: 'Animacao + Agua e Banheiro', resp: 'Animacrist' },
+            { inicio: '10:10', fim: '11:10', atividade: '1o circulo - O AMOR DE DEUS E O QUE HAR PARA SI / PERDAO', resp: 'Pos encontro' },
+            { inicio: '11:10', fim: '12:10', atividade: '3a Pregacao - AFETIVIDADE E SEXUALIDADE', resp: 'Delys e Augusto' },
+            { inicio: '12:10', fim: '12:30', atividade: 'Capela Mulher Gravida', resp: 'Joao coxinha' },
+            { inicio: '12:30', fim: '13:15', atividade: 'Almoco', resp: 'Copa / Cozinha' },
+            { inicio: '13:15', fim: '13:30', atividade: 'Animacao / RAP', resp: 'Animacrist' },
+            { inicio: '13:30', fim: '14:30', atividade: '4a Pregacao - Testemunho de Vida - Drogas', resp: 'Vagner' },
+            { inicio: '14:30', fim: '14:40', atividade: 'Intervalo agua e banheiro', resp: '' },
+            { inicio: '14:40', fim: '16:20', atividade: '5a Pregacao - PAIS E FILHOS', resp: 'Marco e Carol' },
+            { inicio: '16:20', fim: '16:40', atividade: 'Pai - Mensagem', resp: 'Marco e Carol' },
+            { inicio: '16:40', fim: '17:10', atividade: 'ESCREVER Cartas para os pais', resp: 'Marco e Carol' },
+            { inicio: '17:10', fim: '17:25', atividade: 'INTERVALO - CAFE', resp: 'Copa' },
+            { inicio: '17:25', fim: '18:40', atividade: '6a Pregacao - MARIA, MAE DE JESUS E NOSSA MAE', resp: 'Fran - GOUF' },
+            { inicio: '18:40', fim: '19:40', atividade: 'Banho de Encontristas', resp: 'Equipe de Sala/Ordem' },
+            { inicio: '19:40', fim: '20:30', atividade: 'Jantar de Nossa Senhora', resp: 'COPA' },
+            { inicio: '20:00', fim: '21:30', atividade: 'PALESTRA PAIS - IGREJA SSB + Testemunho', resp: 'Joao coxinha' },
+            { inicio: '20:50', fim: '21:25', atividade: 'Balada Crist', resp: 'Animacrist' },
+            { inicio: '21:25', fim: '22:35', atividade: 'Apresentacao teatro - Tentacoes', resp: 'Teatro' },
+            { inicio: '21:25', fim: '22:35', atividade: '7a Pregacao - Testemunho de Vida', resp: 'Pregador Surpresa' },
+            { inicio: '22:35', fim: '22:50', atividade: 'Procissao de Velas', resp: 'Pregador Surpresa' },
+            { inicio: '22:50', fim: '00:00', atividade: 'Deserto - Exposicao do Santissimo', resp: 'Wesley' },
+            { inicio: '00:00', fim: '00:20', atividade: 'Lanche', resp: '' }
+        ]
+    },
+    '2026-07-05': {
+        titulo: 'Domingo - 05/07/2026',
+        atividades: [
+            { inicio: '07:20', fim: '07:50', atividade: 'Despertar', resp: 'Equipe de sala' },
+            { inicio: '07:50', fim: '08:30', atividade: 'Cafe', resp: 'Copa' },
+            { inicio: '08:30', fim: '08:45', atividade: 'Oracao da manha', resp: 'Jovens' },
+            { inicio: '08:45', fim: '09:00', atividade: 'Animacao Plenario', resp: 'Animacrist' },
+            { inicio: '09:00', fim: '10:00', atividade: 'Pregacao Igreja e fe', resp: 'Edson' },
+            { inicio: '10:00', fim: '10:15', atividade: 'Testemunho dos jovens', resp: '' },
+            { inicio: '10:15', fim: '11:10', atividade: 'Apresentacao das equipes', resp: '' },
+            { inicio: '11:10', fim: '12:00', atividade: 'Almoco', resp: 'Copa / Cozinha' },
+            { inicio: '12:00', fim: '12:15', atividade: 'Flashmob', resp: 'Teatro + Animacrist' },
+            { inicio: '12:15', fim: '12:30', atividade: 'Momento de oracao', resp: 'Animacrist' },
+            { inicio: '12:30', fim: '13:40', atividade: 'Pregacao Cristo Jovem', resp: '' },
+            { inicio: '13:40', fim: '14:00', atividade: 'Entrega Cartas', resp: 'Visitacao' },
+            { inicio: '14:00', fim: '14:15', atividade: 'Capela como e grande', resp: 'Joao Coxinha' },
+            { inicio: '14:15', fim: '15:00', atividade: 'Organizacao fila', resp: '' },
+            { inicio: '15:00', fim: '16:30', atividade: 'Missa encerramento', resp: '' }
+        ]
+    }
+};
+
+function renderCronograma(container) {
+    const agora = new Date();
+    const hojeKey = agora.toISOString().slice(0, 10);
+    const horaAtual = agora.getHours().toString().padStart(2, '0') + ':' + agora.getMinutes().toString().padStart(2, '0');
+
+    // Tabs dos dias
+    let tabsHtml = '<div class="filtros-btns" style="margin-bottom:1rem; justify-content:center;">';
+    Object.entries(CRONOGRAMA).forEach(([data, dia]) => {
+        const ativo = data === hojeKey ? 'active' : '';
+        const label = dia.titulo.split(' - ')[0];
+        tabsHtml += `<button class="btn btn-secondary filtro-btn ${ativo}" data-dia="${data}">${label}</button>`;
+    });
+    tabsHtml += '</div>';
+
+    container.innerHTML = `
+        <div class="fichas-container">
+            <h2>Cronograma do Encontro</h2>
+            ${tabsHtml}
+            <div id="cronograma-conteudo"></div>
+        </div>
+    `;
+
+    // Mostrar dia atual ou primeiro
+    const diaInicial = CRONOGRAMA[hojeKey] ? hojeKey : Object.keys(CRONOGRAMA)[0];
+    renderDiaCronograma(diaInicial, horaAtual, hojeKey);
+
+    document.querySelectorAll('[data-dia]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-dia]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderDiaCronograma(btn.dataset.dia, horaAtual, hojeKey);
+        });
+    });
+}
+
+function renderDiaCronograma(dataKey, horaAtual, hojeKey) {
+    const dia = CRONOGRAMA[dataKey];
+    if (!dia) return;
+    const el = document.getElementById('cronograma-conteudo');
+    const ehHoje = dataKey === hojeKey;
+
+    let html = `<h3 style="text-align:center; color:#00d4ff; margin-bottom:1rem;">${dia.titulo}</h3>`;
+
+    dia.atividades.forEach(atv => {
+        let classe = 'crono-item';
+        let icone = '';
+
+        if (ehHoje) {
+            if (horaAtual >= atv.inicio && horaAtual < atv.fim) {
+                classe += ' crono-atual';
+                icone = '<span class="crono-badge">AGORA</span>';
+            } else if (horaAtual >= atv.fim) {
+                classe += ' crono-passado';
+            }
+        }
+
+        html += `
+            <div class="${classe}">
+                <div class="crono-hora">
+                    <strong>${atv.inicio}</strong>
+                    <small>${atv.fim}</small>
+                </div>
+                <div class="crono-info">
+                    <div class="crono-atividade">${atv.atividade} ${icone}</div>
+                    ${atv.resp ? `<div class="crono-resp">${atv.resp}</div>` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    el.innerHTML = html;
+
+    // Scroll para atividade atual
+    if (ehHoje) {
+        setTimeout(() => {
+            const atual = document.querySelector('.crono-atual');
+            if (atual) atual.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
 }
 
 // === HISTORICO DE CONFIRMACOES E HORARIO GERAL ===
