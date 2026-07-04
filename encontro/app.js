@@ -167,16 +167,56 @@ function salvarFichas() {
 
 // === PAINEL DE ALERTAS ===
 function renderPainel(container) {
+    const agora = new Date();
+    const hojeKey = agora.toISOString().slice(0, 10);
+    const horaAtual = agora.getHours().toString().padStart(2, '0') + ':' + agora.getMinutes().toString().padStart(2, '0');
+    const dia = CRONOGRAMA[hojeKey];
+
+    let cronoHtml = '';
+    if (dia) {
+        cronoHtml = dia.atividades.map(atv => {
+            let classe = 'crono-item';
+            if (horaAtual >= atv.inicio && horaAtual < atv.fim) {
+                classe += ' crono-atual';
+            } else if (horaAtual >= atv.fim) {
+                classe += ' crono-passado';
+            }
+            return `<div class="${classe}">
+                <div class="crono-hora"><strong>${atv.inicio}</strong></div>
+                <div class="crono-info">
+                    <div class="crono-atividade">${atv.atividade}</div>
+                    ${atv.resp ? `<div class="crono-resp">${atv.resp}</div>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+    } else {
+        cronoHtml = '<p style="color:#aaa; text-align:center;">Sem programacao para hoje</p>';
+    }
+
     container.innerHTML = `
-        <div class="painel-container">
-            <div class="relogio" id="relogio"></div>
-            <div class="data-atual" id="data-atual"></div>
-            <div class="alertas-titulo">Alertas de Medicamentos</div>
-            <div id="lista-alertas"></div>
+        <div class="painel-layout">
+            <div class="painel-medicamentos">
+                <div class="painel-container">
+                    <div class="relogio" id="relogio"></div>
+                    <div class="data-atual" id="data-atual"></div>
+                    <div class="alertas-titulo">Alertas de Medicamentos</div>
+                    <div id="lista-alertas"></div>
+                </div>
+            </div>
+            <div class="painel-cronograma">
+                <h3 style="color:#00d4ff; text-align:center; margin-bottom:0.8rem;">Programacao</h3>
+                <div class="crono-scroll">${cronoHtml}</div>
+            </div>
         </div>
     `;
     atualizarRelogio();
     intervalRelogio = setInterval(atualizarRelogio, 1000);
+
+    // Scroll para atividade atual
+    setTimeout(() => {
+        const atual = document.querySelector('.crono-atual');
+        if (atual) atual.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
 }
 
 function atualizarRelogio() {
