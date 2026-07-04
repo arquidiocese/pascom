@@ -385,9 +385,9 @@ main {
 /* Painel Layout */
 .painel-layout {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 1.5rem;
-    align-items: start;
+    grid-template-columns: 1fr 280px;
+    gap: 1rem;
+    align-items: stretch;
 }
 
 .painel-medicamentos {
@@ -397,16 +397,41 @@ main {
 .painel-cronograma {
     background: #16213e;
     border-radius: 12px;
-    padding: 1rem;
-    max-height: 80vh;
+    padding: 0.8rem;
+    height: calc(100vh - 150px);
     display: flex;
     flex-direction: column;
+    position: sticky;
+    top: 1rem;
+}
+
+.painel-cronograma h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
 }
 
 .crono-scroll {
     overflow-y: auto;
     flex: 1;
-    max-height: 70vh;
+}
+
+.crono-scroll .crono-item {
+    padding: 0.5rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.8rem;
+}
+
+.crono-scroll .crono-hora {
+    min-width: 40px;
+    font-size: 0.75rem;
+}
+
+.crono-scroll .crono-atividade {
+    font-size: 0.8rem;
+}
+
+.crono-scroll .crono-resp {
+    font-size: 0.7rem;
 }
 
 @media (max-width: 768px) {
@@ -414,7 +439,9 @@ main {
         grid-template-columns: 1fr;
     }
     .painel-cronograma {
-        max-height: 300px;
+        height: auto;
+        max-height: 250px;
+        position: static;
     }
 }
 
