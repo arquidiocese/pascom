@@ -836,34 +836,97 @@ function excluirFicha(id) {
     renderFichas(document.getElementById('app'));
 }
 
-// === HISTORICO DE CONFIRMACOES ===
+// === HISTORICO DE CONFIRMACOES E HORARIO GERAL ===
 function renderHistorico(container) {
     const hoje = new Date().toISOString().slice(0, 10);
-    const confirmHoje = Object.entries(confirmacoes)
-        .filter(([chave]) => chave.startsWith(hoje))
-        .map(([chave, hora]) => {
-            const partes = chave.replace(hoje + '_', '').split('_');
-            const fichaId = partes[0];
-            const medNome = partes[1];
-            const horario = partes[2];
-            const ficha = fichas.find(f => f.id === fichaId);
-            return {
-                nome: ficha ? ficha.nome : 'Desconhecido',
-                medicamento: medNome,
-                horario,
-                confirmadoEm: new Date(hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-            };
-        })
-        .sort((a, b) => a.confirmadoEm.localeCompare(b.confirmadoEm));
+    
+    // Montar horario geral de todos os medicamentos do dia
+    let todosMeds = [];
+    fichas.forEach(ficha => {
+        if (!ficha.medicamentos) return;
+        ficha.medicamentos.forEach(med => {
+            if (!med.horarios) return;
+            med.horarios.forEach(horario => {
+                const confirmado = foiConfirmado(ficha.id, med.nome, horario);
+                todosMeds.push({
+                    nome: ficha.nome,
+                    medicamento: med.nome,
+                    dosagem: med.dosagem || '',
+                    horario,
+                    confirmado,
+                    fichaId: ficha.id
+                });
+            });
+        });
+    });
+
+    // Ordenar por horario
+    todosMeds.sort((a, b) => {
+        const [h1, m1] = a.horario.split(':').map(Number);
+        const [h2, m2] = b.horario.split(':').map(Number);
+        return (h1 * 60 + m1) - (h2 * 60 + m2);
+    });
+
+    // Agrupar por horario
+    const porHorario = {};
+    todosMeds.forEach(m => {
+        if (!porHorario[m.horario]) porHorario[m.horario] = [];
+        porHorario[m.horario].push(m);
+    });
+
+    // Confirmacoes do dia (sem duplicatas)
+    const confirmHoje = [];
+    const chavesVistas = new Set();
+    Object.entries(confirmacoes).forEach(([chave, hora]) => {
+        if (!chave.startsWith(hoje)) return;
+        if (chavesVistas.has(chave)) return;
+        chavesVistas.add(chave);
+        const partes = chave.substring(hoje.length + 1);
+        const idx1 = partes.indexOf('_');
+        const idx2 = partes.lastIndexOf('_');
+        const fichaId = partes.substring(0, idx1);
+        const medNome = partes.substring(idx1 + 1, idx2);
+        const horario = partes.substring(idx2 + 1);
+        const ficha = fichas.find(f => f.id === fichaId);
+        confirmHoje.push({
+            nome: ficha ? ficha.nome : 'Desconhecido',
+            medicamento: medNome,
+            horario,
+            confirmadoEm: new Date(hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        });
+    });
+    confirmHoje.sort((a, b) => a.horario.localeCompare(b.horario));
 
     container.innerHTML = `
         <div class="fichas-container">
-            <h2>Historico de Hoje</h2>
-            <p style="text-align:center; color:#aaa; margin-bottom:1rem;">${hoje.split('-').reverse().join('/')}</p>
+            <h2>Horario Geral de Medicamentos</h2>
+            <p style="text-align:center; color:#aaa; margin-bottom:1rem;">${hoje.split('-').reverse().join('/')} - ${todosMeds.length} doses no dia</p>
+            
+            ${Object.keys(porHorario).length === 0 
+                ? '<p class="sem-fichas">Nenhum medicamento cadastrado.</p>'
+                : Object.entries(porHorario).map(([horario, meds]) => `
+                    <div class="ficha-card" style="padding:1rem; margin-bottom:0.8rem;">
+                        <h3 style="color:#00d4ff; margin-bottom:0.5rem;">${horario}</h3>
+                        ${meds.map(m => `
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.3rem 0; border-bottom:1px solid #0f3460;">
+                                <div>
+                                    <strong>${m.nome}</strong>
+                                    <span style="color:#aaa; font-size:0.85rem;"> - ${m.medicamento} ${m.dosagem ? '(' + m.dosagem + ')' : ''}</span>
+                                </div>
+                                <span style="color:${m.confirmado ? '#27ae60' : '#e74c3c'}; font-size:0.8rem; font-weight:bold;">
+                                    ${m.confirmado ? 'Tomado' : 'Pendente'}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('')
+            }
+
+            <h2 style="margin-top:2rem;">Confirmacoes de Hoje</h2>
             ${confirmHoje.length === 0 
                 ? '<p class="sem-fichas">Nenhum medicamento confirmado hoje.</p>'
                 : confirmHoje.map(c => `
-                    <div class="ficha-card" style="padding:1rem;">
+                    <div class="ficha-card" style="padding:0.8rem; margin-bottom:0.5rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
                                 <strong>${c.nome}</strong><br>
@@ -877,8 +940,10 @@ function renderHistorico(container) {
                     </div>
                 `).join('')
             }
+
             <div style="margin-top:2rem; text-align:center;">
-                <button class="btn btn-primary" onclick="exportarPDF()">Exportar / Imprimir Lista</button>
+                <button class="btn btn-primary" onclick="exportarPDF()">Exportar Fichas</button>
+                <button class="btn btn-secondary" onclick="exportarAlergias()" style="margin-left:0.5rem;">Exportar Alergias</button>
             </div>
         </div>
     `;
