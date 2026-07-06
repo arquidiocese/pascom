@@ -1,7 +1,7 @@
 // ============================================================
 // CONFIGURACAO - Google Apps Script URL
 // ============================================================
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwYfh3w4aC6lvA5zgnGzw8EXJrpqyrrlw-E3CNCFhNp5zrLyweAKHovdbOz7yzkZ8XF/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzIZHasyTBPEgo2HwJOPT7-pFm1icRNBLFGIoHDdRAkeddQZ207DLv4aU4rGoQ_d6uj/exec';
 // ============================================================
 
 // Funcao de consulta de inscricao (global)
