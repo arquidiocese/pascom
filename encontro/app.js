@@ -124,10 +124,8 @@ function getChaveConfirmacao(fichaId, medNome, horario) { return new Date().toIS
 function confirmarMedicamento(fichaId, medNome, horario) { confirmacoes[getChaveConfirmacao(fichaId,medNome,horario)] = new Date().toISOString(); salvarNoServidor(); }
 function foiConfirmado(fichaId, medNome, horario) { return !!confirmacoes[getChaveConfirmacao(fichaId,medNome,horario)]; }
 function limparConfirmacoesAntigas() {
-    const hoje = new Date().toISOString().slice(0,10);
-    let mudou = false;
-    Object.keys(confirmacoes).forEach(k => { if (!k.startsWith(hoje)) { delete confirmacoes[k]; mudou = true; } });
-    if (mudou) salvarNoServidor();
+    // Manter todas as confirmacoes para historico
+    // Nao limpar mais
 }
 
 // === Navegacao ===
@@ -397,44 +395,89 @@ function excluirFicha(id){if(!confirm('Excluir esta ficha?'))return;fichas=ficha
 function renderHistorico(container){
     const agora = new Date();
     const hoje = agora.toISOString().slice(0,10);
+
+    // Dias do encontro + hoje
+    const diasEncontro = ['2026-07-03','2026-07-04','2026-07-05','2026-07-06'];
+    if (!diasEncontro.includes(hoje)) diasEncontro.push(hoje);
+    const diasUnicos = [...new Set(diasEncontro)];
+
+    let tabsHtml = '<div class="filtros-btns" style="margin-bottom:1rem;justify-content:center;">';
+    diasUnicos.forEach(d => {
+        const label = d.split('-').reverse().slice(0,2).join('/');
+        tabsHtml += '<button class="btn btn-secondary filtro-btn '+(d===hoje?'active':'')+'" data-hist-dia="'+d+'">'+label+'</button>';
+    });
+    tabsHtml += '</div>';
+
+    container.innerHTML = '<div class="fichas-container"><h2>Historico de Medicamentos</h2>'+tabsHtml+'<div id="historico-conteudo"></div><div style="margin-top:2rem;text-align:center;"><button class="btn btn-primary" onclick="exportarPDF()">Exportar Fichas</button> <button class="btn btn-secondary" onclick="exportarAlergias()">Exportar Alergias</button></div></div>';
+
+    renderHistoricoDia(hoje);
+
+    document.querySelectorAll('[data-hist-dia]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-hist-dia]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderHistoricoDia(btn.dataset.histDia);
+        });
+    });
+}
+
+function renderHistoricoDia(diaKey) {
+    const el = document.getElementById('historico-conteudo');
+    const agora = new Date();
+    const hoje = agora.toISOString().slice(0,10);
     const horaAtual = agora.getHours().toString().padStart(2,'0') + ':' + agora.getMinutes().toString().padStart(2,'0');
+    const ehHoje = diaKey === hoje;
 
-    // Todos os medicamentos do dia
-    let todosMeds=[];
-    fichas.forEach(ficha=>{if(!ficha.medicamentos)return;ficha.medicamentos.forEach(med=>{if(!med.horarios)return;med.horarios.forEach(horario=>{todosMeds.push({nome:ficha.nome,medicamento:med.nome,dosagem:med.dosagem||'',horario,confirmado:foiConfirmado(ficha.id,med.nome,horario),fichaId:ficha.id});});});});
-    todosMeds.sort((a,b)=>{const[h1,m1]=a.horario.split(':').map(Number);const[h2,m2]=b.horario.split(':').map(Number);return(h1*60+m1)-(h2*60+m2);});
-
-    // Separar passados e futuros
-    const passados = todosMeds.filter(m => diffMinutos(horaAtual, m.horario) > 5);
-    const atuaisFuturos = todosMeds.filter(m => diffMinutos(horaAtual, m.horario) <= 5);
-
-    let html='<div class="fichas-container"><h2>Medicamentos do Dia</h2><p style="text-align:center;color:#aaa;margin-bottom:1rem;">'+hoje.split('-').reverse().join('/')+' - '+todosMeds.length+' doses no total</p>';
-
-    if(!todosMeds.length) { html+='<p class="sem-fichas">Nenhum medicamento cadastrado.</p>'; }
-    else {
-        // Passados (ja deu o horario)
-        if (passados.length > 0) {
-            html += '<h3 style="color:#aaa;margin-bottom:0.5rem;">Ja passaram</h3>';
-            passados.forEach(m => {
-                const cor = m.confirmado ? '#27ae60' : '#e74c3c';
-                const status = m.confirmado ? 'Tomado' : 'NAO TOMADO';
-                html += '<div class="ficha-card" style="padding:0.8rem;margin-bottom:0.4rem;border-left:3px solid '+cor+'"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>'+m.nome+'</strong> <span style="color:#aaa;font-size:0.85rem;">- '+m.medicamento+' '+(m.dosagem?'('+m.dosagem+')':'')+'</span></div><div style="text-align:right;"><strong style="color:#00d4ff;">'+m.horario+'</strong><br><span style="color:'+cor+';font-size:0.8rem;font-weight:bold;">'+status+'</span></div></div></div>';
-            });
-        }
-
-        // Futuros/atuais
-        if (atuaisFuturos.length > 0) {
-            html += '<h3 style="color:#00d4ff;margin-top:1.5rem;margin-bottom:0.5rem;">Proximos</h3>';
-            atuaisFuturos.forEach(m => {
-                const cor = m.confirmado ? '#27ae60' : '#f39c12';
-                const status = m.confirmado ? 'Tomado' : 'Pendente';
-                html += '<div class="ficha-card" style="padding:0.8rem;margin-bottom:0.4rem;border-left:3px solid '+cor+'"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>'+m.nome+'</strong> <span style="color:#aaa;font-size:0.85rem;">- '+m.medicamento+' '+(m.dosagem?'('+m.dosagem+')':'')+'</span></div><div style="text-align:right;"><strong style="color:#00d4ff;">'+m.horario+'</strong><br><span style="color:'+cor+';font-size:0.8rem;font-weight:bold;">'+status+'</span></div></div></div>';
-            });
-        }
+    // Funcao para checar confirmacao de um dia especifico
+    function foiConfirmadoDia(fichaId, medNome, horario, dia) {
+        const chave = dia + '_' + fichaId + '_' + medNome + '_' + horario;
+        return !!confirmacoes[chave];
     }
 
-    html+='<div style="margin-top:2rem;text-align:center;"><button class="btn btn-primary" onclick="exportarPDF()">Exportar Fichas</button> <button class="btn btn-secondary" onclick="exportarAlergias()">Exportar Alergias</button></div></div>';
-    container.innerHTML=html;
+    // Todos os medicamentos
+    let todosMeds=[];
+    fichas.forEach(ficha=>{if(!ficha.medicamentos)return;ficha.medicamentos.forEach(med=>{if(!med.horarios)return;med.horarios.forEach(horario=>{todosMeds.push({nome:ficha.nome,medicamento:med.nome,dosagem:med.dosagem||'',horario,confirmado:foiConfirmadoDia(ficha.id,med.nome,horario,diaKey),fichaId:ficha.id});});});});
+    todosMeds.sort((a,b)=>{const[h1,m1]=a.horario.split(':').map(Number);const[h2,m2]=b.horario.split(':').map(Number);return(h1*60+m1)-(h2*60+m2);});
+
+    const labelDia = diaKey.split('-').reverse().join('/');
+    let html = '<p style="text-align:center;color:#aaa;margin-bottom:1rem;">'+labelDia+' - '+todosMeds.length+' doses</p>';
+
+    if(!todosMeds.length) { html+='<p class="sem-fichas">Nenhum medicamento cadastrado.</p>'; el.innerHTML=html; return; }
+
+    // Separar: se eh hoje, divide passados/futuros. Se dia anterior, tudo ja passou.
+    let passados, futuros;
+    if (ehHoje) {
+        passados = todosMeds.filter(m => diffMinutos(horaAtual, m.horario) > 5);
+        futuros = todosMeds.filter(m => diffMinutos(horaAtual, m.horario) <= 5);
+    } else {
+        passados = todosMeds;
+        futuros = [];
+    }
+
+    // Contadores
+    const tomados = passados.filter(m => m.confirmado).length;
+    const naoTomados = passados.filter(m => !m.confirmado).length;
+    html += '<div style="text-align:center;margin-bottom:1rem;"><span style="color:#27ae60;font-weight:bold;">Tomados: '+tomados+'</span> | <span style="color:#e74c3c;font-weight:bold;">Nao tomados: '+naoTomados+'</span></div>';
+
+    if (passados.length > 0) {
+        html += '<h3 style="color:#aaa;margin-bottom:0.5rem;">'+(ehHoje?'Ja passaram':'Medicamentos do dia')+'</h3>';
+        passados.forEach(m => {
+            const cor = m.confirmado ? '#27ae60' : '#e74c3c';
+            const status = m.confirmado ? 'Tomado' : 'NAO TOMADO';
+            html += '<div class="ficha-card" style="padding:0.8rem;margin-bottom:0.4rem;border-left:3px solid '+cor+'"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>'+m.nome+'</strong> <span style="color:#aaa;font-size:0.85rem;">- '+m.medicamento+' '+(m.dosagem?'('+m.dosagem+')':'')+'</span></div><div style="text-align:right;"><strong style="color:#00d4ff;">'+m.horario+'</strong><br><span style="color:'+cor+';font-size:0.8rem;font-weight:bold;">'+status+'</span></div></div></div>';
+        });
+    }
+
+    if (futuros.length > 0) {
+        html += '<h3 style="color:#00d4ff;margin-top:1.5rem;margin-bottom:0.5rem;">Proximos</h3>';
+        futuros.forEach(m => {
+            const cor = m.confirmado ? '#27ae60' : '#f39c12';
+            const status = m.confirmado ? 'Tomado' : 'Pendente';
+            html += '<div class="ficha-card" style="padding:0.8rem;margin-bottom:0.4rem;border-left:3px solid '+cor+'"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>'+m.nome+'</strong> <span style="color:#aaa;font-size:0.85rem;">- '+m.medicamento+' '+(m.dosagem?'('+m.dosagem+')':'')+'</span></div><div style="text-align:right;"><strong style="color:#00d4ff;">'+m.horario+'</strong><br><span style="color:'+cor+';font-size:0.8rem;font-weight:bold;">'+status+'</span></div></div></div>';
+        });
+    }
+
+    el.innerHTML = html;
 }
 
 // === EXPORTAR ===
