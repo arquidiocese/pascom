@@ -395,14 +395,44 @@ function excluirFicha(id){if(!confirm('Excluir esta ficha?'))return;fichas=ficha
 
 // === HISTORICO ===
 function renderHistorico(container){
-    const hoje=new Date().toISOString().slice(0,10);
+    const agora = new Date();
+    const hoje = agora.toISOString().slice(0,10);
+    const horaAtual = agora.getHours().toString().padStart(2,'0') + ':' + agora.getMinutes().toString().padStart(2,'0');
+
+    // Todos os medicamentos do dia
     let todosMeds=[];
     fichas.forEach(ficha=>{if(!ficha.medicamentos)return;ficha.medicamentos.forEach(med=>{if(!med.horarios)return;med.horarios.forEach(horario=>{todosMeds.push({nome:ficha.nome,medicamento:med.nome,dosagem:med.dosagem||'',horario,confirmado:foiConfirmado(ficha.id,med.nome,horario),fichaId:ficha.id});});});});
     todosMeds.sort((a,b)=>{const[h1,m1]=a.horario.split(':').map(Number);const[h2,m2]=b.horario.split(':').map(Number);return(h1*60+m1)-(h2*60+m2);});
-    const porHorario={};todosMeds.forEach(m=>{if(!porHorario[m.horario])porHorario[m.horario]=[];porHorario[m.horario].push(m);});
-    let html='<div class="fichas-container"><h2>Horario Geral de Medicamentos</h2><p style="text-align:center;color:#aaa;margin-bottom:1rem;">'+hoje.split('-').reverse().join('/')+' - '+todosMeds.length+' doses</p>';
-    if(!todosMeds.length) html+='<p class="sem-fichas">Nenhum medicamento cadastrado.</p>';
-    else Object.entries(porHorario).forEach(([horario,meds])=>{html+='<div class="ficha-card" style="padding:1rem;margin-bottom:0.8rem;"><h3 style="color:#00d4ff;margin-bottom:0.5rem;">'+horario+'</h3>';meds.forEach(m=>{html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;border-bottom:1px solid #0f3460;"><div><strong>'+m.nome+'</strong> <span style="color:#aaa;font-size:0.85rem;">- '+m.medicamento+' '+(m.dosagem?'('+m.dosagem+')':'')+'</span></div><span style="color:'+(m.confirmado?'#27ae60':'#e74c3c')+';font-size:0.8rem;font-weight:bold;">'+(m.confirmado?'Tomado':'Pendente')+'</span></div>';});html+='</div>';});
+
+    // Separar passados e futuros
+    const passados = todosMeds.filter(m => diffMinutos(horaAtual, m.horario) > 5);
+    const atuaisFuturos = todosMeds.filter(m => diffMinutos(horaAtual, m.horario) <= 5);
+
+    let html='<div class="fichas-container"><h2>Medicamentos do Dia</h2><p style="text-align:center;color:#aaa;margin-bottom:1rem;">'+hoje.split('-').reverse().join('/')+' - '+todosMeds.length+' doses no total</p>';
+
+    if(!todosMeds.length) { html+='<p class="sem-fichas">Nenhum medicamento cadastrado.</p>'; }
+    else {
+        // Passados (ja deu o horario)
+        if (passados.length > 0) {
+            html += '<h3 style="color:#aaa;margin-bottom:0.5rem;">Ja passaram</h3>';
+            passados.forEach(m => {
+                const cor = m.confirmado ? '#27ae60' : '#e74c3c';
+                const status = m.confirmado ? 'Tomado' : 'NAO TOMADO';
+                html += '<div class="ficha-card" style="padding:0.8rem;margin-bottom:0.4rem;border-left:3px solid '+cor+'"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>'+m.nome+'</strong> <span style="color:#aaa;font-size:0.85rem;">- '+m.medicamento+' '+(m.dosagem?'('+m.dosagem+')':'')+'</span></div><div style="text-align:right;"><strong style="color:#00d4ff;">'+m.horario+'</strong><br><span style="color:'+cor+';font-size:0.8rem;font-weight:bold;">'+status+'</span></div></div></div>';
+            });
+        }
+
+        // Futuros/atuais
+        if (atuaisFuturos.length > 0) {
+            html += '<h3 style="color:#00d4ff;margin-top:1.5rem;margin-bottom:0.5rem;">Proximos</h3>';
+            atuaisFuturos.forEach(m => {
+                const cor = m.confirmado ? '#27ae60' : '#f39c12';
+                const status = m.confirmado ? 'Tomado' : 'Pendente';
+                html += '<div class="ficha-card" style="padding:0.8rem;margin-bottom:0.4rem;border-left:3px solid '+cor+'"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>'+m.nome+'</strong> <span style="color:#aaa;font-size:0.85rem;">- '+m.medicamento+' '+(m.dosagem?'('+m.dosagem+')':'')+'</span></div><div style="text-align:right;"><strong style="color:#00d4ff;">'+m.horario+'</strong><br><span style="color:'+cor+';font-size:0.8rem;font-weight:bold;">'+status+'</span></div></div></div>';
+            });
+        }
+    }
+
     html+='<div style="margin-top:2rem;text-align:center;"><button class="btn btn-primary" onclick="exportarPDF()">Exportar Fichas</button> <button class="btn btn-secondary" onclick="exportarAlergias()">Exportar Alergias</button></div></div>';
     container.innerHTML=html;
 }
