@@ -479,6 +479,13 @@ td .btn-edit:hover { background: var(--cor-amarelo); color: var(--cor-fundo); }
     color: var(--cor-palha); font-size: 0.85rem; font-family: 'Nunito', sans-serif;
 }
 #metaTexto { font-size: 0.8rem; color: #66bb6a; font-weight: 700; }
+.btn-meta-salvar {
+    padding: 6px 16px; border-radius: 8px; border: none;
+    background: var(--cor-verde); color: #fff; font-weight: 700;
+    cursor: pointer; font-size: 0.82rem; font-family: 'Nunito', sans-serif;
+    transition: all 0.2s;
+}
+.btn-meta-salvar:hover { background: #43a047; transform: translateY(-1px); }
 .meta-barra {
     height: 8px; background: rgba(0,0,0,0.3); border-radius: 10px;
     overflow: hidden; max-width: 600px; margin: 0 auto;
