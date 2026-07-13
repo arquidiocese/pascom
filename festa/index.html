@@ -4,15 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financeiro - Arraiá da Basílica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="header">
-        <h1>Financeiro - Arraiá da Basílica</h1>
-        <p>Paróquia Nossa Senhora Aparecida</p>
+    <!-- Bandeirinhas decorativas -->
+    <div class="bandeirinhas">
+        <div class="bandeirinha b1"></div>
+        <div class="bandeirinha b2"></div>
+        <div class="bandeirinha b3"></div>
+        <div class="bandeirinha b4"></div>
+        <div class="bandeirinha b5"></div>
+        <div class="bandeirinha b6"></div>
+        <div class="bandeirinha b7"></div>
+        <div class="bandeirinha b8"></div>
+        <div class="bandeirinha b9"></div>
+        <div class="bandeirinha b10"></div>
+        <div class="bandeirinha b11"></div>
+        <div class="bandeirinha b12"></div>
     </div>
 
-    <div class="resumo-geral" id="resumoGeral">
+    <header class="header">
+        <div class="header-content">
+            <h1>ARRAIÁ DA BASÍLICA</h1>
+            <p>Controle Financeiro da Festa</p>
+        </div>
+    </header>
+
+    <!-- RESUMO GERAL -->
+    <div class="resumo-geral">
         <div class="resumo-card receita">
             <span>Receita Total</span>
             <strong id="receitaTotal">R$ 0,00</strong>
@@ -27,29 +47,56 @@
         </div>
     </div>
 
+    <!-- SELETOR DE DIA -->
+    <div class="dia-selector">
+        <h3>Selecione o Dia</h3>
+        <div class="dias-btns">
+            <button class="dia-btn active" data-dia="1">Dia 1<br><small>Sexta</small></button>
+            <button class="dia-btn" data-dia="2">Dia 2<br><small>Sábado</small></button>
+            <button class="dia-btn" data-dia="3">Dia 3<br><small>Domingo</small></button>
+            <button class="dia-btn" data-dia="4">Dia 4<br><small>Segunda</small></button>
+            <button class="dia-btn especial" data-dia="todos">Todos</button>
+        </div>
+    </div>
+
+    <!-- MENU BARRACAS -->
     <nav class="menu-barracas">
-        <button class="menu-btn active" data-section="dashboard">Resumo</button>
-        <button class="menu-btn" data-section="barracas">Barracas</button>
-        <button class="menu-btn" data-section="doces">Doces</button>
-        <button class="menu-btn" data-section="bebidas">Bar</button>
-        <button class="menu-btn" data-section="kids">Espaço Kids</button>
-        <button class="menu-btn" data-section="infraestrutura">Infraestrutura</button>
-        <button class="menu-btn" data-section="patrocinadores">Patrocinadores</button>
+        <button class="menu-btn active" data-section="dashboard">
+            <span class="menu-icon">📊</span> Resumo
+        </button>
+        <button class="menu-btn" data-section="barracas">
+            <span class="menu-icon">🌽</span> Barracas
+        </button>
+        <button class="menu-btn" data-section="doces">
+            <span class="menu-icon">🍬</span> Doces
+        </button>
+        <button class="menu-btn" data-section="bebidas">
+            <span class="menu-icon">🍺</span> Bar
+        </button>
+        <button class="menu-btn" data-section="kids">
+            <span class="menu-icon">🎠</span> Espaço Kids
+        </button>
+        <button class="menu-btn" data-section="infraestrutura">
+            <span class="menu-icon">🏗️</span> Infraestrutura
+        </button>
+        <button class="menu-btn" data-section="patrocinadores">
+            <span class="menu-icon">🤝</span> Patrocinadores
+        </button>
     </nav>
 
     <main class="container">
 
         <!-- DASHBOARD -->
         <section id="sec-dashboard" class="section active">
-            <h2>Resumo por Barraca</h2>
+            <h2>📊 Resumo por Barraca</h2>
             <div id="dashboardCards" class="dashboard-grid"></div>
         </section>
 
         <!-- BARRACAS -->
         <section id="sec-barracas" class="section">
-            <h2>Barracas - Salgados e Comidas</h2>
-            <div class="barraca-controls">
-                <h3>Lançar Vendas</h3>
+            <h2>🌽 Barracas - Salgados e Comidas</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
                 <div class="form-row">
                     <select id="prodBarraca">
                         <option value="Batata" data-preco="15">Batata - R$ 15,00</option>
@@ -66,23 +113,24 @@
                         <option value="Vinho Quente" data-preco="17">Vinho Quente - R$ 17,00</option>
                     </select>
                     <input type="number" id="qtdBarraca" placeholder="Qtd" min="1" value="1">
-                    <button onclick="lancarVenda('barracas')">Lançar Venda</button>
+                    <button class="btn-venda" onclick="lancarVenda('barracas')">Lançar</button>
                 </div>
                 <h3>Lançar Gasto</h3>
                 <div class="form-row">
                     <input type="text" id="descGastoBarraca" placeholder="Descrição do gasto">
                     <input type="number" id="valorGastoBarraca" placeholder="Valor R$" step="0.01" min="0">
-                    <button class="btn-gasto" onclick="lancarGasto('barracas')">Lançar Gasto</button>
+                    <label class="checkbox-pagar"><input type="checkbox" id="pagarBarraca"> Pagar depois</label>
+                    <button class="btn-gasto" onclick="lancarGasto('barracas')">Lançar</button>
                 </div>
             </div>
             <div class="tabelas-container">
                 <div class="tabela-box">
                     <h4>Vendas</h4>
-                    <table id="tabelaVendasBarracas"><thead><tr><th>Produto</th><th>Qtd</th><th>Valor Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table>
+                    <table id="tabelaVendasBarracas"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table>
                 </div>
                 <div class="tabela-box">
                     <h4>Gastos</h4>
-                    <table id="tabelaGastosBarracas"><thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody></tbody></table>
+                    <table id="tabelaGastosBarracas"><thead><tr><th>Dia</th><th>Descrição</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
                 </div>
             </div>
             <div class="resumo-barraca" id="resumoBarracas"></div>
@@ -90,36 +138,37 @@
 
         <!-- DOCES -->
         <section id="sec-doces" class="section">
-            <h2>Doces e Sobremesas</h2>
-            <div class="barraca-controls">
-                <h3>Lançar Vendas</h3>
+            <h2>🍬 Doces e Sobremesas</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
                 <div class="form-row">
                     <select id="prodDoces">
                         <option value="Doce 250g (Ambrosia/Cidra/Abóbora/Leite/Mamão)" data-preco="25">Doce 250g - R$ 25,00</option>
                         <option value="Doce 500g (Ambrosia/Cidra/Abóbora/Leite/Mamão)" data-preco="35">Doce 500g - R$ 35,00</option>
-                        <option value="Arroz Doce/Banoff/Bolo Pote/Canjica/Cocada/Merengue/Mousse/Surpresa/Bombom" data-preco="15">Doces Variados - R$ 15,00</option>
+                        <option value="Doces Variados (Arroz Doce/Banoff/Bolo/Canjica/Cocada/Merengue/Mousse/Surpresa/Bombom)" data-preco="15">Doces Variados - R$ 15,00</option>
                         <option value="Geleia" data-preco="30">Geleia - R$ 30,00</option>
                         <option value="Morango no Espeto" data-preco="25">Morango no Espeto - R$ 25,00</option>
                         <option value="Pudim de Pote" data-preco="20">Pudim de Pote - R$ 20,00</option>
                     </select>
                     <input type="number" id="qtdDoces" placeholder="Qtd" min="1" value="1">
-                    <button onclick="lancarVenda('doces')">Lançar Venda</button>
+                    <button class="btn-venda" onclick="lancarVenda('doces')">Lançar</button>
                 </div>
                 <h3>Lançar Gasto</h3>
                 <div class="form-row">
                     <input type="text" id="descGastoDoces" placeholder="Descrição do gasto">
                     <input type="number" id="valorGastoDoces" placeholder="Valor R$" step="0.01" min="0">
-                    <button class="btn-gasto" onclick="lancarGasto('doces')">Lançar Gasto</button>
+                    <label class="checkbox-pagar"><input type="checkbox" id="pagarDoces"> Pagar depois</label>
+                    <button class="btn-gasto" onclick="lancarGasto('doces')">Lançar</button>
                 </div>
             </div>
             <div class="tabelas-container">
                 <div class="tabela-box">
                     <h4>Vendas</h4>
-                    <table id="tabelaVendasDoces"><thead><tr><th>Produto</th><th>Qtd</th><th>Valor Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table>
+                    <table id="tabelaVendasDoces"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table>
                 </div>
                 <div class="tabela-box">
                     <h4>Gastos</h4>
-                    <table id="tabelaGastosDoces"><thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody></tbody></table>
+                    <table id="tabelaGastosDoces"><thead><tr><th>Dia</th><th>Descrição</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
                 </div>
             </div>
             <div class="resumo-barraca" id="resumoDoces"></div>
@@ -127,9 +176,9 @@
 
         <!-- BEBIDAS / BAR -->
         <section id="sec-bebidas" class="section">
-            <h2>Bar - Bebidas</h2>
-            <div class="barraca-controls">
-                <h3>Lançar Vendas</h3>
+            <h2>🍺 Bar - Bebidas</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
                 <div class="form-row">
                     <select id="prodBebidas">
                         <option value="Cerveja (com e sem álcool)" data-preco="10">Cerveja - R$ 10,00</option>
@@ -142,23 +191,24 @@
                         <option value="Água" data-preco="5">Água - R$ 5,00</option>
                     </select>
                     <input type="number" id="qtdBebidas" placeholder="Qtd" min="1" value="1">
-                    <button onclick="lancarVenda('bebidas')">Lançar Venda</button>
+                    <button class="btn-venda" onclick="lancarVenda('bebidas')">Lançar</button>
                 </div>
                 <h3>Lançar Gasto</h3>
                 <div class="form-row">
                     <input type="text" id="descGastoBebidas" placeholder="Descrição do gasto">
                     <input type="number" id="valorGastoBebidas" placeholder="Valor R$" step="0.01" min="0">
-                    <button class="btn-gasto" onclick="lancarGasto('bebidas')">Lançar Gasto</button>
+                    <label class="checkbox-pagar"><input type="checkbox" id="pagarBebidas"> Pagar depois</label>
+                    <button class="btn-gasto" onclick="lancarGasto('bebidas')">Lançar</button>
                 </div>
             </div>
             <div class="tabelas-container">
                 <div class="tabela-box">
                     <h4>Vendas</h4>
-                    <table id="tabelaVendasBebidas"><thead><tr><th>Produto</th><th>Qtd</th><th>Valor Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table>
+                    <table id="tabelaVendasBebidas"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table>
                 </div>
                 <div class="tabela-box">
                     <h4>Gastos</h4>
-                    <table id="tabelaGastosBebidas"><thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody></tbody></table>
+                    <table id="tabelaGastosBebidas"><thead><tr><th>Dia</th><th>Descrição</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
                 </div>
             </div>
             <div class="resumo-barraca" id="resumoBebidas"></div>
@@ -166,9 +216,9 @@
 
         <!-- ESPAÇO KIDS -->
         <section id="sec-kids" class="section">
-            <h2>Espaço Kids e Bingos</h2>
-            <div class="barraca-controls">
-                <h3>Lançar Vendas</h3>
+            <h2>🎠 Espaço Kids e Bingos</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
                 <div class="form-row">
                     <select id="prodKids">
                         <option value="Espaço Kids" data-preco="20">Espaço Kids - R$ 20,00</option>
@@ -176,23 +226,24 @@
                         <option value="Bingo Cartela Especial" data-preco="20">Bingo Cartela Especial - R$ 20,00</option>
                     </select>
                     <input type="number" id="qtdKids" placeholder="Qtd" min="1" value="1">
-                    <button onclick="lancarVenda('kids')">Lançar Venda</button>
+                    <button class="btn-venda" onclick="lancarVenda('kids')">Lançar</button>
                 </div>
                 <h3>Lançar Gasto</h3>
                 <div class="form-row">
                     <input type="text" id="descGastoKids" placeholder="Descrição do gasto">
                     <input type="number" id="valorGastoKids" placeholder="Valor R$" step="0.01" min="0">
-                    <button class="btn-gasto" onclick="lancarGasto('kids')">Lançar Gasto</button>
+                    <label class="checkbox-pagar"><input type="checkbox" id="pagarKids"> Pagar depois</label>
+                    <button class="btn-gasto" onclick="lancarGasto('kids')">Lançar</button>
                 </div>
             </div>
             <div class="tabelas-container">
                 <div class="tabela-box">
                     <h4>Vendas</h4>
-                    <table id="tabelaVendasKids"><thead><tr><th>Produto</th><th>Qtd</th><th>Valor Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table>
+                    <table id="tabelaVendasKids"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table>
                 </div>
                 <div class="tabela-box">
                     <h4>Gastos</h4>
-                    <table id="tabelaGastosKids"><thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody></tbody></table>
+                    <table id="tabelaGastosKids"><thead><tr><th>Dia</th><th>Descrição</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
                 </div>
             </div>
             <div class="resumo-barraca" id="resumoKids"></div>
@@ -200,39 +251,45 @@
 
         <!-- INFRAESTRUTURA -->
         <section id="sec-infraestrutura" class="section">
-            <h2>Custos de Infraestrutura</h2>
-            <div class="barraca-controls">
-                <h3>Lançar Custo de Infraestrutura</h3>
+            <h2>🏗️ Custos de Infraestrutura</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Custo</h3>
                 <div class="form-row">
-                    <input type="text" id="descInfra" placeholder="Descrição (ex: Aluguel de tenda, Som, Luz...)">
+                    <input type="text" id="descInfra" placeholder="Descrição (ex: Aluguel tenda, Som, Luz, Banheiro...)">
                     <input type="number" id="valorInfra" placeholder="Valor R$" step="0.01" min="0">
-                    <button class="btn-gasto" onclick="lancarInfra()">Lançar Custo</button>
+                    <label class="checkbox-pagar"><input type="checkbox" id="pagarInfra"> Pagar depois</label>
+                    <button class="btn-gasto" onclick="lancarInfra()">Lançar</button>
                 </div>
             </div>
             <div class="tabela-box">
-                <table id="tabelaInfra"><thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody></tbody></table>
+                <table id="tabelaInfra"><thead><tr><th>Descrição</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
             </div>
             <div class="resumo-barraca" id="resumoInfra"></div>
         </section>
 
         <!-- PATROCINADORES -->
         <section id="sec-patrocinadores" class="section">
-            <h2>Patrocinadores</h2>
-            <div class="barraca-controls">
+            <h2>🤝 Patrocinadores</h2>
+            <div class="painel-madeira">
                 <h3>Lançar Patrocínio</h3>
                 <div class="form-row">
                     <input type="text" id="nomePatrocinador" placeholder="Nome do Patrocinador">
                     <input type="number" id="valorPatrocinio" placeholder="Valor R$" step="0.01" min="0">
-                    <button class="btn-patrocinio" onclick="lancarPatrocinio()">Lançar Patrocínio</button>
+                    <label class="checkbox-pagar"><input type="checkbox" id="recebidoPatrocinio"> Já recebido</label>
+                    <button class="btn-patrocinio" onclick="lancarPatrocinio()">Lançar</button>
                 </div>
             </div>
             <div class="tabela-box">
-                <table id="tabelaPatrocinadores"><thead><tr><th>Patrocinador</th><th>Valor</th><th></th></tr></thead><tbody></tbody></table>
+                <table id="tabelaPatrocinadores"><thead><tr><th>Patrocinador</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
             </div>
             <div class="resumo-barraca" id="resumoPatrocinadores"></div>
         </section>
 
     </main>
+
+    <footer class="footer">
+        <p>Paróquia Nossa Senhora Aparecida - Basílica | Arraiá 2025</p>
+    </footer>
 
     <script src="app.js"></script>
 </body>
