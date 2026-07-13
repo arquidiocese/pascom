@@ -26,6 +26,14 @@ const DIAS_FESTA = {
     4: '18/Jul (Sex)'
 };
 
+// ===== FORMATAÇÃO BRASILEIRA =====
+function fmt(valor) {
+    return valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function R$(valor) {
+    return 'R$ ' + fmt(valor);
+}
+
 // Produtos por barraca (para caixa rápido)
 const PRODUTOS_BARRACA = {
     'fazendinha': [{nome:'Milho Cozido',preco:10},{nome:'Pipoca',preco:5},{nome:'Pamonha',preco:20},{nome:'Curau',preco:15},{nome:'Quentão',preco:12},{nome:'Vinho Quente',preco:17},{nome:'Chocolate Quente',preco:15}],
@@ -239,7 +247,7 @@ function renderizarDespesas() {
             <td>${d.desc}${d.obs ? '<br><small style="opacity:0.6">' + d.obs + '</small>' : ''}</td>
             <td>${qtdStr}</td>
             <td>${nomeDestino}</td>
-            <td>R$ ${d.valor.toFixed(2)}</td>
+            <td>R$ ${fmt(d.valor)}</td>
             <td>${localStr}</td>
             <td><span class="${d.doacao ? 'badge-doacao' : 'badge-compra'}">${d.doacao ? '🎁 Doação' : 'Compra'}</span></td>
             <td><span class="${d.pago ? 'badge-pago' : 'badge-pendente'}" onclick="togglePagoDespesa(${d.id})">${d.pago ? 'Pago' : 'Pendente'}</span></td>
@@ -259,11 +267,11 @@ function renderizarDespesas() {
     const totalItens = dados.despesas.length;
 
     document.getElementById('resumoDespesas').innerHTML = `
-        <div class="item negativo"><span>Total Despesas</span><strong>R$ ${total.toFixed(2)}</strong></div>
-        <div class="item doacao"><span>🎁 Doações</span><strong>R$ ${totalDoacoes.toFixed(2)}</strong></div>
-        <div class="item negativo"><span>Compras</span><strong>R$ ${totalCompras.toFixed(2)}</strong></div>
-        <div class="item positivo"><span>Pago</span><strong>R$ ${totalPago.toFixed(2)}</strong></div>
-        <div class="item negativo"><span>Pendente</span><strong>R$ ${totalPendente.toFixed(2)}</strong></div>
+        <div class="item negativo"><span>Total Despesas</span><strong>${R$(total)}</strong></div>
+        <div class="item doacao"><span>🎁 Doações</span><strong>${R$(totalDoacoes)}</strong></div>
+        <div class="item negativo"><span>Compras</span><strong>${R$(totalCompras)}</strong></div>
+        <div class="item positivo"><span>Pago</span><strong>${R$(totalPago)}</strong></div>
+        <div class="item negativo"><span>Pendente</span><strong>${R$(totalPendente)}</strong></div>
         <div class="item neutro"><span>Itens Lanç.</span><strong>${totalItens}</strong></div>
     `;
 }
@@ -304,7 +312,7 @@ function renderizarPatrocinadores() {
     tbody.innerHTML = dados.patrocinadores.map(p => `
         <tr>
             <td>${p.nome}</td>
-            <td>R$ ${p.valor.toFixed(2)}</td>
+            <td>R$ ${fmt(p.valor)}</td>
             <td>${p.obs || '-'}</td>
             <td><span class="${p.recebido ? 'badge-pago' : 'badge-pendente'}" onclick="toggleRecebido(${p.id})">${p.recebido ? 'Recebido' : 'Pendente'}</span></td>
             <td>
@@ -315,9 +323,9 @@ function renderizarPatrocinadores() {
     `).join('');
 
     document.getElementById('resumoPatrocinadores').innerHTML = `
-        <div class="item positivo"><span>Total</span><strong>R$ ${total.toFixed(2)}</strong></div>
-        <div class="item positivo"><span>Recebido</span><strong>R$ ${recebido.toFixed(2)}</strong></div>
-        <div class="item negativo"><span>Pendente</span><strong>R$ ${pendente.toFixed(2)}</strong></div>
+        <div class="item positivo"><span>Total</span><strong>${R$(total)}</strong></div>
+        <div class="item positivo"><span>Recebido</span><strong>${R$(recebido)}</strong></div>
+        <div class="item negativo"><span>Pendente</span><strong>${R$(pendente)}</strong></div>
     `;
 }
 
@@ -346,8 +354,8 @@ function renderizarBarraca(barraca) {
             <td><span class="badge-dia">${DIAS_FESTA[v.dia]}</span></td>
             <td>${v.produto}</td>
             <td>${v.qtd}</td>
-            <td>R$ ${v.preco.toFixed(2)}</td>
-            <td>R$ ${v.total.toFixed(2)}</td>
+            <td>R$ ${fmt(v.preco)}</td>
+            <td>R$ ${fmt(v.total)}</td>
             <td>
                 <button class="btn-edit" onclick="editarVenda('${barraca}', ${v.id})">✏️</button>
                 <button class="btn-delete" onclick="confirmarExclusao('Excluir esta venda?', () => removerVenda('${barraca}', ${v.id}))">X</button>
@@ -358,11 +366,11 @@ function renderizarBarraca(barraca) {
     const cls = resultado >= 0 ? 'positivo' : 'negativo';
     const lbl = filtro === 'todos' ? '' : ` (${DIAS_FESTA[filtro]})`;
     document.getElementById('resumo-' + barraca).innerHTML = `
-        <div class="item positivo"><span>Vendas${lbl}</span><strong>R$ ${totalVendas.toFixed(2)}</strong></div>
+        <div class="item positivo"><span>Vendas${lbl}</span><strong>${R$(totalVendas)}</strong></div>
         <div class="item neutro"><span>Itens Vendidos</span><strong>${totalItens}</strong></div>
-        <div class="item negativo"><span>Despesas</span><strong>R$ ${totalDespesas.toFixed(2)}</strong></div>
-        <div class="item doacao"><span>🎁 Doações</span><strong>R$ ${totalDoacoes.toFixed(2)}</strong></div>
-        <div class="item ${cls}"><span>Resultado</span><strong>R$ ${resultado.toFixed(2)}</strong></div>
+        <div class="item negativo"><span>Despesas</span><strong>${R$(totalDespesas)}</strong></div>
+        <div class="item doacao"><span>🎁 Doações</span><strong>${R$(totalDoacoes)}</strong></div>
+        <div class="item ${cls}"><span>Resultado</span><strong>${R$(resultado)}</strong></div>
     `;
 }
 
@@ -383,13 +391,13 @@ function atualizarResumoGeral() {
     const receita = totalVendas + totalPatrocinadores;
     const saldo = receita - totalDespesasCompra;
 
-    document.getElementById('receitaTotal').textContent = `R$ ${receita.toFixed(2)}`;
-    document.getElementById('receitaDetalhe').textContent = `Vendas: R$ ${totalVendas.toFixed(2)} | Patrocínios: R$ ${totalPatrocinadores.toFixed(2)}`;
-    document.getElementById('gastoTotal').textContent = `R$ ${totalDespesasCompra.toFixed(2)}`;
-    document.getElementById('gastoDetalhe').textContent = `Doações recebidas: R$ ${totalDoacoes.toFixed(2)} (não conta como gasto)`;
+    document.getElementById('receitaTotal').textContent = R$(receita);
+    document.getElementById('receitaDetalhe').textContent = `Vendas: ${R$(totalVendas)} | Patrocínios: ${R$(totalPatrocinadores)}`;
+    document.getElementById('gastoTotal').textContent = R$(totalDespesasCompra);
+    document.getElementById('gastoDetalhe').textContent = `Doações recebidas: ${R$(totalDoacoes)} (não conta como gasto)`;
 
     const saldoEl = document.getElementById('saldoFinal');
-    saldoEl.textContent = `R$ ${saldo.toFixed(2)}`;
+    saldoEl.textContent = R$(saldo);
     saldoEl.style.color = saldo >= 0 ? '#66bb6a' : '#ef5350';
     document.getElementById('saldoDetalhe').textContent = `${totalItens} itens vendidos no total`;
 }
@@ -412,10 +420,10 @@ function renderizarDashboard() {
             <div class="dash-card">
                 <h4>${NOMES_BARRACAS[b]}</h4>
                 <div class="valores">
-                    <span class="v-receita">Vendas: R$ ${tVendas.toFixed(2)}</span>
-                    <span class="v-gasto">Desp: R$ ${tDesp.toFixed(2)}</span>
+                    <span class="v-receita">Vendas: ${R$(tVendas)}</span>
+                    <span class="v-gasto">Desp: ${R$(tDesp)}</span>
                 </div>
-                <div class="resultado ${cls}">R$ ${resultado.toFixed(2)}</div>
+                <div class="resultado ${cls}">${R$(resultado)}</div>
                 <div class="itens-info">${tItens} itens vendidos</div>
             </div>
         `;
@@ -429,10 +437,10 @@ function renderizarDashboard() {
         <div class="dash-card">
             <h4>💰 Despesas Gerais</h4>
             <div class="valores">
-                <span class="v-gasto">Compras gerais: R$ ${tDespGeral.toFixed(2)}</span>
-                <span class="v-receita">Doações: R$ ${tDoacoes.toFixed(2)}</span>
+                <span class="v-gasto">Compras gerais: ${R$(tDespGeral)}</span>
+                <span class="v-receita">Doações: ${R$(tDoacoes)}</span>
             </div>
-            <div class="resultado negativo">- R$ ${tDespGeral.toFixed(2)}</div>
+            <div class="resultado negativo">- ${R$(tDespGeral)}</div>
         </div>
     `;
 
@@ -443,10 +451,10 @@ function renderizarDashboard() {
         <div class="dash-card">
             <h4>🤝 Patrocinadores</h4>
             <div class="valores">
-                <span class="v-receita">Total: R$ ${tPatr.toFixed(2)}</span>
-                <span class="v-gasto">Pendente: R$ ${patrPend.toFixed(2)}</span>
+                <span class="v-receita">Total: ${R$(tPatr)}</span>
+                <span class="v-gasto">Pendente: ${R$(patrPend)}</span>
             </div>
-            <div class="resultado positivo">+ R$ ${tPatr.toFixed(2)}</div>
+            <div class="resultado positivo">+ ${R$(tPatr)}</div>
         </div>
     `;
 
@@ -546,7 +554,7 @@ function renderizarRanking() {
                 <span class="ranking-pos ${posClass}">${i + 1}°</span>
                 <span class="ranking-nome">${item.nome}<br><span class="ranking-barraca">${NOMES_BARRACAS[item.barraca]}</span></span>
                 <span class="ranking-qtd">${item.qtd} un.</span>
-                <span class="ranking-valor">R$ ${item.valor.toFixed(2)}</span>
+                <span class="ranking-valor">${R$(item.valor)}</span>
             </div>
         `;
     }).join('');
@@ -754,7 +762,7 @@ function gastoRapido() {
 
     // Feedback
     const fb = document.getElementById('caixaFeedback');
-    fb.innerHTML = `<div class="caixa-toast">✅ ${desc} - R$ ${valor.toFixed(2)} ${doacao ? '(doação)' : ''}</div>`;
+    fb.innerHTML = `<div class="caixa-toast">✅ ${desc} - ${R$(valor)} ${doacao ? '(doação)' : ''}</div>`;
     setTimeout(() => { fb.innerHTML = ''; }, 3000);
 
     // Limpar
@@ -776,7 +784,7 @@ function renderizarUltimosGastos() {
     }
     container.innerHTML = ultimos.map(d => {
         const dest = d.destino === 'geral' ? 'Geral' : (NOMES_BARRACAS[d.destino] || d.destino);
-        return `<div class="ranking-item"><span class="ranking-nome">${d.doacao?'🎁':'💰'} ${d.desc}</span><span class="ranking-barraca">${dest}</span><span class="ranking-valor">R$ ${d.valor.toFixed(2)}</span></div>`;
+        return `<div class="ranking-item"><span class="ranking-nome">${d.doacao?'🎁':'💰'} ${d.desc}</span><span class="ranking-barraca">${dest}</span><span class="ranking-valor">${R$(d.valor)}</span></div>`;
     }).join('');
 }
 
@@ -805,7 +813,7 @@ function atualizarMeta() {
     
     if (meta > 0) {
         const pct = Math.min((totalVendas / meta) * 100, 100);
-        if (metaTexto) metaTexto.textContent = `R$ ${totalVendas.toFixed(0)} / R$ ${meta.toFixed(0)} (${pct.toFixed(0)}%)`;
+        if (metaTexto) metaTexto.textContent = `${R$(totalVendas)} / ${R$(meta)} (${pct.toFixed(0)}%)`;
         if (metaProg) {
             metaProg.style.width = pct + '%';
             metaProg.style.background = pct >= 100 ? '#66bb6a' : pct >= 70 ? '#ff8f00' : '#ef5350';
@@ -850,17 +858,17 @@ function renderizarComparativo() {
             const vd = dados[b].vendas.filter(v => v.dia === d).reduce((s,v) => s + v.total, 0);
             totalBarraca += vd;
             totaisDia[i] += vd;
-            row += `<td>R$ ${vd.toFixed(0)}</td>`;
+            row += `<td>R$ ${fmt(vd)}</td>`;
         });
-        row += `<td style="font-weight:700;color:#66bb6a">R$ ${totalBarraca.toFixed(0)}</td></tr>`;
+        row += `<td style="font-weight:700;color:#66bb6a">R$ ${fmt(totalBarraca)}</td></tr>`;
         html += row;
     });
     
     // Linha de total
     html += `<tr style="border-top:2px solid var(--cor-amarelo)"><td style="font-weight:800;color:var(--cor-amarelo)">TOTAL</td>`;
     let grandTotal = 0;
-    totaisDia.forEach(t => { html += `<td style="font-weight:700">R$ ${t.toFixed(0)}</td>`; grandTotal += t; });
-    html += `<td style="font-weight:800;color:#66bb6a">R$ ${grandTotal.toFixed(0)}</td></tr>`;
+    totaisDia.forEach(t => { html += `<td style="font-weight:700">R$ ${fmt(t)}</td>`; grandTotal += t; });
+    html += `<td style="font-weight:800;color:#66bb6a">R$ ${fmt(grandTotal)}</td></tr>`;
     
     tbody.innerHTML = html;
 }
@@ -884,11 +892,11 @@ function renderizarMargem() {
             <div class="dash-card">
                 <h4>${NOMES_BARRACAS[b]}</h4>
                 <div class="valores">
-                    <span class="v-receita">Vendas: R$ ${vendas.toFixed(2)}</span>
-                    <span class="v-gasto">Custos: R$ ${desp.toFixed(2)}</span>
+                    <span class="v-receita">Vendas: ${R$(vendas)}</span>
+                    <span class="v-gasto">Custos: ${R$(desp)}</span>
                 </div>
-                <div class="resultado ${cls}">Lucro: R$ ${lucro.toFixed(2)} (${pct}%)</div>
-                ${doac > 0 ? `<div class="itens-info">Doações: R$ ${doac.toFixed(2)}</div>` : ''}
+                <div class="resultado ${cls}">Lucro: ${R$(lucro)} (${pct}%)</div>
+                ${doac > 0 ? `<div class="itens-info">Doações: ${R$(doac)}</div>` : ''}
             </div>
         `;
     });
@@ -907,11 +915,11 @@ function renderizarResumoDoacoes() {
     }
     
     const total = doacoes.reduce((s,d) => s + d.valor, 0);
-    let html = `<div class="ranking-item" style="border-bottom:2px solid var(--cor-amarelo);margin-bottom:8px"><span class="ranking-nome" style="color:var(--cor-amarelo)">Total em doações: R$ ${total.toFixed(2)} (${doacoes.length} itens)</span></div>`;
+    let html = `<div class="ranking-item" style="border-bottom:2px solid var(--cor-amarelo);margin-bottom:8px"><span class="ranking-nome" style="color:var(--cor-amarelo)">Total em doações: ${R$(total)} (${doacoes.length} itens)</span></div>`;
     
     doacoes.forEach(d => {
         const dest = d.destino === 'geral' ? '' : ` → ${NOMES_BARRACAS[d.destino]||d.destino}`;
-        html += `<div class="ranking-item"><span class="ranking-nome">🎁 ${d.desc}${dest}</span><span class="ranking-valor">R$ ${d.valor.toFixed(2)}</span></div>`;
+        html += `<div class="ranking-item"><span class="ranking-nome">🎁 ${d.desc}${dest}</span><span class="ranking-valor">${R$(d.valor)}</span></div>`;
     });
     container.innerHTML = html;
 }
