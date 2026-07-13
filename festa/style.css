@@ -411,7 +411,6 @@ td .btn-delete:hover { background: #f44336; color: #fff; }
     justify-content: center; align-items: center;
     backdrop-filter: blur(3px);
 }
-.modal-overlay.aberto { display: flex; }
 .modal {
     background: var(--cor-madeira); border-radius: 15px;
     padding: 25px 30px; max-width: 500px; width: 90%;

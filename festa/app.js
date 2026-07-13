@@ -593,11 +593,11 @@ let edicaoAtual = null; // { tipo: 'venda'|'despesa'|'patrocinio', barraca, id }
 
 function abrirModal(titulo) {
     document.getElementById('modalTitulo').textContent = titulo;
-    document.getElementById('modalOverlay').classList.add('aberto');
+    document.getElementById('modalOverlay').style.display = 'flex';
 }
 
 function fecharModal() {
-    document.getElementById('modalOverlay').classList.remove('aberto');
+    document.getElementById('modalOverlay').style.display = 'none';
     edicaoAtual = null;
 }
 
