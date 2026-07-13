@@ -6,6 +6,8 @@
     <title>Financeiro - Arraiá da Basílica 2025</title>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -46,6 +48,19 @@
         </div>
     </div>
 
+    <!-- CONTADOR EM TEMPO REAL -->
+    <div class="contador-topo" id="contadorTopo"></div>
+
+    <!-- META -->
+    <div class="meta-container">
+        <div class="meta-header">
+            <span>🎯 Meta de Faturamento:</span>
+            <input type="number" id="metaValor" placeholder="Definir meta R$" step="1000" min="0" onchange="salvarMeta()">
+            <span id="metaTexto"></span>
+        </div>
+        <div class="meta-barra"><div class="meta-progresso" id="metaProgresso"></div></div>
+    </div>
+
     <!-- SELETOR DE DIA (apenas para vendas) -->
     <div class="dia-selector">
         <span class="dia-label">Filtrar vendas por dia:</span>
@@ -61,6 +76,7 @@
     <!-- MENU -->
     <nav class="menu-barracas">
         <button class="menu-btn active" data-section="dashboard">📊 Resumo</button>
+        <button class="menu-btn" data-section="caixa">⚡ Caixa Rápido</button>
         <button class="menu-btn" data-section="fazendinha">🌽 Fazendinha</button>
         <button class="menu-btn" data-section="cachorro-quente">🌭 C. Quente</button>
         <button class="menu-btn" data-section="kafta">🥙 Kafta</button>
@@ -79,10 +95,52 @@
 
     <main class="container">
 
+        <!-- CAIXA RÁPIDO -->
+        <section id="sec-caixa" class="section">
+            <h2>⚡ Caixa Rápido</h2>
+            <p class="secao-desc">Toque rápido para lançar vendas no celular. Selecione a barraca e clique nos botões.</p>
+            <div class="caixa-selector">
+                <label>Barraca:</label>
+                <select id="caixaBarraca" onchange="renderizarCaixa()">
+                    <option value="fazendinha">🌽 Fazendinha</option>
+                    <option value="cachorro-quente">🌭 Cachorro Quente</option>
+                    <option value="kafta">🥙 Kafta</option>
+                    <option value="pernil">🥪 Pernil</option>
+                    <option value="pastel">🥟 Pastel</option>
+                    <option value="batata-frita">🍟 Batata Frita</option>
+                    <option value="doces">🍬 Doces</option>
+                    <option value="bar">🍺 Bar</option>
+                    <option value="chopp">🍻 Chopp</option>
+                    <option value="kids">🎠 Espaço Kids</option>
+                    <option value="bingo">🎯 Bingo</option>
+                </select>
+            </div>
+            <div class="caixa-grid" id="caixaGrid"></div>
+            <div class="caixa-feedback" id="caixaFeedback"></div>
+        </section>
+
         <!-- DASHBOARD -->
         <section id="sec-dashboard" class="section active">
-            <h2>📊 Resumo Geral</h2>
+            <h2>📊 Resumo Geral - Arraiá da Basílica <span id="edicaoEvento">2025</span></h2>
             <div id="dashboardCards" class="dashboard-grid"></div>
+
+            <!-- Margem por Barraca -->
+            <div class="grafico-box" style="margin-bottom:20px;">
+                <h3>💰 Margem (Lucro/Prejuízo) por Barraca</h3>
+                <div id="margemBarracas" class="margem-grid"></div>
+            </div>
+
+            <!-- Comparativo entre dias -->
+            <div class="grafico-box" style="margin-bottom:20px;">
+                <h3>📅 Comparativo entre Dias</h3>
+                <div class="tabela-box" style="border:none;padding:0;background:none;">
+                    <table id="tabelaComparativo">
+                        <thead><tr><th>Barraca</th><th>10/Jul</th><th>11/Jul</th><th>17/Jul</th><th>18/Jul</th><th>Total</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="graficos-container">
                 <div class="grafico-box">
                     <h3>Faturamento por Barraca</h3>
@@ -93,11 +151,20 @@
                     <canvas id="graficoDias"></canvas>
                 </div>
             </div>
+
             <div class="ranking-box">
                 <h3>🏆 Ranking - Produtos Mais Vendidos</h3>
                 <div id="rankingProdutos"></div>
             </div>
+
+            <!-- Resumo de Doações -->
+            <div class="ranking-box">
+                <h3>🎁 Resumo de Doações Recebidas</h3>
+                <div id="resumoDoacoes"></div>
+            </div>
+
             <div class="export-btns">
+                <button class="btn-export" onclick="gerarRelatorioPDF()">📄 Relatório PDF</button>
                 <button class="btn-export" onclick="exportarCSV()">📥 Exportar CSV (Excel)</button>
                 <button class="btn-export" onclick="exportarJSON()">💾 Backup Completo</button>
                 <label class="btn-export btn-import">📂 Restaurar Backup
@@ -481,6 +548,7 @@
     <footer class="footer">
         <p>Paróquia Nossa Senhora Aparecida - Basílica</p>
         <p>Arraiá da Basílica 2025 | Sistema Financeiro</p>
+        <p style="margin-top:8px"><a href="painel.html" target="_blank" style="color:var(--cor-amarelo);text-decoration:none;font-weight:700;">🔗 Abrir Painel de Visualização (somente leitura)</a></p>
     </footer>
 
     <!-- MODAL DE EDIÇÃO -->

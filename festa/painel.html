@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - Arraiá da Basílica 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .painel-aviso {
+            background: rgba(21,101,192,0.2); border: 2px solid var(--cor-azul);
+            border-radius: 10px; padding: 10px 20px; text-align: center;
+            margin: 15px auto; max-width: 600px; font-size: 0.85rem;
+            color: #90caf9;
+        }
+        .painel-nav {
+            display: flex; justify-content: center; gap: 8px;
+            padding: 12px; flex-wrap: wrap;
+            background: rgba(61,43,31,0.6);
+        }
+        .painel-nav button {
+            background: var(--cor-madeira); border: 2px solid var(--cor-madeira-clara);
+            color: var(--cor-palha); padding: 8px 16px; border-radius: 20px;
+            cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            font-family: 'Nunito', sans-serif; transition: all 0.3s;
+        }
+        .painel-nav button:hover { border-color: var(--cor-amarelo); }
+        .painel-nav button.active {
+            background: linear-gradient(135deg, var(--cor-laranja), var(--cor-amarelo));
+            border-color: var(--cor-amarelo); color: #fff;
+        }
+        .painel-section { display: none; max-width: 1200px; margin: 0 auto; padding: 25px 20px; }
+        .painel-section.active { display: block; animation: fadeIn 0.3s ease; }
+        .auto-refresh { font-size: 0.7rem; opacity: 0.5; text-align: center; padding: 5px; }
+    </style>
+</head>
+<body>
+    <div class="bandeirinhas">
+        <div class="bandeirinha b1"></div><div class="bandeirinha b2"></div>
+        <div class="bandeirinha b3"></div><div class="bandeirinha b4"></div>
+        <div class="bandeirinha b5"></div><div class="bandeirinha b6"></div>
+        <div class="bandeirinha b7"></div><div class="bandeirinha b8"></div>
+        <div class="bandeirinha b9"></div><div class="bandeirinha b10"></div>
+        <div class="bandeirinha b11"></div><div class="bandeirinha b12"></div>
+    </div>
+
+    <header class="header">
+        <h1>ARRAIÁ DA BASÍLICA</h1>
+        <p>Painel de Acompanhamento - Edição 2025</p>
+        <p class="header-datas">10 e 11 de Julho | 17 e 18 de Julho</p>
+    </header>
+
+    <div class="painel-aviso">🔒 Modo somente visualização - os dados são atualizados automaticamente</div>
+
+    <!-- RESUMO -->
+    <div class="resumo-geral">
+        <div class="resumo-card receita">
+            <span>Receita Total</span>
+            <strong id="receitaTotal">R$ 0,00</strong>
+        </div>
+        <div class="resumo-card gasto">
+            <span>Despesas Totais</span>
+            <strong id="gastoTotal">R$ 0,00</strong>
+        </div>
+        <div class="resumo-card saldo">
+            <span>Saldo Final</span>
+            <strong id="saldoFinal">R$ 0,00</strong>
+        </div>
+    </div>
+
+    <nav class="painel-nav">
+        <button class="active" onclick="mostrarPainel('geral')">📊 Geral</button>
+        <button onclick="mostrarPainel('barracas')">🏪 Barracas</button>
+        <button onclick="mostrarPainel('comparativo')">📅 Por Dia</button>
+        <button onclick="mostrarPainel('despesas')">💰 Despesas</button>
+        <button onclick="mostrarPainel('doacoes')">🎁 Doações</button>
+    </nav>
+
+    <!-- GERAL -->
+    <div class="painel-section active" id="painel-geral">
+        <div id="painelCards" class="dashboard-grid"></div>
+        <div class="graficos-container">
+            <div class="grafico-box">
+                <h3>Faturamento por Barraca</h3>
+                <canvas id="graficoBarracas"></canvas>
+            </div>
+            <div class="grafico-box">
+                <h3>Faturamento por Dia</h3>
+                <canvas id="graficoDias"></canvas>
+            </div>
+        </div>
+        <div class="ranking-box">
+            <h3>🏆 Ranking - Mais Vendidos</h3>
+            <div id="rankingProdutos"></div>
+        </div>
+    </div>
+
+    <!-- BARRACAS -->
+    <div class="painel-section" id="painel-barracas">
+        <h2 style="font-family:'Baloo 2',cursive;color:var(--cor-palha);border-bottom:3px solid var(--cor-amarelo);padding-bottom:10px;margin-bottom:20px;">🏪 Resultado por Barraca</h2>
+        <div id="painelMargens" class="dashboard-grid"></div>
+    </div>
+
+    <!-- COMPARATIVO -->
+    <div class="painel-section" id="painel-comparativo">
+        <h2 style="font-family:'Baloo 2',cursive;color:var(--cor-palha);border-bottom:3px solid var(--cor-amarelo);padding-bottom:10px;margin-bottom:20px;">📅 Comparativo entre Dias</h2>
+        <div class="tabela-box">
+            <table id="tabelaComparativo">
+                <thead><tr><th>Barraca</th><th>10/Jul</th><th>11/Jul</th><th>17/Jul</th><th>18/Jul</th><th>Total</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DESPESAS -->
+    <div class="painel-section" id="painel-despesas">
+        <h2 style="font-family:'Baloo 2',cursive;color:var(--cor-palha);border-bottom:3px solid var(--cor-amarelo);padding-bottom:10px;margin-bottom:20px;">💰 Despesas</h2>
+        <div class="resumo-barraca" id="painelResumoDespesas" style="margin-bottom:20px;"></div>
+        <div class="tabela-box">
+            <table id="tabelaDespesas">
+                <thead><tr><th>Categoria</th><th>Descrição</th><th>Qtd</th><th>Valor</th><th>Local</th><th>Tipo</th><th>Status</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DOAÇÕES -->
+    <div class="painel-section" id="painel-doacoes">
+        <h2 style="font-family:'Baloo 2',cursive;color:var(--cor-palha);border-bottom:3px solid var(--cor-amarelo);padding-bottom:10px;margin-bottom:20px;">🎁 Doações Recebidas</h2>
+        <div class="resumo-barraca" id="painelTotalDoacoes" style="margin-bottom:20px;"></div>
+        <div class="tabela-box">
+            <table id="tabelaDoacoes">
+                <thead><tr><th>Categoria</th><th>Descrição</th><th>Qtd</th><th>Valor</th><th>Barraca</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="auto-refresh">Atualiza automaticamente a cada 10 segundos</div>
+
+    <footer class="footer">
+        <p>Paróquia Nossa Senhora Aparecida - Basílica</p>
+        <p>Arraiá da Basílica 2025 | Painel de Acompanhamento</p>
+    </footer>
+
+    <script>
+    const BARRACAS = [
+        'fazendinha','cachorro-quente','kafta','pernil','pastel',
+        'batata-frita','doces','bar','chopp','kids','bingo','artesanato'
+    ];
+    const NOMES = {
+        'fazendinha':'🌽 Fazendinha','cachorro-quente':'🌭 Cachorro Quente',
+        'kafta':'🥙 Kafta','pernil':'🥪 Pernil','pastel':'🥟 Pastel',
+        'batata-frita':'🍟 Batata Frita','doces':'🍬 Doces','bar':'🍺 Bar',
+        'chopp':'🍻 Chopp','kids':'🎠 Espaço Kids','bingo':'🎯 Bingo/Leilão',
+        'artesanato':'🎨 Artesanato'
+    };
+    const DIAS = {1:'10/Jul',2:'11/Jul',3:'17/Jul',4:'18/Jul'};
+    const STORAGE_KEY = 'arraia_financeiro_v4';
+
+    function carregarDados() {
+        const d = localStorage.getItem(STORAGE_KEY);
+        if (d) return JSON.parse(d);
+        return null;
+    }
+
+    function mostrarPainel(secao) {
+        document.querySelectorAll('.painel-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.painel-nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById('painel-' + secao).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    let chartB = null, chartD = null;
+
+    function renderizar() {
+        const dados = carregarDados();
+        if (!dados) { document.getElementById('painelCards').innerHTML = '<p style="text-align:center;opacity:0.5">Nenhum dado encontrado</p>'; return; }
+
+        // Resumo geral
+        let totalVendas = 0, totalItens = 0;
+        BARRACAS.forEach(b => {
+            if (dados[b]) {
+                totalVendas += dados[b].vendas.reduce((s,v) => s + v.total, 0);
+                totalItens += dados[b].vendas.reduce((s,v) => s + v.qtd, 0);
+            }
+        });
+        const totalPatr = (dados.patrocinadores||[]).reduce((s,p) => s + p.valor, 0);
+        const totalDesp = (dados.despesas||[]).filter(d => !d.doacao).reduce((s,d) => s + d.valor, 0);
+        const receita = totalVendas + totalPatr;
+        const saldo = receita - totalDesp;
+
+        document.getElementById('receitaTotal').textContent = `R$ ${receita.toFixed(2)}`;
+        document.getElementById('gastoTotal').textContent = `R$ ${totalDesp.toFixed(2)}`;
+        const sEl = document.getElementById('saldoFinal');
+        sEl.textContent = `R$ ${saldo.toFixed(2)}`;
+        sEl.style.color = saldo >= 0 ? '#66bb6a' : '#ef5350';
+
+        // Cards por barraca
+        let cardsHtml = '';
+        BARRACAS.forEach(b => {
+            if (!dados[b]) return;
+            const v = dados[b].vendas.reduce((s,x) => s + x.total, 0);
+            const it = dados[b].vendas.reduce((s,x) => s + x.qtd, 0);
+            const desp = (dados.despesas||[]).filter(d => d.destino === b && !d.doacao).reduce((s,d) => s + d.valor, 0);
+            const res = v - desp;
+            cardsHtml += `<div class="dash-card"><h4>${NOMES[b]}</h4><div class="valores"><span class="v-receita">R$ ${v.toFixed(2)}</span><span class="v-gasto">Desp: R$ ${desp.toFixed(2)}</span></div><div class="resultado ${res>=0?'positivo':'negativo'}">R$ ${res.toFixed(2)}</div><div class="itens-info">${it} itens</div></div>`;
+        });
+        document.getElementById('painelCards').innerHTML = cardsHtml;
+
+        // Margem por barraca
+        let margHtml = '';
+        BARRACAS.forEach(b => {
+            if (!dados[b]) return;
+            const v = dados[b].vendas.reduce((s,x) => s + x.total, 0);
+            const desp = (dados.despesas||[]).filter(d => d.destino === b && !d.doacao).reduce((s,d) => s + d.valor, 0);
+            const doac = (dados.despesas||[]).filter(d => d.destino === b && d.doacao).reduce((s,d) => s + d.valor, 0);
+            const lucro = v - desp;
+            const cls = lucro >= 0 ? 'positivo' : 'negativo';
+            margHtml += `<div class="dash-card"><h4>${NOMES[b]}</h4><div class="valores"><span class="v-receita">Vendas: R$ ${v.toFixed(2)}</span><span class="v-gasto">Custos: R$ ${desp.toFixed(2)}</span></div><div class="resultado ${cls}">Lucro: R$ ${lucro.toFixed(2)}</div><div class="itens-info">Doações: R$ ${doac.toFixed(2)}</div></div>`;
+        });
+        document.getElementById('painelMargens').innerHTML = margHtml;
+
+        // Comparativo
+        const tbComp = document.querySelector('#tabelaComparativo tbody');
+        let compHtml = '';
+        BARRACAS.forEach(b => {
+            if (!dados[b]) return;
+            let row = `<tr><td style="color:var(--cor-amarelo);font-weight:700">${NOMES[b]}</td>`;
+            let total = 0;
+            [1,2,3,4].forEach(d => {
+                const vd = dados[b].vendas.filter(v => v.dia === d).reduce((s,v) => s + v.total, 0);
+                total += vd;
+                row += `<td>R$ ${vd.toFixed(2)}</td>`;
+            });
+            row += `<td style="font-weight:700;color:#66bb6a">R$ ${total.toFixed(2)}</td></tr>`;
+            compHtml += row;
+        });
+        tbComp.innerHTML = compHtml;
+
+        // Despesas
+        const despesas = dados.despesas || [];
+        const tbDesp = document.querySelector('#tabelaDespesas tbody');
+        tbDesp.innerHTML = despesas.map(d => `<tr><td><span class="badge-categoria">${d.categoria}</span></td><td>${d.desc}</td><td>${d.qtd||1} ${d.unidade||'un'}</td><td>R$ ${d.valor.toFixed(2)}</td><td>${d.local||'-'}</td><td><span class="${d.doacao?'badge-doacao':'badge-compra'}">${d.doacao?'Doação':'Compra'}</span></td><td><span class="${d.pago?'badge-pago':'badge-pendente'}">${d.pago?'Pago':'Pendente'}</span></td></tr>`).join('');
+        const tDesp = despesas.reduce((s,d)=>s+d.valor,0);
+        const tDoac = despesas.filter(d=>d.doacao).reduce((s,d)=>s+d.valor,0);
+        const tPago = despesas.filter(d=>d.pago&&!d.doacao).reduce((s,d)=>s+d.valor,0);
+        const tPend = despesas.filter(d=>!d.pago&&!d.doacao).reduce((s,d)=>s+d.valor,0);
+        document.getElementById('painelResumoDespesas').innerHTML = `<div class="item negativo"><span>Total</span><strong>R$ ${tDesp.toFixed(2)}</strong></div><div class="item doacao"><span>Doações</span><strong>R$ ${tDoac.toFixed(2)}</strong></div><div class="item positivo"><span>Pago</span><strong>R$ ${tPago.toFixed(2)}</strong></div><div class="item negativo"><span>Pendente</span><strong>R$ ${tPend.toFixed(2)}</strong></div>`;
+
+        // Doações
+        const doacoes = despesas.filter(d => d.doacao);
+        const tbDoac = document.querySelector('#tabelaDoacoes tbody');
+        tbDoac.innerHTML = doacoes.map(d => {
+            const dest = d.destino==='geral'?'Geral':(NOMES[d.destino]||d.destino);
+            return `<tr><td><span class="badge-categoria">${d.categoria}</span></td><td>${d.desc}</td><td>${d.qtd||1} ${d.unidade||'un'}</td><td>R$ ${d.valor.toFixed(2)}</td><td>${dest}</td></tr>`;
+        }).join('');
+        document.getElementById('painelTotalDoacoes').innerHTML = `<div class="item doacao"><span>Total em Doações</span><strong>R$ ${tDoac.toFixed(2)}</strong></div><div class="item neutro"><span>Itens Doados</span><strong>${doacoes.length}</strong></div>`;
+
+        // Ranking
+        const prodMap = {};
+        BARRACAS.forEach(b => {
+            if (!dados[b]) return;
+            dados[b].vendas.forEach(v => {
+                if (!prodMap[v.produto]) prodMap[v.produto] = {qtd:0,valor:0};
+                prodMap[v.produto].qtd += v.qtd;
+                prodMap[v.produto].valor += v.total;
+            });
+        });
+        const ranking = Object.entries(prodMap).map(([n,d])=>({nome:n,...d})).sort((a,b)=>b.qtd-a.qtd).slice(0,10);
+        document.getElementById('rankingProdutos').innerHTML = ranking.length === 0
+            ? '<p style="text-align:center;opacity:0.5;padding:15px">Nenhuma venda ainda</p>'
+            : ranking.map((it,i) => `<div class="ranking-item"><span class="ranking-pos ${i<3?'top'+(i+1):''}">${i+1}°</span><span class="ranking-nome">${it.nome}</span><span class="ranking-qtd">${it.qtd} un.</span><span class="ranking-valor">R$ ${it.valor.toFixed(2)}</span></div>`).join('');
+
+        // Gráficos
+        const labels = BARRACAS.filter(b=>dados[b]).map(b => NOMES[b].replace(/^.{2}/,''));
+        const vData = BARRACAS.filter(b=>dados[b]).map(b => dados[b].vendas.reduce((s,v)=>s+v.total,0));
+        const ctxB = document.getElementById('graficoBarracas');
+        if (chartB) chartB.destroy();
+        chartB = new Chart(ctxB, {type:'bar',data:{labels,datasets:[{label:'Vendas',data:vData,backgroundColor:'rgba(102,187,106,0.7)',borderColor:'#66bb6a',borderWidth:1}]},options:{responsive:true,plugins:{legend:{labels:{color:'#f5deb3'}}},scales:{x:{ticks:{color:'#f5deb3',font:{size:9}},grid:{color:'rgba(245,222,179,0.08)'}},y:{ticks:{color:'#f5deb3'},grid:{color:'rgba(245,222,179,0.08)'}}}}});
+
+        const dLabels = Object.values(DIAS);
+        const vDia = [1,2,3,4].map(d => { let t=0; BARRACAS.forEach(b=>{if(dados[b])t+=dados[b].vendas.filter(v=>v.dia===d).reduce((s,v)=>s+v.total,0);}); return t; });
+        const ctxD = document.getElementById('graficoDias');
+        if (chartD) chartD.destroy();
+        chartD = new Chart(ctxD, {type:'bar',data:{labels:dLabels,datasets:[{label:'Vendas',data:vDia,backgroundColor:['rgba(229,57,53,0.7)','rgba(255,179,0,0.7)','rgba(67,160,71,0.7)','rgba(30,136,229,0.7)'],borderWidth:1}]},options:{responsive:true,plugins:{legend:{labels:{color:'#f5deb3'}}},scales:{x:{ticks:{color:'#f5deb3'},grid:{color:'rgba(245,222,179,0.08)'}},y:{ticks:{color:'#f5deb3'},grid:{color:'rgba(245,222,179,0.08)'}}}}});
+    }
+
+    // Atualiza a cada 10 segundos
+    renderizar();
+    setInterval(renderizar, 10000);
+    </script>
+</body>
+</html>
