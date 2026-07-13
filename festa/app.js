@@ -1,12 +1,13 @@
 // ===== CONFIGURAÇÃO =====
 const BARRACAS = [
-    'fazendinha', 'cachorro-quente', 'pernil', 'pastel',
-    'batata-frita', 'doces', 'bar', 'chopp', 'kids', 'artesanato'
+    'fazendinha', 'cachorro-quente', 'kafta', 'pernil', 'pastel',
+    'batata-frita', 'doces', 'bar', 'chopp', 'kids', 'bingo', 'artesanato'
 ];
 
 const NOMES_BARRACAS = {
     'fazendinha': '🌽 Fazendinha',
     'cachorro-quente': '🌭 Cachorro Quente',
+    'kafta': '🥙 Kafta',
     'pernil': '🥪 Lanche de Pernil',
     'pastel': '🥟 Pastel',
     'batata-frita': '🍟 Batata Frita',
@@ -14,6 +15,7 @@ const NOMES_BARRACAS = {
     'bar': '🍺 Bar',
     'chopp': '🍻 Chopp',
     'kids': '🎠 Espaço Kids',
+    'bingo': '🎯 Bingo/Leilão',
     'artesanato': '🎨 Artesanato'
 };
 
@@ -98,11 +100,33 @@ function lancarVendaArtesanato() {
     renderizarTudo();
 }
 
+// ===== LANÇAR VENDA LEILÃO (preço livre) =====
+function lancarVendaLeilao() {
+    const descInput = document.getElementById('descVenda-bingo');
+    const precoInput = document.getElementById('precoVenda-bingo');
+    const qtdInput = document.getElementById('qtdLeilao-bingo');
+    const produto = descInput.value.trim();
+    const preco = parseFloat(precoInput.value);
+    const qtd = parseInt(qtdInput.value) || 1;
+    if (!produto || isNaN(preco) || preco <= 0 || qtd < 1) return;
+
+    const dia = filtro === 'todos' ? 1 : filtro;
+    dados['bingo'].vendas.push({
+        id: Date.now(), dia, produto, preco, qtd, total: preco * qtd
+    });
+    salvarDados(dados);
+    descInput.value = ''; precoInput.value = ''; qtdInput.value = 1;
+    renderizarTudo();
+}
+
 // ===== DESPESAS (independente de dia) =====
 function lancarDespesa() {
     const categoria = document.getElementById('categoriaDespesa').value;
     const desc = document.getElementById('descDespesa').value.trim();
+    const qtd = parseFloat(document.getElementById('qtdDespesa').value) || 1;
+    const unidade = document.getElementById('unidadeDespesa').value;
     const valor = parseFloat(document.getElementById('valorDespesa').value);
+    const local = document.getElementById('localDespesa').value.trim();
     const obs = document.getElementById('obsDespesa').value.trim();
     const destino = document.getElementById('destinoDespesa').value;
     const doacao = document.getElementById('doacaoDespesa').checked;
@@ -111,11 +135,13 @@ function lancarDespesa() {
     if (!desc || isNaN(valor) || valor <= 0) return;
 
     dados.despesas.push({
-        id: Date.now(), categoria, desc, valor, obs, destino, doacao, pago: !pagarDepois
+        id: Date.now(), categoria, desc, qtd, unidade, valor, local, obs, destino, doacao, pago: !pagarDepois
     });
     salvarDados(dados);
     document.getElementById('descDespesa').value = '';
+    document.getElementById('qtdDespesa').value = '1';
     document.getElementById('valorDespesa').value = '';
+    document.getElementById('localDespesa').value = '';
     document.getElementById('obsDespesa').value = '';
     document.getElementById('doacaoDespesa').checked = false;
     document.getElementById('pagarDespesa').checked = false;
@@ -132,6 +158,15 @@ function togglePagoDespesa(id) {
     if (item) { item.pago = !item.pago; salvarDados(dados); renderizarTudo(); }
 }
 
+const FILTRO_GRUPOS = {
+    alimentos: ['Carnes','Pães e Massas','Verduras e Legumes','Temperos e Condimentos','Laticínios','Bebidas (compra)','Doces e Ingredientes','Óleos e Gorduras','Outros Alimentos'],
+    infraestrutura: ['Barracas e Tendas','Mesas e Cadeiras','Iluminação','Energia / Gerador','Palco','Banheiros Químicos'],
+    equipamentos: ['Som e Música','Refrigeração','Fogão / Chapa / Fritadeira','Chopeira','Outros Equipamentos'],
+    operacional: ['Segurança','Descartáveis','Limpeza','Gás','Carvão / Lenha','Embalagens'],
+    divulgacao: ['Decoração','Divulgação / Marketing','Impressos'],
+    servicos: ['Transporte / Frete','Pessoal / Mão de obra','Taxas e Licenças','Seguros','Outros']
+};
+
 function filtrarDespesas(tipo) {
     filtroDespesa = tipo;
     document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
@@ -147,19 +182,25 @@ function renderizarDespesas() {
     } else if (filtroDespesa === 'pendente') {
         lista = lista.filter(d => !d.pago);
     } else if (filtroDespesa !== 'todos') {
-        lista = lista.filter(d => d.categoria === filtroDespesa);
+        const grupo = FILTRO_GRUPOS[filtroDespesa];
+        if (grupo) {
+            lista = lista.filter(d => grupo.includes(d.categoria));
+        }
     }
 
     const tbody = document.querySelector('#tabelaDespesas tbody');
     tbody.innerHTML = lista.map(d => {
         const nomeDestino = d.destino === 'geral' ? 'Geral' : (NOMES_BARRACAS[d.destino] || d.destino);
+        const qtdStr = d.qtd && d.unidade ? `${d.qtd} ${d.unidade}` : '-';
+        const localStr = d.local || '-';
         return `
         <tr>
             <td><span class="badge-categoria">${d.categoria}</span></td>
-            <td>${d.desc}</td>
+            <td>${d.desc}${d.obs ? '<br><small style="opacity:0.6">' + d.obs + '</small>' : ''}</td>
+            <td>${qtdStr}</td>
             <td>${nomeDestino}</td>
             <td>R$ ${d.valor.toFixed(2)}</td>
-            <td>${d.obs || '-'}</td>
+            <td>${localStr}</td>
             <td><span class="${d.doacao ? 'badge-doacao' : 'badge-compra'}">${d.doacao ? '🎁 Doação' : 'Compra'}</span></td>
             <td><span class="${d.pago ? 'badge-pago' : 'badge-pendente'}" onclick="togglePagoDespesa(${d.id})">${d.pago ? 'Pago' : 'Pendente'}</span></td>
             <td><button class="btn-delete" onclick="removerDespesa(${d.id})">X</button></td>
@@ -172,6 +213,7 @@ function renderizarDespesas() {
     const totalCompras = total - totalDoacoes;
     const totalPago = dados.despesas.filter(d => d.pago && !d.doacao).reduce((s, d) => s + d.valor, 0);
     const totalPendente = dados.despesas.filter(d => !d.pago && !d.doacao).reduce((s, d) => s + d.valor, 0);
+    const totalItens = dados.despesas.length;
 
     document.getElementById('resumoDespesas').innerHTML = `
         <div class="item negativo"><span>Total Despesas</span><strong>R$ ${total.toFixed(2)}</strong></div>
@@ -179,6 +221,7 @@ function renderizarDespesas() {
         <div class="item negativo"><span>Compras</span><strong>R$ ${totalCompras.toFixed(2)}</strong></div>
         <div class="item positivo"><span>Pago</span><strong>R$ ${totalPago.toFixed(2)}</strong></div>
         <div class="item negativo"><span>Pendente</span><strong>R$ ${totalPendente.toFixed(2)}</strong></div>
+        <div class="item neutro"><span>Itens Lanç.</span><strong>${totalItens}</strong></div>
     `;
 }
 

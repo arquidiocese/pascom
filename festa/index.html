@@ -21,6 +21,7 @@
     </div>
 
     <header class="header">
+	<img src="logo.png" alt="Arraiá da Basílica" class="header-logo">
         <h1>ARRAIÁ DA BASÍLICA</h1>
         <p>Controle Financeiro - Edição 2025</p>
         <p class="header-datas">10 e 11 de Julho | 17 e 18 de Julho</p>
@@ -62,6 +63,7 @@
         <button class="menu-btn active" data-section="dashboard">📊 Resumo</button>
         <button class="menu-btn" data-section="fazendinha">🌽 Fazendinha</button>
         <button class="menu-btn" data-section="cachorro-quente">🌭 C. Quente</button>
+        <button class="menu-btn" data-section="kafta">🥙 Kafta</button>
         <button class="menu-btn" data-section="pernil">🥪 Pernil</button>
         <button class="menu-btn" data-section="pastel">🥟 Pastel</button>
         <button class="menu-btn" data-section="batata-frita">🍟 Batata Frita</button>
@@ -69,6 +71,7 @@
         <button class="menu-btn" data-section="bar">🍺 Bar</button>
         <button class="menu-btn" data-section="chopp">🍻 Chopp</button>
         <button class="menu-btn" data-section="kids">🎠 Espaço Kids</button>
+        <button class="menu-btn" data-section="bingo">🎯 Bingo/Leilão</button>
         <button class="menu-btn" data-section="artesanato">🎨 Artesanato</button>
         <button class="menu-btn" data-section="despesas">💰 Despesas</button>
         <button class="menu-btn" data-section="patrocinadores">🤝 Patrocinadores</button>
@@ -114,6 +117,9 @@
                         <option value="Pipoca" data-preco="5">Pipoca - R$ 5,00</option>
                         <option value="Pamonha" data-preco="20">Pamonha - R$ 20,00</option>
                         <option value="Curau" data-preco="15">Curau - R$ 15,00</option>
+                        <option value="Quentão" data-preco="12">Quentão - R$ 12,00</option>
+                        <option value="Vinho Quente" data-preco="17">Vinho Quente - R$ 17,00</option>
+                        <option value="Chocolate Quente" data-preco="15">Chocolate Quente - R$ 15,00</option>
                     </select>
                     <input type="number" id="qtd-fazendinha" placeholder="Qtd" min="1" value="1">
                     <button class="btn-venda" onclick="lancarVenda('fazendinha')">Lançar</button>
@@ -131,7 +137,6 @@
                 <div class="form-row">
                     <select id="prod-cachorro-quente">
                         <option value="Cachorro Quente" data-preco="17">Cachorro Quente - R$ 17,00</option>
-                        <option value="Kafta" data-preco="17">Kafta - R$ 17,00</option>
                     </select>
                     <input type="number" id="qtd-cachorro-quente" placeholder="Qtd" min="1" value="1">
                     <button class="btn-venda" onclick="lancarVenda('cachorro-quente')">Lançar</button>
@@ -139,6 +144,23 @@
             </div>
             <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-cachorro-quente"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
             <div class="resumo-barraca" id="resumo-cachorro-quente"></div>
+        </section>
+
+        <!-- KAFTA -->
+        <section id="sec-kafta" class="section">
+            <h2>🥙 Kafta</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-kafta">
+                        <option value="Kafta" data-preco="17">Kafta - R$ 17,00</option>
+                    </select>
+                    <input type="number" id="qtd-kafta" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('kafta')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-kafta"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-kafta"></div>
         </section>
 
         <!-- LANCHE DE PERNIL -->
@@ -225,9 +247,6 @@
                         <option value="Refrigerante" data-preco="8">Refrigerante - R$ 8,00</option>
                         <option value="Suco" data-preco="7">Suco - R$ 7,00</option>
                         <option value="Água" data-preco="5">Água - R$ 5,00</option>
-                        <option value="Quentão" data-preco="12">Quentão - R$ 12,00</option>
-                        <option value="Vinho Quente" data-preco="17">Vinho Quente - R$ 17,00</option>
-                        <option value="Chocolate Quente" data-preco="15">Chocolate Quente - R$ 15,00</option>
                     </select>
                     <input type="number" id="qtd-bar" placeholder="Qtd" min="1" value="1">
                     <button class="btn-venda" onclick="lancarVenda('bar')">Lançar</button>
@@ -259,14 +278,12 @@
 
         <!-- ESPAÇO KIDS -->
         <section id="sec-kids" class="section">
-            <h2>🎠 Espaço Kids e Bingos</h2>
+            <h2>🎠 Espaço Kids</h2>
             <div class="painel-madeira">
                 <h3>Lançar Venda</h3>
                 <div class="form-row">
                     <select id="prod-kids">
                         <option value="Espaço Kids" data-preco="20">Espaço Kids - R$ 20,00</option>
-                        <option value="Bingo Cartela Simples" data-preco="10">Bingo Cartela Simples - R$ 10,00</option>
-                        <option value="Bingo Cartela Especial" data-preco="20">Bingo Cartela Especial - R$ 20,00</option>
                     </select>
                     <input type="number" id="qtd-kids" placeholder="Qtd" min="1" value="1">
                     <button class="btn-venda" onclick="lancarVenda('kids')">Lançar</button>
@@ -274,6 +291,31 @@
             </div>
             <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-kids"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
             <div class="resumo-barraca" id="resumo-kids"></div>
+        </section>
+
+        <!-- BINGO / LEILÃO -->
+        <section id="sec-bingo" class="section">
+            <h2>🎯 Bingo e Leilão</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-bingo">
+                        <option value="Bingo Cartela Simples" data-preco="10">Bingo Cartela Simples - R$ 10,00</option>
+                        <option value="Bingo Cartela Especial" data-preco="20">Bingo Cartela Especial - R$ 20,00</option>
+                    </select>
+                    <input type="number" id="qtd-bingo" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('bingo')">Lançar</button>
+                </div>
+                <h3>Lançar Venda Leilão (valor variável)</h3>
+                <div class="form-row">
+                    <input type="text" id="descVenda-bingo" placeholder="Descrição do item leiloado">
+                    <input type="number" id="precoVenda-bingo" placeholder="Valor R$" step="0.01" min="0">
+                    <input type="number" id="qtdLeilao-bingo" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVendaLeilao()">Lançar Leilão</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-bingo"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-bingo"></div>
         </section>
 
         <!-- ARTESANATO -->
@@ -295,33 +337,86 @@
         <!-- DESPESAS (sem vínculo a dia) -->
         <section id="sec-despesas" class="section">
             <h2>💰 Despesas Gerais</h2>
-            <p class="secao-desc">Todos os custos do evento: ingredientes, infraestrutura, segurança, equipamentos, etc. Não vinculado a dia específico.</p>
+            <p class="secao-desc">Todos os custos do evento: ingredientes, infraestrutura, segurança, equipamentos, etc. Não vinculado a dia específico. Pode ser lançado antes, durante ou depois da festa.</p>
             
             <div class="painel-madeira">
                 <h3>Lançar Despesa</h3>
                 <div class="form-row">
                     <select id="categoriaDespesa">
-                        <option value="Ingredientes">Ingredientes / Alimentos</option>
-                        <option value="Infraestrutura">Infraestrutura (barracas, tendas)</option>
-                        <option value="Equipamentos">Equipamentos (som, luz, gerador)</option>
-                        <option value="Segurança">Segurança</option>
-                        <option value="Descartáveis">Descartáveis (copos, pratos, talheres)</option>
-                        <option value="Decoração">Decoração</option>
-                        <option value="Divulgação">Divulgação / Marketing</option>
-                        <option value="Banheiros">Banheiros Químicos</option>
-                        <option value="Transporte">Transporte / Frete</option>
-                        <option value="Pessoal">Pessoal / Mão de obra</option>
-                        <option value="Outros">Outros</option>
+                        <optgroup label="Alimentos e Bebidas">
+                            <option value="Carnes">Carnes (pernil, linguiça, kafta...)</option>
+                            <option value="Pães e Massas">Pães e Massas</option>
+                            <option value="Verduras e Legumes">Verduras e Legumes</option>
+                            <option value="Temperos e Condimentos">Temperos e Condimentos</option>
+                            <option value="Laticínios">Laticínios (queijo, leite...)</option>
+                            <option value="Bebidas (compra)">Bebidas (compra de estoque)</option>
+                            <option value="Doces e Ingredientes">Doces e Ingredientes (açúcar, frutas...)</option>
+                            <option value="Óleos e Gorduras">Óleos e Gorduras</option>
+                            <option value="Outros Alimentos">Outros Alimentos</option>
+                        </optgroup>
+                        <optgroup label="Infraestrutura">
+                            <option value="Barracas e Tendas">Barracas e Tendas</option>
+                            <option value="Mesas e Cadeiras">Mesas e Cadeiras</option>
+                            <option value="Iluminação">Iluminação</option>
+                            <option value="Energia / Gerador">Energia / Gerador</option>
+                            <option value="Palco">Palco</option>
+                            <option value="Banheiros Químicos">Banheiros Químicos</option>
+                        </optgroup>
+                        <optgroup label="Equipamentos">
+                            <option value="Som e Música">Som e Música</option>
+                            <option value="Refrigeração">Refrigeração (freezer, geladeira)</option>
+                            <option value="Fogão / Chapa / Fritadeira">Fogão / Chapa / Fritadeira</option>
+                            <option value="Chopeira">Chopeira</option>
+                            <option value="Outros Equipamentos">Outros Equipamentos</option>
+                        </optgroup>
+                        <optgroup label="Operacional">
+                            <option value="Segurança">Segurança</option>
+                            <option value="Descartáveis">Descartáveis (copos, pratos, talheres)</option>
+                            <option value="Limpeza">Limpeza</option>
+                            <option value="Gás">Gás</option>
+                            <option value="Carvão / Lenha">Carvão / Lenha</option>
+                            <option value="Embalagens">Embalagens (sacolas, marmitex)</option>
+                        </optgroup>
+                        <optgroup label="Divulgação e Decoração">
+                            <option value="Decoração">Decoração</option>
+                            <option value="Divulgação / Marketing">Divulgação / Marketing</option>
+                            <option value="Impressos">Impressos (ingressos, fichas, banners)</option>
+                        </optgroup>
+                        <optgroup label="Serviços e Outros">
+                            <option value="Transporte / Frete">Transporte / Frete</option>
+                            <option value="Pessoal / Mão de obra">Pessoal / Mão de obra</option>
+                            <option value="Taxas e Licenças">Taxas e Licenças (alvará, bombeiros)</option>
+                            <option value="Seguros">Seguros</option>
+                            <option value="Outros">Outros</option>
+                        </optgroup>
                     </select>
-                    <input type="text" id="descDespesa" placeholder="Descrição (ex: 10kg de pernil, 500 pães...)">
-                    <input type="number" id="valorDespesa" placeholder="Valor R$" step="0.01" min="0">
+                    <input type="text" id="descDespesa" placeholder="Item (ex: 10kg de pernil, 500 pães, 3 botijões...)">
                 </div>
                 <div class="form-row">
-                    <input type="text" id="obsDespesa" placeholder="Observação (opcional)">
+                    <input type="number" id="qtdDespesa" placeholder="Qtd" min="1" value="1" step="1">
+                    <select id="unidadeDespesa">
+                        <option value="un">Unidade(s)</option>
+                        <option value="kg">Kg</option>
+                        <option value="g">Gramas</option>
+                        <option value="L">Litros</option>
+                        <option value="ml">ml</option>
+                        <option value="cx">Caixa(s)</option>
+                        <option value="pct">Pacote(s)</option>
+                        <option value="fardo">Fardo(s)</option>
+                        <option value="dz">Dúzia(s)</option>
+                        <option value="m">Metro(s)</option>
+                        <option value="diária">Diária(s)</option>
+                        <option value="serviço">Serviço</option>
+                    </select>
+                    <input type="number" id="valorDespesa" placeholder="Valor Total R$" step="0.01" min="0">
+                    <input type="text" id="localDespesa" placeholder="Local da compra (ex: Assaí, Porecatu...)">
+                </div>
+                <div class="form-row">
                     <select id="destinoDespesa">
                         <option value="geral">Geral (evento todo)</option>
                         <option value="fazendinha">Fazendinha</option>
                         <option value="cachorro-quente">Cachorro Quente</option>
+                        <option value="kafta">Kafta</option>
                         <option value="pernil">Lanche de Pernil</option>
                         <option value="pastel">Pastel</option>
                         <option value="batata-frita">Batata Frita</option>
@@ -329,8 +424,10 @@
                         <option value="bar">Bar</option>
                         <option value="chopp">Chopp</option>
                         <option value="kids">Espaço Kids</option>
+                        <option value="bingo">Bingo / Leilão</option>
                         <option value="artesanato">Artesanato</option>
                     </select>
+                    <input type="text" id="obsDespesa" placeholder="Observação (opcional)">
                     <label class="checkbox-opt"><input type="checkbox" id="doacaoDespesa"> 🎁 Doação</label>
                     <label class="checkbox-opt"><input type="checkbox" id="pagarDespesa"> ⏳ Pagar depois</label>
                     <button class="btn-gasto" onclick="lancarDespesa()">Lançar Despesa</button>
@@ -340,18 +437,19 @@
             <!-- Filtros da tabela -->
             <div class="filtros-despesa">
                 <button class="filtro-btn active" data-filtro="todos" onclick="filtrarDespesas('todos')">Todos</button>
-                <button class="filtro-btn" data-filtro="Ingredientes" onclick="filtrarDespesas('Ingredientes')">Ingredientes</button>
-                <button class="filtro-btn" data-filtro="Infraestrutura" onclick="filtrarDespesas('Infraestrutura')">Infraestrutura</button>
-                <button class="filtro-btn" data-filtro="Equipamentos" onclick="filtrarDespesas('Equipamentos')">Equipamentos</button>
-                <button class="filtro-btn" data-filtro="Segurança" onclick="filtrarDespesas('Segurança')">Segurança</button>
-                <button class="filtro-btn" data-filtro="Descartáveis" onclick="filtrarDespesas('Descartáveis')">Descartáveis</button>
+                <button class="filtro-btn" data-filtro="alimentos" onclick="filtrarDespesas('alimentos')">🥩 Alimentos</button>
+                <button class="filtro-btn" data-filtro="infraestrutura" onclick="filtrarDespesas('infraestrutura')">🏗️ Infraestrutura</button>
+                <button class="filtro-btn" data-filtro="equipamentos" onclick="filtrarDespesas('equipamentos')">⚙️ Equipamentos</button>
+                <button class="filtro-btn" data-filtro="operacional" onclick="filtrarDespesas('operacional')">🧹 Operacional</button>
+                <button class="filtro-btn" data-filtro="divulgacao" onclick="filtrarDespesas('divulgacao')">📢 Divulgação</button>
+                <button class="filtro-btn" data-filtro="servicos" onclick="filtrarDespesas('servicos')">🔧 Serviços</button>
                 <button class="filtro-btn" data-filtro="doacao" onclick="filtrarDespesas('doacao')">🎁 Doações</button>
                 <button class="filtro-btn" data-filtro="pendente" onclick="filtrarDespesas('pendente')">⏳ Pendentes</button>
             </div>
 
             <div class="tabela-box">
                 <table id="tabelaDespesas">
-                    <thead><tr><th>Categoria</th><th>Descrição</th><th>Barraca</th><th>Valor</th><th>Obs</th><th>Tipo</th><th>Status</th><th></th></tr></thead>
+                    <thead><tr><th>Categoria</th><th>Descrição</th><th>Qtd</th><th>Barraca</th><th>Valor</th><th>Local</th><th>Tipo</th><th>Status</th><th></th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
