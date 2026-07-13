@@ -574,7 +574,7 @@ function exportarCSV() {
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'financeiro_arraia_basilica_2025.csv';
+    link.download = 'financeiro_arraia_basilica_2026.csv';
     link.click();
 }
 
@@ -582,15 +582,15 @@ function exportarCSV() {
 function exportarJSON() {
     const exportData = {
         versao: '4.0',
-        evento: 'Arraiá da Basílica 2025',
-        datas: ['10/07/2025', '11/07/2025', '17/07/2025', '18/07/2025'],
+        evento: 'Arraiá da Basílica 2026',
+        datas: ['10/07/2026', '11/07/2026', '17/07/2026', '18/07/2026'],
         exportadoEm: new Date().toISOString(),
         dados: dados
     };
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'backup_arraia_basilica_2025.json';
+    link.download = 'backup_arraia_basilica_2026.json';
     link.click();
 }
 
@@ -631,6 +631,7 @@ function renderizarTudo() {
     renderizarComparativo();
     renderizarMargem();
     renderizarResumoDoacoes();
+    renderizarUltimosGastos();
 }
 
 // ===== MODAL DE EDIÇÃO =====
@@ -735,44 +736,51 @@ function confirmarExclusao(msg, callback) {
     if (confirm(msg)) callback();
 }
 
-// ===== CAIXA RÁPIDO =====
-function renderizarCaixa() {
-    const barraca = document.getElementById('caixaBarraca').value;
-    const produtos = PRODUTOS_BARRACA[barraca] || [];
-    const grid = document.getElementById('caixaGrid');
-    
-    if (produtos.length === 0) {
-        grid.innerHTML = '<p style="text-align:center;opacity:0.5;padding:20px">Esta barraca usa preço variável. Use a seção normal.</p>';
-        return;
-    }
+// ===== GASTO RÁPIDO =====
+function gastoRapido() {
+    const desc = document.getElementById('caixaDesc').value.trim();
+    const valor = parseFloat(document.getElementById('caixaValor').value);
+    const destino = document.getElementById('caixaDestino').value;
+    const categoria = document.getElementById('caixaCategoria').value;
+    const doacao = document.getElementById('caixaDoacao').checked;
 
-    grid.innerHTML = produtos.map(p => `
-        <div class="caixa-produto">
-            <div class="caixa-nome">${p.nome}</div>
-            <div class="caixa-preco">R$ ${p.preco.toFixed(2)}</div>
-            <div class="caixa-btns">
-                <button class="caixa-btn" onclick="vendaRapida('${barraca}','${p.nome}',${p.preco},1)">+1</button>
-                <button class="caixa-btn" onclick="vendaRapida('${barraca}','${p.nome}',${p.preco},5)">+5</button>
-                <button class="caixa-btn" onclick="vendaRapida('${barraca}','${p.nome}',${p.preco},10)">+10</button>
-            </div>
-        </div>
-    `).join('');
-}
+    if (!desc || isNaN(valor) || valor <= 0) return;
 
-function vendaRapida(barraca, produto, preco, qtd) {
-    const dia = filtro === 'todos' ? 1 : filtro;
-    dados[barraca].vendas.push({
-        id: Date.now(), dia, produto, preco, qtd, total: preco * qtd
+    dados.despesas.push({
+        id: Date.now(), categoria, desc, qtd: 1, unidade: 'un',
+        valor, local: '', obs: '(Lançado rápido)', destino, doacao, pago: true
     });
     salvarDados(dados);
-    
-    // Feedback visual
+
+    // Feedback
     const fb = document.getElementById('caixaFeedback');
-    fb.innerHTML = `<div class="caixa-toast">✅ ${qtd}x ${produto} = R$ ${(preco*qtd).toFixed(2)}</div>`;
-    setTimeout(() => { fb.innerHTML = ''; }, 2000);
-    
+    fb.innerHTML = `<div class="caixa-toast">✅ ${desc} - R$ ${valor.toFixed(2)} ${doacao ? '(doação)' : ''}</div>`;
+    setTimeout(() => { fb.innerHTML = ''; }, 3000);
+
+    // Limpar
+    document.getElementById('caixaDesc').value = '';
+    document.getElementById('caixaValor').value = '';
+    document.getElementById('caixaDoacao').checked = false;
+
+    renderizarUltimosGastos();
     renderizarTudo();
 }
+
+function renderizarUltimosGastos() {
+    const container = document.getElementById('caixaUltimos');
+    if (!container) return;
+    const ultimos = (dados.despesas || []).filter(d => d.obs === '(Lançado rápido)').slice(-10).reverse();
+    if (ultimos.length === 0) {
+        container.innerHTML = '<p style="opacity:0.5;text-align:center;padding:10px;font-size:0.8rem">Nenhum gasto rápido ainda</p>';
+        return;
+    }
+    container.innerHTML = ultimos.map(d => {
+        const dest = d.destino === 'geral' ? 'Geral' : (NOMES_BARRACAS[d.destino] || d.destino);
+        return `<div class="ranking-item"><span class="ranking-nome">${d.doacao?'🎁':'💰'} ${d.desc}</span><span class="ranking-barraca">${dest}</span><span class="ranking-valor">R$ ${d.valor.toFixed(2)}</span></div>`;
+    }).join('');
+}
+
+function renderizarCaixa() { renderizarUltimosGastos(); }
 
 // ===== META =====
 function salvarMeta() {
@@ -914,7 +922,7 @@ function gerarRelatorioPDF() {
     const doc = new jsPDF();
     
     doc.setFontSize(18);
-    doc.text('Arraiá da Basílica - Relatório Financeiro 2025', 14, 20);
+    doc.text('Arraiá da Basílica - Relatório Financeiro 2026', 14, 20);
     doc.setFontSize(10);
     doc.text('Datas: 10/Jul, 11/Jul, 17/Jul, 18/Jul', 14, 28);
     doc.text('Gerado em: ' + new Date().toLocaleString('pt-BR'), 14, 34);
@@ -967,7 +975,7 @@ function gerarRelatorioPDF() {
         headStyles: { fillColor: [21, 101, 192] }
     });
     
-    doc.save('relatorio_arraia_basilica_2025.pdf');
+    doc.save('relatorio_arraia_basilica_2026.pdf');
 }
 
 // ===== INIT =====
