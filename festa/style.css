@@ -403,3 +403,51 @@ td .btn-delete:hover { background: #f44336; color: #fff; }
     .filtros-despesa { gap: 4px; }
     .filtro-btn { padding: 5px 8px; font-size: 0.68rem; }
 }
+
+/* MODAL */
+.modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 2000;
+    justify-content: center; align-items: center;
+    backdrop-filter: blur(3px);
+}
+.modal-overlay.aberto { display: flex; }
+.modal {
+    background: var(--cor-madeira); border-radius: 15px;
+    padding: 25px 30px; max-width: 500px; width: 90%;
+    border: 2px solid var(--cor-amarelo);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.modal h3 {
+    font-family: 'Baloo 2', cursive; color: var(--cor-amarelo);
+    margin-bottom: 20px; font-size: 1.2rem;
+}
+.modal .campo {
+    margin-bottom: 12px;
+}
+.modal .campo label {
+    display: block; font-size: 0.8rem; color: var(--cor-palha);
+    opacity: 0.8; margin-bottom: 4px; font-weight: 600;
+}
+.modal .campo input,
+.modal .campo select {
+    width: 100%; padding: 10px 14px; border-radius: 8px;
+    border: 2px solid rgba(245,222,179,0.25);
+    background: rgba(0,0,0,0.3); color: var(--cor-palha);
+    font-size: 0.88rem; font-family: 'Nunito', sans-serif;
+}
+.modal .campo input:focus,
+.modal .campo select:focus { outline: none; border-color: var(--cor-amarelo); }
+.modal-btns {
+    display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;
+}
+.modal-btns button { padding: 10px 20px; }
+
+/* Botões de ação na tabela */
+td .btn-edit {
+    background: rgba(255,143,0,0.2); border: 1px solid rgba(255,143,0,0.5);
+    color: var(--cor-amarelo); padding: 3px 8px; border-radius: 5px;
+    cursor: pointer; font-size: 0.68rem; font-weight: 700; transition: all 0.2s;
+    margin-right: 4px;
+}
+td .btn-edit:hover { background: var(--cor-amarelo); color: var(--cor-fundo); }

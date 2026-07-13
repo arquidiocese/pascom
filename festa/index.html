@@ -483,6 +483,18 @@
         <p>Arraiá da Basílica 2025 | Sistema Financeiro</p>
     </footer>
 
+    <!-- MODAL DE EDIÇÃO -->
+    <div class="modal-overlay" id="modalOverlay" onclick="fecharModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3 id="modalTitulo">Editar Lançamento</h3>
+            <div id="modalConteudo"></div>
+            <div class="modal-btns">
+                <button class="btn-venda" onclick="salvarEdicao()">Salvar</button>
+                <button class="btn-gasto" onclick="fecharModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>

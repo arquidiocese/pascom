@@ -203,7 +203,10 @@ function renderizarDespesas() {
             <td>${localStr}</td>
             <td><span class="${d.doacao ? 'badge-doacao' : 'badge-compra'}">${d.doacao ? '🎁 Doação' : 'Compra'}</span></td>
             <td><span class="${d.pago ? 'badge-pago' : 'badge-pendente'}" onclick="togglePagoDespesa(${d.id})">${d.pago ? 'Pago' : 'Pendente'}</span></td>
-            <td><button class="btn-delete" onclick="removerDespesa(${d.id})">X</button></td>
+            <td>
+                <button class="btn-edit" onclick="editarDespesa(${d.id})">✏️</button>
+                <button class="btn-delete" onclick="confirmarExclusao('Excluir esta despesa?', () => removerDespesa(${d.id}))">X</button>
+            </td>
         </tr>`;
     }).join('');
 
@@ -264,7 +267,10 @@ function renderizarPatrocinadores() {
             <td>R$ ${p.valor.toFixed(2)}</td>
             <td>${p.obs || '-'}</td>
             <td><span class="${p.recebido ? 'badge-pago' : 'badge-pendente'}" onclick="toggleRecebido(${p.id})">${p.recebido ? 'Recebido' : 'Pendente'}</span></td>
-            <td><button class="btn-delete" onclick="removerPatrocinio(${p.id})">X</button></td>
+            <td>
+                <button class="btn-edit" onclick="editarPatrocinio(${p.id})">✏️</button>
+                <button class="btn-delete" onclick="confirmarExclusao('Excluir este patrocínio?', () => removerPatrocinio(${p.id}))">X</button>
+            </td>
         </tr>
     `).join('');
 
@@ -302,7 +308,10 @@ function renderizarBarraca(barraca) {
             <td>${v.qtd}</td>
             <td>R$ ${v.preco.toFixed(2)}</td>
             <td>R$ ${v.total.toFixed(2)}</td>
-            <td><button class="btn-delete" onclick="removerVenda('${barraca}', ${v.id})">X</button></td>
+            <td>
+                <button class="btn-edit" onclick="editarVenda('${barraca}', ${v.id})">✏️</button>
+                <button class="btn-delete" onclick="confirmarExclusao('Excluir esta venda?', () => removerVenda('${barraca}', ${v.id}))">X</button>
+            </td>
         </tr>
     `).join('');
 
@@ -577,6 +586,108 @@ function renderizarTudo() {
     renderizarDashboard();
     renderizarGraficos();
     renderizarRanking();
+}
+
+// ===== MODAL DE EDIÇÃO =====
+let edicaoAtual = null; // { tipo: 'venda'|'despesa'|'patrocinio', barraca, id }
+
+function abrirModal(titulo) {
+    document.getElementById('modalTitulo').textContent = titulo;
+    document.getElementById('modalOverlay').classList.add('aberto');
+}
+
+function fecharModal() {
+    document.getElementById('modalOverlay').classList.remove('aberto');
+    edicaoAtual = null;
+}
+
+function editarVenda(barraca, id) {
+    const item = dados[barraca].vendas.find(v => v.id === id);
+    if (!item) return;
+    edicaoAtual = { tipo: 'venda', barraca, id };
+
+    document.getElementById('modalConteudo').innerHTML = `
+        <div class="campo"><label>Produto</label><input type="text" id="editProduto" value="${item.produto}"></div>
+        <div class="campo"><label>Quantidade</label><input type="number" id="editQtd" value="${item.qtd}" min="1"></div>
+        <div class="campo"><label>Preço Unitário (R$)</label><input type="number" id="editPreco" value="${item.preco}" step="0.01"></div>
+        <div class="campo"><label>Dia</label>
+            <select id="editDia">
+                <option value="1" ${item.dia===1?'selected':''}>10/Jul (Qui)</option>
+                <option value="2" ${item.dia===2?'selected':''}>11/Jul (Sex)</option>
+                <option value="3" ${item.dia===3?'selected':''}>17/Jul (Qui)</option>
+                <option value="4" ${item.dia===4?'selected':''}>18/Jul (Sex)</option>
+            </select>
+        </div>
+    `;
+    abrirModal('Editar Venda');
+}
+
+function editarDespesa(id) {
+    const item = dados.despesas.find(d => d.id === id);
+    if (!item) return;
+    edicaoAtual = { tipo: 'despesa', id };
+
+    document.getElementById('modalConteudo').innerHTML = `
+        <div class="campo"><label>Descrição</label><input type="text" id="editDesc" value="${item.desc}"></div>
+        <div class="campo"><label>Valor (R$)</label><input type="number" id="editValor" value="${item.valor}" step="0.01"></div>
+        <div class="campo"><label>Quantidade</label><input type="number" id="editQtd" value="${item.qtd || 1}" min="1"></div>
+        <div class="campo"><label>Local da Compra</label><input type="text" id="editLocal" value="${item.local || ''}"></div>
+        <div class="campo"><label>Observação</label><input type="text" id="editObs" value="${item.obs || ''}"></div>
+    `;
+    abrirModal('Editar Despesa');
+}
+
+function editarPatrocinio(id) {
+    const item = dados.patrocinadores.find(p => p.id === id);
+    if (!item) return;
+    edicaoAtual = { tipo: 'patrocinio', id };
+
+    document.getElementById('modalConteudo').innerHTML = `
+        <div class="campo"><label>Patrocinador</label><input type="text" id="editNome" value="${item.nome}"></div>
+        <div class="campo"><label>Valor (R$)</label><input type="number" id="editValor" value="${item.valor}" step="0.01"></div>
+        <div class="campo"><label>Observação</label><input type="text" id="editObs" value="${item.obs || ''}"></div>
+    `;
+    abrirModal('Editar Patrocínio');
+}
+
+function salvarEdicao() {
+    if (!edicaoAtual) return;
+
+    if (edicaoAtual.tipo === 'venda') {
+        const item = dados[edicaoAtual.barraca].vendas.find(v => v.id === edicaoAtual.id);
+        if (item) {
+            item.produto = document.getElementById('editProduto').value.trim() || item.produto;
+            item.qtd = parseInt(document.getElementById('editQtd').value) || item.qtd;
+            item.preco = parseFloat(document.getElementById('editPreco').value) || item.preco;
+            item.dia = parseInt(document.getElementById('editDia').value) || item.dia;
+            item.total = item.preco * item.qtd;
+        }
+    } else if (edicaoAtual.tipo === 'despesa') {
+        const item = dados.despesas.find(d => d.id === edicaoAtual.id);
+        if (item) {
+            item.desc = document.getElementById('editDesc').value.trim() || item.desc;
+            item.valor = parseFloat(document.getElementById('editValor').value) || item.valor;
+            item.qtd = parseFloat(document.getElementById('editQtd').value) || item.qtd;
+            item.local = document.getElementById('editLocal').value.trim();
+            item.obs = document.getElementById('editObs').value.trim();
+        }
+    } else if (edicaoAtual.tipo === 'patrocinio') {
+        const item = dados.patrocinadores.find(p => p.id === edicaoAtual.id);
+        if (item) {
+            item.nome = document.getElementById('editNome').value.trim() || item.nome;
+            item.valor = parseFloat(document.getElementById('editValor').value) || item.valor;
+            item.obs = document.getElementById('editObs').value.trim();
+        }
+    }
+
+    salvarDados(dados);
+    fecharModal();
+    renderizarTudo();
+}
+
+// ===== CONFIRMAÇÃO DE EXCLUSÃO =====
+function confirmarExclusao(msg, callback) {
+    if (confirm(msg)) callback();
 }
 
 // ===== INIT =====
