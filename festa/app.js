@@ -26,6 +26,22 @@ const DIAS_FESTA = {
     4: '18/Jul (Sex)'
 };
 
+// Produtos por barraca (para caixa rápido)
+const PRODUTOS_BARRACA = {
+    'fazendinha': [{nome:'Milho Cozido',preco:10},{nome:'Pipoca',preco:5},{nome:'Pamonha',preco:20},{nome:'Curau',preco:15},{nome:'Quentão',preco:12},{nome:'Vinho Quente',preco:17},{nome:'Chocolate Quente',preco:15}],
+    'cachorro-quente': [{nome:'Cachorro Quente',preco:17}],
+    'kafta': [{nome:'Kafta',preco:17}],
+    'pernil': [{nome:'Lanche de Pernil',preco:20}],
+    'pastel': [{nome:'Pastel',preco:15}],
+    'batata-frita': [{nome:'Batata Frita',preco:15}],
+    'doces': [{nome:'Doce 250g',preco:25},{nome:'Doce 500g',preco:35},{nome:'Doces Variados',preco:15},{nome:'Geleia',preco:30},{nome:'Morango no Espeto',preco:25},{nome:'Pudim de Pote',preco:20}],
+    'bar': [{nome:'Cerveja',preco:10},{nome:'Refrigerante',preco:8},{nome:'Suco',preco:7},{nome:'Água',preco:5}],
+    'chopp': [{nome:'Chopp Ashby Pilsen',preco:10},{nome:'Chopp de Vinho',preco:14},{nome:'Chopp Heineken',preco:14},{nome:'Chopp IPA Session',preco:14}],
+    'kids': [{nome:'Espaço Kids',preco:20}],
+    'bingo': [{nome:'Bingo Simples',preco:10},{nome:'Bingo Especial',preco:20}],
+    'artesanato': []
+};
+
 // ===== STORAGE (Firebase + localStorage como fallback) =====
 const STORAGE_KEY = 'arraia_financeiro_v4';
 let filtro = 'todos';
@@ -610,6 +626,11 @@ function renderizarTudo() {
     renderizarDashboard();
     renderizarGraficos();
     renderizarRanking();
+    atualizarContador();
+    atualizarMeta();
+    renderizarComparativo();
+    renderizarMargem();
+    renderizarResumoDoacoes();
 }
 
 // ===== MODAL DE EDIÇÃO =====
@@ -714,5 +735,241 @@ function confirmarExclusao(msg, callback) {
     if (confirm(msg)) callback();
 }
 
+// ===== CAIXA RÁPIDO =====
+function renderizarCaixa() {
+    const barraca = document.getElementById('caixaBarraca').value;
+    const produtos = PRODUTOS_BARRACA[barraca] || [];
+    const grid = document.getElementById('caixaGrid');
+    
+    if (produtos.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;opacity:0.5;padding:20px">Esta barraca usa preço variável. Use a seção normal.</p>';
+        return;
+    }
+
+    grid.innerHTML = produtos.map(p => `
+        <div class="caixa-produto">
+            <div class="caixa-nome">${p.nome}</div>
+            <div class="caixa-preco">R$ ${p.preco.toFixed(2)}</div>
+            <div class="caixa-btns">
+                <button class="caixa-btn" onclick="vendaRapida('${barraca}','${p.nome}',${p.preco},1)">+1</button>
+                <button class="caixa-btn" onclick="vendaRapida('${barraca}','${p.nome}',${p.preco},5)">+5</button>
+                <button class="caixa-btn" onclick="vendaRapida('${barraca}','${p.nome}',${p.preco},10)">+10</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function vendaRapida(barraca, produto, preco, qtd) {
+    const dia = filtro === 'todos' ? 1 : filtro;
+    dados[barraca].vendas.push({
+        id: Date.now(), dia, produto, preco, qtd, total: preco * qtd
+    });
+    salvarDados(dados);
+    
+    // Feedback visual
+    const fb = document.getElementById('caixaFeedback');
+    fb.innerHTML = `<div class="caixa-toast">✅ ${qtd}x ${produto} = R$ ${(preco*qtd).toFixed(2)}</div>`;
+    setTimeout(() => { fb.innerHTML = ''; }, 2000);
+    
+    renderizarTudo();
+}
+
+// ===== META =====
+function salvarMeta() {
+    const meta = parseFloat(document.getElementById('metaValor').value) || 0;
+    dados.meta = meta;
+    salvarDados(dados);
+    atualizarMeta();
+}
+
+function atualizarMeta() {
+    const meta = dados.meta || 0;
+    const metaInput = document.getElementById('metaValor');
+    if (metaInput && meta > 0) metaInput.value = meta;
+    
+    let totalVendas = 0;
+    BARRACAS.forEach(b => {
+        if (dados[b]) totalVendas += dados[b].vendas.reduce((s,v) => s + v.total, 0);
+    });
+    
+    const metaTexto = document.getElementById('metaTexto');
+    const metaProg = document.getElementById('metaProgresso');
+    
+    if (meta > 0) {
+        const pct = Math.min((totalVendas / meta) * 100, 100);
+        if (metaTexto) metaTexto.textContent = `R$ ${totalVendas.toFixed(0)} / R$ ${meta.toFixed(0)} (${pct.toFixed(0)}%)`;
+        if (metaProg) {
+            metaProg.style.width = pct + '%';
+            metaProg.style.background = pct >= 100 ? '#66bb6a' : pct >= 70 ? '#ff8f00' : '#ef5350';
+        }
+    } else {
+        if (metaTexto) metaTexto.textContent = '';
+        if (metaProg) metaProg.style.width = '0%';
+    }
+}
+
+// ===== CONTADOR EM TEMPO REAL =====
+function atualizarContador() {
+    const container = document.getElementById('contadorTopo');
+    if (!container) return;
+    
+    let html = '';
+    BARRACAS.forEach(b => {
+        if (!dados[b]) return;
+        const vendas = filtro === 'todos' ? dados[b].vendas : dados[b].vendas.filter(v => v.dia === filtro);
+        const itens = vendas.reduce((s,v) => s + v.qtd, 0);
+        if (itens > 0) {
+            const nome = NOMES_BARRACAS[b].replace(/^.{2}/, '');
+            html += `<span class="contador-item"><strong>${itens}</strong> ${nome}</span>`;
+        }
+    });
+    container.innerHTML = html || '<span class="contador-item" style="opacity:0.5">Nenhuma venda ainda</span>';
+}
+
+// ===== COMPARATIVO ENTRE DIAS =====
+function renderizarComparativo() {
+    const tbody = document.querySelector('#tabelaComparativo tbody');
+    if (!tbody) return;
+    
+    let html = '';
+    let totaisDia = [0,0,0,0];
+    
+    BARRACAS.forEach(b => {
+        if (!dados[b]) return;
+        let row = `<tr><td style="color:var(--cor-amarelo);font-weight:700;font-size:0.8rem">${NOMES_BARRACAS[b]}</td>`;
+        let totalBarraca = 0;
+        [1,2,3,4].forEach((d,i) => {
+            const vd = dados[b].vendas.filter(v => v.dia === d).reduce((s,v) => s + v.total, 0);
+            totalBarraca += vd;
+            totaisDia[i] += vd;
+            row += `<td>R$ ${vd.toFixed(0)}</td>`;
+        });
+        row += `<td style="font-weight:700;color:#66bb6a">R$ ${totalBarraca.toFixed(0)}</td></tr>`;
+        html += row;
+    });
+    
+    // Linha de total
+    html += `<tr style="border-top:2px solid var(--cor-amarelo)"><td style="font-weight:800;color:var(--cor-amarelo)">TOTAL</td>`;
+    let grandTotal = 0;
+    totaisDia.forEach(t => { html += `<td style="font-weight:700">R$ ${t.toFixed(0)}</td>`; grandTotal += t; });
+    html += `<td style="font-weight:800;color:#66bb6a">R$ ${grandTotal.toFixed(0)}</td></tr>`;
+    
+    tbody.innerHTML = html;
+}
+
+// ===== MARGEM POR BARRACA =====
+function renderizarMargem() {
+    const container = document.getElementById('margemBarracas');
+    if (!container) return;
+    
+    let html = '';
+    BARRACAS.forEach(b => {
+        if (!dados[b]) return;
+        const vendas = dados[b].vendas.reduce((s,v) => s + v.total, 0);
+        const desp = (dados.despesas||[]).filter(d => d.destino === b && !d.doacao).reduce((s,d) => s + d.valor, 0);
+        const doac = (dados.despesas||[]).filter(d => d.destino === b && d.doacao).reduce((s,d) => s + d.valor, 0);
+        const lucro = vendas - desp;
+        const cls = lucro >= 0 ? 'positivo' : 'negativo';
+        const pct = vendas > 0 ? ((lucro/vendas)*100).toFixed(0) : 0;
+        
+        html += `
+            <div class="dash-card">
+                <h4>${NOMES_BARRACAS[b]}</h4>
+                <div class="valores">
+                    <span class="v-receita">Vendas: R$ ${vendas.toFixed(2)}</span>
+                    <span class="v-gasto">Custos: R$ ${desp.toFixed(2)}</span>
+                </div>
+                <div class="resultado ${cls}">Lucro: R$ ${lucro.toFixed(2)} (${pct}%)</div>
+                ${doac > 0 ? `<div class="itens-info">Doações: R$ ${doac.toFixed(2)}</div>` : ''}
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// ===== RESUMO DE DOAÇÕES =====
+function renderizarResumoDoacoes() {
+    const container = document.getElementById('resumoDoacoes');
+    if (!container) return;
+    
+    const doacoes = (dados.despesas||[]).filter(d => d.doacao);
+    if (doacoes.length === 0) {
+        container.innerHTML = '<p style="text-align:center;opacity:0.5;padding:15px">Nenhuma doação registrada</p>';
+        return;
+    }
+    
+    const total = doacoes.reduce((s,d) => s + d.valor, 0);
+    let html = `<div class="ranking-item" style="border-bottom:2px solid var(--cor-amarelo);margin-bottom:8px"><span class="ranking-nome" style="color:var(--cor-amarelo)">Total em doações: R$ ${total.toFixed(2)} (${doacoes.length} itens)</span></div>`;
+    
+    doacoes.forEach(d => {
+        const dest = d.destino === 'geral' ? '' : ` → ${NOMES_BARRACAS[d.destino]||d.destino}`;
+        html += `<div class="ranking-item"><span class="ranking-nome">🎁 ${d.desc}${dest}</span><span class="ranking-valor">R$ ${d.valor.toFixed(2)}</span></div>`;
+    });
+    container.innerHTML = html;
+}
+
+// ===== RELATÓRIO PDF =====
+function gerarRelatorioPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Arraiá da Basílica - Relatório Financeiro 2025', 14, 20);
+    doc.setFontSize(10);
+    doc.text('Datas: 10/Jul, 11/Jul, 17/Jul, 18/Jul', 14, 28);
+    doc.text('Gerado em: ' + new Date().toLocaleString('pt-BR'), 14, 34);
+    
+    // Resumo geral
+    let totalVendas = 0, totalItens = 0;
+    BARRACAS.forEach(b => {
+        if(dados[b]) { totalVendas += dados[b].vendas.reduce((s,v)=>s+v.total,0); totalItens += dados[b].vendas.reduce((s,v)=>s+v.qtd,0); }
+    });
+    const totalPatr = (dados.patrocinadores||[]).reduce((s,p)=>s+p.valor,0);
+    const totalDesp = (dados.despesas||[]).filter(d=>!d.doacao).reduce((s,d)=>s+d.valor,0);
+    const saldo = totalVendas + totalPatr - totalDesp;
+    
+    doc.setFontSize(12);
+    doc.text('RESUMO GERAL', 14, 44);
+    doc.setFontSize(10);
+    doc.text(`Vendas: R$ ${totalVendas.toFixed(2)} (${totalItens} itens)`, 14, 52);
+    doc.text(`Patrocínios: R$ ${totalPatr.toFixed(2)}`, 14, 58);
+    doc.text(`Despesas (compras): R$ ${totalDesp.toFixed(2)}`, 14, 64);
+    doc.text(`SALDO FINAL: R$ ${saldo.toFixed(2)}`, 14, 72);
+    
+    // Tabela por barraca
+    const tabelaBarracas = BARRACAS.filter(b=>dados[b]).map(b => {
+        const v = dados[b].vendas.reduce((s,x)=>s+x.total,0);
+        const it = dados[b].vendas.reduce((s,x)=>s+x.qtd,0);
+        const d = (dados.despesas||[]).filter(x=>x.destino===b&&!x.doacao).reduce((s,x)=>s+x.valor,0);
+        return [NOMES_BARRACAS[b].replace(/^.{2}/,''), it, `R$ ${v.toFixed(2)}`, `R$ ${d.toFixed(2)}`, `R$ ${(v-d).toFixed(2)}`];
+    });
+    
+    doc.autoTable({
+        startY: 80,
+        head: [['Barraca', 'Itens', 'Vendas', 'Custos', 'Lucro']],
+        body: tabelaBarracas,
+        theme: 'grid',
+        headStyles: { fillColor: [230, 81, 0] }
+    });
+    
+    // Tabela por dia
+    const tabelaDias = [1,2,3,4].map(d => {
+        let vd = 0, it = 0;
+        BARRACAS.forEach(b => { if(dados[b]) { vd += dados[b].vendas.filter(v=>v.dia===d).reduce((s,v)=>s+v.total,0); it += dados[b].vendas.filter(v=>v.dia===d).reduce((s,v)=>s+v.qtd,0); }});
+        return [DIAS_FESTA[d], it, `R$ ${vd.toFixed(2)}`];
+    });
+    
+    doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [['Dia', 'Itens', 'Vendas']],
+        body: tabelaDias,
+        theme: 'grid',
+        headStyles: { fillColor: [21, 101, 192] }
+    });
+    
+    doc.save('relatorio_arraia_basilica_2025.pdf');
+}
+
 // ===== INIT =====
 renderizarTudo();
+if (document.getElementById('caixaGrid')) renderizarCaixa();
