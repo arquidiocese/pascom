@@ -26,22 +26,46 @@ const DIAS_FESTA = {
     4: '18/Jul (Sex)'
 };
 
-// ===== STORAGE =====
+// ===== STORAGE (Firebase + localStorage como fallback) =====
 const STORAGE_KEY = 'arraia_financeiro_v4';
 let filtro = 'todos';
 let filtroDespesa = 'todos';
 
+function dadosVazios() {
+    const d = { despesas: [], patrocinadores: [], meta: 0 };
+    BARRACAS.forEach(b => { d[b] = { vendas: [] }; });
+    return d;
+}
+
 function carregarDados() {
     const d = localStorage.getItem(STORAGE_KEY);
     if (d) return JSON.parse(d);
-    const dados = { despesas: [], patrocinadores: [] };
-    BARRACAS.forEach(b => { dados[b] = { vendas: [] }; });
-    return dados;
+    return dadosVazios();
 }
 
-function salvarDados(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+function salvarDados(d) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+    // Salva no Firebase também
+    if (typeof salvarFirebase === 'function') {
+        salvarFirebase(d);
+    }
+}
 
 let dados = carregarDados();
+
+// Ao iniciar, carrega do Firebase (dados mais recentes)
+if (typeof carregarFirebase === 'function') {
+    carregarFirebase().then(dadosFirebase => {
+        if (dadosFirebase) {
+            dados = dadosFirebase;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+            renderizarTudo();
+        } else {
+            // Se Firebase vazio, envia dados locais pra lá
+            salvarFirebase(dados);
+        }
+    }).catch(err => console.log('Firebase offline, usando localStorage'));
+}
 
 // ===== NAVEGAÇÃO =====
 document.querySelectorAll('.menu-btn').forEach(btn => {

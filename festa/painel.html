@@ -6,6 +6,8 @@
     <title>Painel - Arraiá da Basílica 2025</title>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
         .painel-aviso {
@@ -137,13 +139,14 @@
         </div>
     </div>
 
-    <div class="auto-refresh">Atualiza automaticamente a cada 10 segundos</div>
+    <div class="auto-refresh">🔴 Atualiza em tempo real via Firebase</div>
 
     <footer class="footer">
         <p>Paróquia Nossa Senhora Aparecida - Basílica</p>
         <p>Arraiá da Basílica 2025 | Painel de Acompanhamento</p>
     </footer>
 
+    <script src="firebase-config.js"></script>
     <script>
     const BARRACAS = [
         'fazendinha','cachorro-quente','kafta','pernil','pastel',
@@ -160,6 +163,7 @@
     const STORAGE_KEY = 'arraia_financeiro_v4';
 
     function carregarDados() {
+        // Tenta localStorage como fallback
         const d = localStorage.getItem(STORAGE_KEY);
         if (d) return JSON.parse(d);
         return null;
@@ -287,9 +291,17 @@
         chartD = new Chart(ctxD, {type:'bar',data:{labels:dLabels,datasets:[{label:'Vendas',data:vDia,backgroundColor:['rgba(229,57,53,0.7)','rgba(255,179,0,0.7)','rgba(67,160,71,0.7)','rgba(30,136,229,0.7)'],borderWidth:1}]},options:{responsive:true,plugins:{legend:{labels:{color:'#f5deb3'}}},scales:{x:{ticks:{color:'#f5deb3'},grid:{color:'rgba(245,222,179,0.08)'}},y:{ticks:{color:'#f5deb3'},grid:{color:'rgba(245,222,179,0.08)'}}}}});
     }
 
-    // Atualiza a cada 10 segundos
-    renderizar();
-    setInterval(renderizar, 10000);
+    // Escuta mudanças em tempo real do Firebase
+    renderizar(); // renderiza com localStorage primeiro
+    if (typeof escutarMudancas === 'function') {
+        escutarMudancas(function(dadosFirebase) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosFirebase));
+            renderizar();
+        });
+    } else {
+        // Fallback: atualiza a cada 10s se Firebase não carregar
+        setInterval(renderizar, 10000);
+    }
     </script>
 </body>
 </html>
