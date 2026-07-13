@@ -165,8 +165,25 @@
     function carregarDados() {
         // Tenta localStorage como fallback
         const d = localStorage.getItem(STORAGE_KEY);
-        if (d) return JSON.parse(d);
+        if (d) {
+            const parsed = JSON.parse(d);
+            return normalizar(parsed);
+        }
         return null;
+    }
+
+    function normalizar(d) {
+        if (!d) return null;
+        if (d.patrocinadores && !Array.isArray(d.patrocinadores)) d.patrocinadores = Object.values(d.patrocinadores);
+        if (!d.patrocinadores) d.patrocinadores = [];
+        if (d.despesas && !Array.isArray(d.despesas)) d.despesas = Object.values(d.despesas);
+        if (!d.despesas) d.despesas = [];
+        BARRACAS.forEach(b => {
+            if (!d[b]) d[b] = { vendas: [] };
+            if (d[b].vendas && !Array.isArray(d[b].vendas)) d[b].vendas = Object.values(d[b].vendas);
+            if (!d[b].vendas) d[b].vendas = [];
+        });
+        return d;
     }
 
     function mostrarPainel(secao) {
@@ -295,7 +312,8 @@
     renderizar(); // renderiza com localStorage primeiro
     if (typeof escutarMudancas === 'function') {
         escutarMudancas(function(dadosFirebase) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosFirebase));
+            const norm = normalizar(dadosFirebase);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(norm));
             renderizar();
         });
     } else {

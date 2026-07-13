@@ -61,9 +61,36 @@ function dadosVazios() {
     return d;
 }
 
+// Converte objetos do Firebase de volta para arrays
+function normalizarDados(d) {
+    if (d.patrocinadores && !Array.isArray(d.patrocinadores)) {
+        d.patrocinadores = Object.values(d.patrocinadores);
+    }
+    if (!d.patrocinadores) d.patrocinadores = [];
+
+    if (d.despesas && !Array.isArray(d.despesas)) {
+        d.despesas = Object.values(d.despesas);
+    }
+    if (!d.despesas) d.despesas = [];
+
+    BARRACAS.forEach(b => {
+        if (!d[b]) d[b] = { vendas: [] };
+        if (d[b].vendas && !Array.isArray(d[b].vendas)) {
+            d[b].vendas = Object.values(d[b].vendas);
+        }
+        if (!d[b].vendas) d[b].vendas = [];
+    });
+
+    if (!d.meta) d.meta = 0;
+    return d;
+}
+
 function carregarDados() {
     const d = localStorage.getItem(STORAGE_KEY);
-    if (d) return JSON.parse(d);
+    if (d) {
+        const parsed = JSON.parse(d);
+        return normalizarDados(parsed);
+    }
     return dadosVazios();
 }
 
@@ -81,11 +108,10 @@ let dados = carregarDados();
 if (typeof carregarFirebase === 'function') {
     carregarFirebase().then(dadosFirebase => {
         if (dadosFirebase) {
-            dados = dadosFirebase;
+            dados = normalizarDados(dadosFirebase);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
             renderizarTudo();
         } else {
-            // Se Firebase vazio, envia dados locais pra lá
             salvarFirebase(dados);
         }
     }).catch(err => console.log('Firebase offline, usando localStorage'));
