@@ -94,6 +94,7 @@
         <button class="menu-btn" data-section="artesanato">🎨 Artesanato</button>
         <button class="menu-btn" data-section="despesas">💰 Despesas</button>
         <button class="menu-btn" data-section="patrocinadores">🤝 Patrocinadores</button>
+        <button class="menu-btn" data-section="config">⚙️ Config</button>
     </nav>
 
     <main class="container">
@@ -573,6 +574,48 @@
                 <table id="tabelaPatrocinadores"><thead><tr><th>Patrocinador</th><th>Valor</th><th>Obs</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
             </div>
             <div class="resumo-barraca" id="resumoPatrocinadores"></div>
+        </section>
+
+        <!-- CONFIGURAÇÕES -->
+        <section id="sec-config" class="section">
+            <h2>⚙️ Configurações - Barracas e Produtos</h2>
+            <p class="secao-desc">Adicione novas barracas ou novos produtos a barracas existentes. As alterações ficam salvas para esta edição.</p>
+
+            <!-- Adicionar nova barraca -->
+            <div class="painel-madeira">
+                <h3>Adicionar Nova Barraca</h3>
+                <div class="form-row">
+                    <input type="text" id="novaBarracaId" placeholder="ID (sem espaço/acento, ex: churros)">
+                    <input type="text" id="novaBarracaNome" placeholder="Nome (ex: 🍩 Churros)">
+                    <button class="btn-venda" onclick="adicionarBarraca()">Criar Barraca</button>
+                </div>
+            </div>
+
+            <!-- Adicionar produto a barraca -->
+            <div class="painel-madeira">
+                <h3>Adicionar Produto a uma Barraca</h3>
+                <div class="form-row">
+                    <select id="configBarracaSelect"></select>
+                    <input type="text" id="novoProdutoNome" placeholder="Nome do produto (ex: Churros com Nutella)">
+                    <input type="number" id="novoProdutoPreco" placeholder="Preço R$" step="0.01" min="0">
+                    <button class="btn-venda" onclick="adicionarProduto()">Adicionar Produto</button>
+                </div>
+            </div>
+
+            <!-- Lista de barracas e seus produtos -->
+            <div class="tabela-box">
+                <h4>Barracas e Produtos Cadastrados</h4>
+                <div id="listaBarracasProdutos"></div>
+            </div>
+
+            <!-- Limpar dados -->
+            <div class="painel-madeira" style="margin-top:20px;border-color:rgba(244,67,54,0.3);">
+                <h3 style="color:#ef5350;">⚠️ Zona de Perigo</h3>
+                <p class="secao-desc">Cuidado: estas ações não podem ser desfeitas.</p>
+                <div class="form-row">
+                    <button class="btn-gasto" onclick="limparTodosDados()">🗑️ Limpar Todos os Dados</button>
+                </div>
+            </div>
         </section>
 
     </main>

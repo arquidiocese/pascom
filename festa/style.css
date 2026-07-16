@@ -549,3 +549,23 @@ td .btn-edit:hover { background: var(--cor-amarelo); color: var(--cor-fundo); }
     .contador-item { font-size: 0.68rem; padding: 3px 8px; }
     .meta-header { flex-direction: column; gap: 6px; }
 }
+
+/* CONFIGURAÇÕES */
+.config-barraca {
+    background: rgba(0,0,0,0.2); border-radius: 12px;
+    padding: 15px; margin-bottom: 12px;
+    border: 1px solid rgba(245,222,179,0.1);
+}
+.config-barraca-header {
+    font-family: 'Baloo 2', cursive; color: var(--cor-amarelo);
+    font-size: 1rem; margin-bottom: 8px;
+}
+.config-barraca-header small { color: var(--cor-palha); opacity: 0.5; font-size: 0.75rem; }
+.config-produtos { display: flex; flex-wrap: wrap; gap: 8px; }
+.config-produto-item {
+    background: var(--cor-madeira); padding: 5px 12px; border-radius: 8px;
+    font-size: 0.8rem; color: var(--cor-palha); display: inline-flex;
+    align-items: center; gap: 8px;
+    border: 1px solid rgba(245,222,179,0.15);
+}
+.config-produto-item .btn-delete { padding: 2px 6px; font-size: 0.6rem; }

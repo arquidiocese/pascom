@@ -56,7 +56,7 @@ let filtro = 'todos';
 let filtroDespesa = 'todos';
 
 function dadosVazios() {
-    const d = { despesas: [], patrocinadores: [], meta: 0 };
+    const d = { despesas: [], patrocinadores: [], meta: 0, configBarracas: null, configProdutos: null };
     BARRACAS.forEach(b => { d[b] = { vendas: [] }; });
     return d;
 }
@@ -82,6 +82,19 @@ function normalizarDados(d) {
     });
 
     if (!d.meta) d.meta = 0;
+
+    // Normalizar config
+    if (d.configBarracas && !Array.isArray(d.configBarracas)) {
+        d.configBarracas = Object.values(d.configBarracas);
+    }
+    if (d.configProdutos) {
+        Object.keys(d.configProdutos).forEach(key => {
+            if (d.configProdutos[key] && !Array.isArray(d.configProdutos[key])) {
+                d.configProdutos[key] = Object.values(d.configProdutos[key]);
+            }
+        });
+    }
+
     return d;
 }
 
@@ -1012,6 +1025,159 @@ function gerarRelatorioPDF() {
     doc.save('relatorio_arraia_basilica_2026.pdf');
 }
 
+// ===== CONFIGURAÇÕES: BARRACAS E PRODUTOS DINÂMICOS =====
+function getBarracasConfig() {
+    // Se tem config salva, usa ela; senão usa a padrão
+    if (dados.configBarracas) return dados.configBarracas;
+    return BARRACAS.map(b => ({ id: b, nome: NOMES_BARRACAS[b] }));
+}
+
+function getProdutosConfig() {
+    if (dados.configProdutos) return dados.configProdutos;
+    return PRODUTOS_BARRACA;
+}
+
+function adicionarBarraca() {
+    const id = document.getElementById('novaBarracaId').value.trim().toLowerCase().replace(/\s+/g, '-');
+    const nome = document.getElementById('novaBarracaNome').value.trim();
+    if (!id || !nome) { alert('Preencha o ID e o Nome da barraca'); return; }
+
+    // Salvar config
+    if (!dados.configBarracas) {
+        dados.configBarracas = BARRACAS.map(b => ({ id: b, nome: NOMES_BARRACAS[b] }));
+    }
+    if (!dados.configProdutos) {
+        dados.configProdutos = JSON.parse(JSON.stringify(PRODUTOS_BARRACA));
+    }
+
+    // Verificar se já existe
+    if (dados.configBarracas.find(b => b.id === id)) { alert('Já existe uma barraca com esse ID'); return; }
+
+    dados.configBarracas.push({ id, nome });
+    dados.configProdutos[id] = [];
+    if (!dados[id]) dados[id] = { vendas: [] };
+
+    // Atualizar as constantes em memória
+    if (!BARRACAS.includes(id)) BARRACAS.push(id);
+    NOMES_BARRACAS[id] = nome;
+    PRODUTOS_BARRACA[id] = [];
+
+    salvarDados(dados);
+    document.getElementById('novaBarracaId').value = '';
+    document.getElementById('novaBarracaNome').value = '';
+    renderizarConfig();
+    alert(`Barraca "${nome}" criada! Recarregue a página para ver no menu.`);
+}
+
+function adicionarProduto() {
+    const barraca = document.getElementById('configBarracaSelect').value;
+    const nome = document.getElementById('novoProdutoNome').value.trim();
+    const preco = parseFloat(document.getElementById('novoProdutoPreco').value);
+    if (!barraca || !nome || isNaN(preco) || preco <= 0) { alert('Preencha todos os campos'); return; }
+
+    if (!dados.configProdutos) {
+        dados.configProdutos = JSON.parse(JSON.stringify(PRODUTOS_BARRACA));
+    }
+    if (!dados.configProdutos[barraca]) dados.configProdutos[barraca] = [];
+
+    dados.configProdutos[barraca].push({ nome, preco });
+    PRODUTOS_BARRACA[barraca] = dados.configProdutos[barraca];
+
+    salvarDados(dados);
+    document.getElementById('novoProdutoNome').value = '';
+    document.getElementById('novoProdutoPreco').value = '';
+    renderizarConfig();
+    atualizarSelectsProdutos(barraca);
+    alert(`Produto "${nome}" adicionado à barraca!`);
+}
+
+function removerProduto(barraca, index) {
+    if (!confirm('Remover este produto?')) return;
+    if (!dados.configProdutos) {
+        dados.configProdutos = JSON.parse(JSON.stringify(PRODUTOS_BARRACA));
+    }
+    dados.configProdutos[barraca].splice(index, 1);
+    PRODUTOS_BARRACA[barraca] = dados.configProdutos[barraca];
+    salvarDados(dados);
+    renderizarConfig();
+    atualizarSelectsProdutos(barraca);
+}
+
+function atualizarSelectsProdutos(barraca) {
+    // Atualizar o select da barraca na seção de vendas
+    const select = document.getElementById('prod-' + barraca);
+    if (select) {
+        const produtos = dados.configProdutos ? dados.configProdutos[barraca] : PRODUTOS_BARRACA[barraca];
+        if (produtos) {
+            select.innerHTML = produtos.map(p => 
+                `<option value="${p.nome}" data-preco="${p.preco}">${p.nome} - R$ ${fmt(p.preco)}</option>`
+            ).join('');
+        }
+    }
+}
+
+function renderizarConfig() {
+    // Select de barracas
+    const select = document.getElementById('configBarracaSelect');
+    const barracas = getBarracasConfig();
+    if (select) {
+        select.innerHTML = barracas.map(b => `<option value="${b.id}">${b.nome}</option>`).join('');
+    }
+
+    // Lista de barracas e produtos
+    const container = document.getElementById('listaBarracasProdutos');
+    if (!container) return;
+    const produtos = getProdutosConfig();
+
+    let html = '';
+    barracas.forEach(b => {
+        const prods = produtos[b.id] || [];
+        html += `<div class="config-barraca">
+            <div class="config-barraca-header">${b.nome} <small>(${b.id})</small></div>
+            <div class="config-produtos">`;
+        if (prods.length === 0) {
+            html += '<span style="opacity:0.5;font-size:0.8rem">Preço variável / sem produtos fixos</span>';
+        } else {
+            prods.forEach((p, i) => {
+                html += `<span class="config-produto-item">${p.nome} - R$ ${fmt(p.preco)} <button class="btn-delete" onclick="removerProduto('${b.id}', ${i})">X</button></span>`;
+            });
+        }
+        html += `</div></div>`;
+    });
+    container.innerHTML = html;
+}
+
+function limparTodosDados() {
+    if (!confirm('ATENÇÃO: Isso vai apagar TODOS os dados (vendas, despesas, patrocinadores). Tem certeza?')) return;
+    if (!confirm('Última chance! Realmente quer apagar tudo?')) return;
+    dados = dadosVazios();
+    salvarDados(dados);
+    renderizarTudo();
+    alert('Dados limpos com sucesso!');
+}
+
+// Carregar config dinâmica ao iniciar
+function carregarConfigDinamica() {
+    if (dados.configBarracas) {
+        dados.configBarracas.forEach(b => {
+            if (!BARRACAS.includes(b.id)) BARRACAS.push(b.id);
+            NOMES_BARRACAS[b.id] = b.nome;
+        });
+    }
+    if (dados.configProdutos) {
+        Object.keys(dados.configProdutos).forEach(b => {
+            if (dados.configProdutos[b]) {
+                PRODUTOS_BARRACA[b] = Array.isArray(dados.configProdutos[b]) 
+                    ? dados.configProdutos[b] 
+                    : Object.values(dados.configProdutos[b]);
+            }
+        });
+    }
+}
+
+carregarConfigDinamica();
+
 // ===== INIT =====
 renderizarTudo();
 if (document.getElementById('caixaGrid')) renderizarCaixa();
+renderizarConfig();
