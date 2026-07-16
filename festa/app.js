@@ -1249,8 +1249,11 @@ function gerarPDFComLogo(logoBase64) {
 
     // ===== CAPA =====
     if (logoBase64) {
-        doc.addImage(logoBase64, 'PNG', (pageW - 80) / 2, 20, 80, 80);
-        y = 110;
+        // Manter proporção do logo (mais largo que alto)
+        const logoW = 70;
+        const logoH = 45;
+        doc.addImage(logoBase64, 'PNG', (pageW - logoW) / 2, 25, logoW, logoH);
+        y = 80;
     } else {
         y = 50;
     }
