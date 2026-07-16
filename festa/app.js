@@ -218,11 +218,12 @@ function lancarDespesa() {
     const destino = document.getElementById('destinoDespesa').value;
     const doacao = document.getElementById('doacaoDespesa').checked;
     const pagarDepois = document.getElementById('pagarDespesa').checked;
+    const patrocinadorId = doacao ? (document.getElementById('patrocinadorDespesa').value || '') : '';
 
     if (!desc || isNaN(valor) || valor <= 0) return;
 
     dados.despesas.push({
-        id: Date.now(), categoria, desc, qtd, unidade, valor, local, obs, destino, doacao, pago: !pagarDepois
+        id: Date.now(), categoria, desc, qtd, unidade, valor, local, obs, destino, doacao, pago: !pagarDepois, patrocinadorId
     });
     salvarDados(dados);
     document.getElementById('descDespesa').value = '';
@@ -232,6 +233,7 @@ function lancarDespesa() {
     document.getElementById('obsDespesa').value = '';
     document.getElementById('doacaoDespesa').checked = false;
     document.getElementById('pagarDespesa').checked = false;
+    document.getElementById('patrocinadorDespesa').style.display = 'none';
     renderizarTudo();
 }
 
@@ -288,7 +290,7 @@ function renderizarDespesas() {
             <td>${nomeDestino}</td>
             <td>R$ ${fmt(d.valor)}</td>
             <td>${localStr}</td>
-            <td><span class="${d.doacao ? 'badge-doacao' : 'badge-compra'}">${d.doacao ? '🎁 Doação' : 'Compra'}</span></td>
+            <td><span class="${d.doacao ? 'badge-doacao' : 'badge-compra'}">${d.doacao ? '🎁 ' + getNomePatrocinador(d.patrocinadorId) : 'Compra'}</span></td>
             <td><span class="${d.pago ? 'badge-pago' : 'badge-pendente'}" onclick="togglePagoDespesa(${d.id})">${d.pago ? 'Pago' : 'Pendente'}</span></td>
             <td>
                 <button class="btn-edit" onclick="editarDespesa(${d.id})">✏️</button>
@@ -318,15 +320,20 @@ function renderizarDespesas() {
 // ===== PATROCINADORES =====
 function lancarPatrocinio() {
     const nome = document.getElementById('nomePatrocinador').value.trim();
+    const tipo = document.getElementById('tipoPatrocinio').value;
     const valor = parseFloat(document.getElementById('valorPatrocinio').value);
+    const desc = document.getElementById('descPatrocinio').value.trim();
+    const barraca = document.getElementById('barracaPatrocinio').value;
     const obs = document.getElementById('obsPatrocinio').value.trim();
     const recebido = document.getElementById('recebidoPatrocinio').checked;
     if (!nome || isNaN(valor) || valor <= 0) return;
 
-    dados.patrocinadores.push({ id: Date.now(), nome, valor, obs, recebido });
+    dados.patrocinadores.push({ id: Date.now(), nome, tipo, valor, desc, barraca, obs, recebido });
     salvarDados(dados);
     document.getElementById('nomePatrocinador').value = '';
     document.getElementById('valorPatrocinio').value = '';
+    document.getElementById('descPatrocinio').value = '';
+    document.getElementById('barracaPatrocinio').value = '';
     document.getElementById('obsPatrocinio').value = '';
     document.getElementById('recebidoPatrocinio').checked = false;
     renderizarTudo();
@@ -342,29 +349,90 @@ function toggleRecebido(id) {
     if (item) { item.recebido = !item.recebido; salvarDados(dados); renderizarTudo(); }
 }
 
+let ordenacaoPatr = 'alfa';
+
+function getNomePatrocinador(id) {
+    if (!id) return 'Doação';
+    const p = (dados.patrocinadores || []).find(x => x.id == id);
+    return p ? p.nome : 'Doação';
+}
+
+function ordenarPatrocinadores(tipo) {
+    ordenacaoPatr = tipo;
+    document.querySelectorAll('[data-ordpatr]').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`[data-ordpatr="${tipo}"]`);
+    if (btn) btn.classList.add('active');
+    renderizarPatrocinadores();
+}
+
+function togglePatrocinadorDespesa() {
+    const check = document.getElementById('doacaoDespesa').checked;
+    const select = document.getElementById('patrocinadorDespesa');
+    if (check) {
+        select.style.display = 'block';
+        // Preencher com patrocinadores cadastrados
+        const opts = dados.patrocinadores.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+        select.innerHTML = '<option value="">Selecione o patrocinador (opcional)...</option>' + opts;
+    } else {
+        select.style.display = 'none';
+    }
+}
+
 function renderizarPatrocinadores() {
     const tbody = document.querySelector('#tabelaPatrocinadores tbody');
-    const total = dados.patrocinadores.reduce((s, p) => s + p.valor, 0);
-    const recebido = dados.patrocinadores.filter(p => p.recebido).reduce((s, p) => s + p.valor, 0);
-    const pendente = total - recebido;
+    const busca = (document.getElementById('buscaPatrocinador')?.value || '').toLowerCase();
+    
+    let lista = [...(dados.patrocinadores || [])];
+    
+    // Filtro de busca
+    if (busca) {
+        lista = lista.filter(p => p.nome.toLowerCase().includes(busca) || (p.desc||'').toLowerCase().includes(busca));
+    }
+    
+    // Ordenação
+    if (ordenacaoPatr === 'alfa') lista.sort((a,b) => a.nome.localeCompare(b.nome));
+    else if (ordenacaoPatr === 'valor') lista.sort((a,b) => b.valor - a.valor);
+    else if (ordenacaoPatr === 'pendente') lista = lista.filter(p => !p.recebido).sort((a,b) => a.nome.localeCompare(b.nome));
+    else if (ordenacaoPatr === 'recebido') lista = lista.filter(p => p.recebido).sort((a,b) => a.nome.localeCompare(b.nome));
 
-    tbody.innerHTML = dados.patrocinadores.map(p => `
+    const TIPO_BADGE = { dinheiro: '💵 Dinheiro', servico: '🔧 Serviço', produto: '📦 Produto' };
+
+    tbody.innerHTML = lista.map(p => {
+        const tipoBadge = TIPO_BADGE[p.tipo] || '💵 Dinheiro';
+        const barracaNome = p.barraca ? (NOMES_BARRACAS[p.barraca] || p.barraca) : '-';
+        const descTxt = p.desc || p.obs || '-';
+        return `
         <tr>
-            <td>${p.nome}</td>
+            <td style="font-weight:700">${p.nome}</td>
+            <td><span class="badge-categoria">${tipoBadge}</span></td>
+            <td>${descTxt}</td>
             <td>R$ ${fmt(p.valor)}</td>
-            <td>${p.obs || '-'}</td>
+            <td>${barracaNome}</td>
             <td><span class="${p.recebido ? 'badge-pago' : 'badge-pendente'}" onclick="toggleRecebido(${p.id})">${p.recebido ? 'Recebido' : 'Pendente'}</span></td>
             <td>
                 <button class="btn-edit" onclick="editarPatrocinio(${p.id})">✏️</button>
                 <button class="btn-delete" onclick="confirmarExclusao('Excluir este patrocínio?', () => removerPatrocinio(${p.id}))">X</button>
             </td>
-        </tr>
-    `).join('');
+        </tr>`;
+    }).join('');
+
+    // Resumo
+    const todos = dados.patrocinadores || [];
+    const totalDinheiro = todos.filter(p => (p.tipo||'dinheiro') === 'dinheiro').reduce((s,p) => s + p.valor, 0);
+    const totalServico = todos.filter(p => p.tipo === 'servico').reduce((s,p) => s + p.valor, 0);
+    const totalProduto = todos.filter(p => p.tipo === 'produto').reduce((s,p) => s + p.valor, 0);
+    const total = todos.reduce((s,p) => s + p.valor, 0);
+    const recebido = todos.filter(p => p.recebido).reduce((s,p) => s + p.valor, 0);
+    const pendente = total - recebido;
 
     document.getElementById('resumoPatrocinadores').innerHTML = `
-        <div class="item positivo"><span>Total</span><strong>${R$(total)}</strong></div>
+        <div class="item positivo"><span>Total Geral</span><strong>${R$(total)}</strong></div>
+        <div class="item positivo"><span>💵 Dinheiro</span><strong>${R$(totalDinheiro)}</strong></div>
+        <div class="item doacao"><span>🔧 Serviços</span><strong>${R$(totalServico)}</strong></div>
+        <div class="item doacao"><span>📦 Produtos</span><strong>${R$(totalProduto)}</strong></div>
         <div class="item positivo"><span>Recebido</span><strong>${R$(recebido)}</strong></div>
         <div class="item negativo"><span>Pendente</span><strong>${R$(pendente)}</strong></div>
+        <div class="item neutro"><span>Qtd</span><strong>${todos.length}</strong></div>
     `;
 }
 
@@ -423,7 +491,7 @@ function atualizarResumoGeral() {
         totalItens += vendas.reduce((s, v) => s + v.qtd, 0);
     });
 
-    const totalPatrocinadores = dados.patrocinadores.reduce((s, p) => s + p.valor, 0);
+    const totalPatrocinadores = dados.patrocinadores.filter(p => (p.tipo||'dinheiro') === 'dinheiro').reduce((s, p) => s + p.valor, 0);
     const totalDespesasCompra = dados.despesas.filter(d => !d.doacao).reduce((s, d) => s + d.valor, 0);
     const totalDoacoes = dados.despesas.filter(d => d.doacao).reduce((s, d) => s + d.valor, 0);
 

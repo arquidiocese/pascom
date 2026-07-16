@@ -528,7 +528,10 @@
                         <option value="artesanato">Artesanato</option>
                     </select>
                     <input type="text" id="obsDespesa" placeholder="Observação (opcional)">
-                    <label class="checkbox-opt"><input type="checkbox" id="doacaoDespesa"> 🎁 Doação</label>
+                    <label class="checkbox-opt"><input type="checkbox" id="doacaoDespesa" onchange="togglePatrocinadorDespesa()"> 🎁 Doação</label>
+                    <select id="patrocinadorDespesa" style="display:none">
+                        <option value="">Selecione o patrocinador...</option>
+                    </select>
                     <label class="checkbox-opt"><input type="checkbox" id="pagarDespesa"> ⏳ Pagar depois</label>
                     <button class="btn-gasto" onclick="lancarDespesa()">Lançar Despesa</button>
                 </div>
@@ -563,15 +566,49 @@
             <div class="painel-madeira">
                 <h3>Lançar Patrocínio</h3>
                 <div class="form-row">
-                    <input type="text" id="nomePatrocinador" placeholder="Nome do Patrocinador">
-                    <input type="number" id="valorPatrocinio" placeholder="Valor R$" step="0.01" min="0">
+                    <input type="text" id="nomePatrocinador" placeholder="Nome do Patrocinador (ex: Tereos, Unimed...)">
+                    <select id="tipoPatrocinio">
+                        <option value="dinheiro">💵 Dinheiro</option>
+                        <option value="servico">🔧 Serviço (ambulância, segurança...)</option>
+                        <option value="produto">📦 Produto/Material (açúcar, cerveja...)</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <input type="number" id="valorPatrocinio" placeholder="Valor R$ (ou valor estimado)" step="0.01" min="0">
+                    <input type="text" id="descPatrocinio" placeholder="O que fornece? (ex: 50 sacos de açúcar, ambulância...)">
+                </div>
+                <div class="form-row">
+                    <select id="barracaPatrocinio">
+                        <option value="">Sem vínculo com barraca</option>
+                        <option value="geral">Geral (evento todo)</option>
+                        <option value="fazendinha">Fazendinha</option>
+                        <option value="cachorro-quente">Cachorro Quente</option>
+                        <option value="kafta">Kafta</option>
+                        <option value="pernil">Pernil</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="batata-frita">Batata Frita</option>
+                        <option value="doces">Doces</option>
+                        <option value="bar">Bar</option>
+                        <option value="chopp">Chopp</option>
+                        <option value="kids">Espaço Kids</option>
+                        <option value="bingo">Bingo/Leilão</option>
+                        <option value="artesanato">Artesanato</option>
+                    </select>
                     <input type="text" id="obsPatrocinio" placeholder="Observação (opcional)">
-                    <label class="checkbox-opt"><input type="checkbox" id="recebidoPatrocinio"> Já recebido</label>
+                    <label class="checkbox-opt"><input type="checkbox" id="recebidoPatrocinio"> Já recebido/confirmado</label>
                     <button class="btn-patrocinio" onclick="lancarPatrocinio()">Lançar</button>
                 </div>
             </div>
+            <!-- Busca e ordenação -->
+            <div class="filtros-despesa">
+                <input type="text" id="buscaPatrocinador" placeholder="🔍 Buscar patrocinador..." oninput="renderizarPatrocinadores()" style="padding:6px 12px;border-radius:15px;border:1px solid var(--cor-madeira-clara);background:rgba(0,0,0,0.3);color:var(--cor-palha);font-size:0.82rem;min-width:200px;">
+                <button class="filtro-btn active" data-ordpatr="alfa" onclick="ordenarPatrocinadores('alfa')">A-Z</button>
+                <button class="filtro-btn" data-ordpatr="valor" onclick="ordenarPatrocinadores('valor')">Maior Valor</button>
+                <button class="filtro-btn" data-ordpatr="pendente" onclick="ordenarPatrocinadores('pendente')">Pendentes</button>
+                <button class="filtro-btn" data-ordpatr="recebido" onclick="ordenarPatrocinadores('recebido')">Recebidos</button>
+            </div>
             <div class="tabela-box">
-                <table id="tabelaPatrocinadores"><thead><tr><th>Patrocinador</th><th>Valor</th><th>Obs</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
+                <table id="tabelaPatrocinadores"><thead><tr><th>Patrocinador</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Barraca</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
             </div>
             <div class="resumo-barraca" id="resumoPatrocinadores"></div>
         </section>
