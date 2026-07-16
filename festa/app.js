@@ -1233,8 +1233,19 @@ function gerarPDFComLogo(logoBase64) {
 
     // Helpers
     const center = (text, yy, size) => { doc.setFontSize(size || 12); doc.text(text, pageW / 2, yy, { align: 'center' }); };
-    const checkPage = (need) => { if (y + need > 270) { doc.addPage(); y = 20; } };
+    const checkPage = (need) => { if (y + need > 270) { doc.addPage(); addHeaderFooter(); y = 25; } };
     const titulo = (text) => { checkPage(15); doc.setFontSize(14); doc.setTextColor(230, 81, 0); doc.text(text, 14, y); y += 8; doc.setTextColor(0); doc.setFontSize(10); };
+
+    // Cabeçalho e rodapé em todas as páginas
+    function addHeaderFooter() {
+        const totalPages = doc.internal.getNumberOfPages();
+        const pg = doc.internal.getCurrentPageInfo().pageNumber;
+        doc.setFontSize(8); doc.setTextColor(150);
+        doc.text('Arraiá da Basílica 2026 | Relatório Financeiro', 14, 10);
+        doc.text(`Página ${pg}`, pageW - 14, 10, { align: 'right' });
+        doc.text('Basílica Menor Nossa Senhora da Conceição Aparecida', pageW / 2, 290, { align: 'center' });
+        doc.setTextColor(0);
+    }
 
     // ===== CAPA =====
     if (logoBase64) {
@@ -1255,7 +1266,8 @@ function gerarPDFComLogo(logoBase64) {
     center('São José do Rio Preto - SP', y + 58);
     center('Gerado em: ' + new Date().toLocaleString('pt-BR'), y + 70);
     doc.addPage();
-    y = 20;
+    addHeaderFooter();
+    y = 25;
 
     // ===== RESUMO EXECUTIVO =====
     titulo('1. RESUMO EXECUTIVO');
@@ -1497,8 +1509,20 @@ function gerarPDFComLogo(logoBase64) {
         ]
     });
 
+    // Aplicar cabeçalho/rodapé em todas as páginas
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 2; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8); doc.setTextColor(150);
+        doc.text('Arraiá da Basílica 2026 | Relatório Financeiro', 14, 10);
+        doc.text(`Página ${i} de ${totalPages}`, pageW - 14, 10, { align: 'right' });
+        doc.text('Basílica Menor Nossa Senhora da Conceição Aparecida', pageW / 2, 290, { align: 'center' });
+        doc.setTextColor(0);
+    }
+
     doc.save('relatorio_arraia_basilica_2026.pdf');
     alert('Relatório PDF gerado com sucesso!');
+    registrarAcao('Relatório PDF gerado');
 }
 
 // ===== CONFIGURAÇÕES: BARRACAS E PRODUTOS DINÂMICOS =====
@@ -1653,7 +1677,180 @@ function carregarConfigDinamica() {
 
 carregarConfigDinamica();
 
+// ===== FIREBASE STATUS =====
+let firebaseOnline = false;
+let ultimaSync = null;
+
+function atualizarStatusFirebase(online) {
+    firebaseOnline = online;
+    const el = document.getElementById('firebaseStatus');
+    if (el) {
+        el.innerHTML = online
+            ? '<span class="status-dot online"></span> Online'
+            : '<span class="status-dot offline"></span> Offline';
+    }
+}
+
+function registrarSync() {
+    ultimaSync = new Date();
+    const texto = ultimaSync.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const syncEl = document.getElementById('lastSync');
+    if (syncEl) syncEl.textContent = `Salvo às ${texto}`;
+    const footerEl = document.getElementById('footerSync');
+    if (footerEl) footerEl.textContent = `Última sincronização: ${texto}`;
+}
+
+// Detectar conexão Firebase
+if (typeof firebase !== 'undefined' && firebase.database) {
+    firebase.database().ref('.info/connected').on('value', snap => {
+        atualizarStatusFirebase(snap.val() === true);
+    });
+}
+
+// Sobrescrever salvarDados para registrar sync
+const _salvarDadosOriginal = salvarDados;
+salvarDados = function(d) {
+    _salvarDadosOriginal(d);
+    registrarSync();
+};
+
+// ===== HISTÓRICO DE AÇÕES =====
+const HISTORICO_KEY = 'arraia_historico';
+let historico = JSON.parse(localStorage.getItem(HISTORICO_KEY) || '[]');
+
+function registrarAcao(acao) {
+    const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    historico.unshift({ hora, acao, ts: Date.now() });
+    if (historico.length > 50) historico = historico.slice(0, 50);
+    localStorage.setItem(HISTORICO_KEY, JSON.stringify(historico));
+    renderizarHistorico();
+}
+
+function renderizarHistorico() {
+    const el = document.getElementById('historicoLista');
+    if (!el) return;
+    el.innerHTML = historico.slice(0, 20).map(h =>
+        `<div class="historico-item"><span class="hist-hora">${h.hora}</span><span class="hist-acao">${h.acao}</span></div>`
+    ).join('') || '<p style="opacity:0.5;font-size:0.8rem">Nenhuma ação ainda</p>';
+}
+
+function toggleHistorico() {
+    const el = document.getElementById('historicoPainel');
+    if (el) {
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        renderizarHistorico();
+    }
+}
+
+// Interceptar funções para registrar no histórico
+const _lancarVendaOriginal = lancarVenda;
+lancarVenda = function(barraca) {
+    const select = document.getElementById('prod-' + barraca);
+    const qtd = document.getElementById('qtd-' + barraca);
+    const produto = select ? select.value : '';
+    const q = qtd ? qtd.value : 1;
+    _lancarVendaOriginal(barraca);
+    registrarAcao(`Venda: ${q}x ${produto} → ${(NOMES_BARRACAS[barraca]||barraca).replace(/^.{2}/,'')}`);
+};
+
+const _lancarDespesaOriginal = lancarDespesa;
+lancarDespesa = function() {
+    const desc = document.getElementById('descDespesa').value.trim();
+    const valor = document.getElementById('valorDespesa').value;
+    _lancarDespesaOriginal();
+    if (desc) registrarAcao(`Despesa: ${desc} R$ ${valor}`);
+};
+
+const _lancarPatrocinioOriginal = lancarPatrocinio;
+lancarPatrocinio = function() {
+    const nome = document.getElementById('nomePatrocinador').value.trim();
+    _lancarPatrocinioOriginal();
+    if (nome) registrarAcao(`Patrocínio: ${nome}`);
+};
+
+const _gastoRapidoOriginal = gastoRapido;
+gastoRapido = function() {
+    const desc = document.getElementById('caixaDesc').value.trim();
+    const valor = document.getElementById('caixaValor').value;
+    _gastoRapidoOriginal();
+    if (desc) registrarAcao(`Gasto rápido: ${desc} R$ ${valor}`);
+};
+
+// ===== BUSCA GLOBAL =====
+function buscaGlobalFn() {
+    const termo = (document.getElementById('buscaGlobal')?.value || '').toLowerCase().trim();
+    const container = document.getElementById('buscaResultados');
+    if (!container) return;
+
+    if (!termo || termo.length < 2) { container.style.display = 'none'; return; }
+
+    let resultados = [];
+
+    // Buscar em vendas
+    BARRACAS.forEach(b => {
+        if (!dados[b]) return;
+        dados[b].vendas.forEach(v => {
+            if (v.produto.toLowerCase().includes(termo)) {
+                resultados.push({ tipo: 'Venda', texto: `${v.produto} x${v.qtd} = ${R$(v.total)}`, detalhe: (NOMES_BARRACAS[b]||'').replace(/^.{2}/,'') });
+            }
+        });
+    });
+
+    // Buscar em despesas
+    (dados.despesas||[]).forEach(d => {
+        if (d.desc.toLowerCase().includes(termo) || (d.local||'').toLowerCase().includes(termo) || d.categoria.toLowerCase().includes(termo)) {
+            resultados.push({ tipo: d.doacao ? 'Doação' : 'Despesa', texto: `${d.desc} = ${R$(d.valor)}`, detalhe: d.categoria });
+        }
+    });
+
+    // Buscar em patrocinadores
+    (dados.patrocinadores||[]).forEach(p => {
+        if (p.nome.toLowerCase().includes(termo) || (p.desc||'').toLowerCase().includes(termo)) {
+            resultados.push({ tipo: 'Patrocinador', texto: p.nome, detalhe: p.desc || `${R$(p.valor||0)}` });
+        }
+    });
+
+    if (resultados.length === 0) {
+        container.innerHTML = '<div class="busca-item"><span>Nenhum resultado para "' + termo + '"</span></div>';
+    } else {
+        container.innerHTML = resultados.slice(0, 15).map(r =>
+            `<div class="busca-item"><span>${r.texto} <small style="opacity:0.6">${r.detalhe}</small></span><span class="busca-tipo">${r.tipo}</span></div>`
+        ).join('');
+    }
+    container.style.display = 'block';
+}
+
+// Fechar busca ao clicar fora
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.status-center') && !e.target.closest('.busca-resultados')) {
+        const el = document.getElementById('buscaResultados');
+        if (el) el.style.display = 'none';
+    }
+});
+
+// ===== ATALHOS DE TECLADO =====
+document.addEventListener('keydown', (e) => {
+    // Ignorar se estiver em input/select/textarea
+    if (['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)) return;
+
+    const atalhos = {
+        '1': 'dashboard', '2': 'fazendinha', '3': 'cachorro-quente', '4': 'kafta',
+        '5': 'pernil', '6': 'pastel', '7': 'batata-frita', '8': 'doces',
+        '9': 'bar', '0': 'chopp', 'd': 'despesas', 'p': 'patrocinadores',
+        'g': 'caixa', 'k': 'kids', 'b': 'bingo', 'a': 'artesanato'
+    };
+
+    const secao = atalhos[e.key.toLowerCase()];
+    if (secao) {
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            if (btn.dataset.section === secao) btn.click();
+        });
+    }
+});
+
 // ===== INIT =====
 renderizarTudo();
 if (document.getElementById('caixaGrid')) renderizarCaixa();
 renderizarConfig();
+renderizarHistorico();
+atualizarStatusFirebase(false); // Começa offline até confirmar

@@ -31,6 +31,31 @@
         <p class="header-datas">10 e 11 de Julho | 17 e 18 de Julho</p>
     </header>
 
+    <!-- BARRA DE STATUS -->
+    <div class="status-bar">
+        <div class="status-left">
+            <span class="firebase-status" id="firebaseStatus">
+                <span class="status-dot offline"></span> Conectando...
+            </span>
+            <span class="last-sync" id="lastSync"></span>
+        </div>
+        <div class="status-center">
+            <input type="text" id="buscaGlobal" placeholder="🔍 Buscar (vendas, despesas, patrocinadores...)" oninput="buscaGlobalFn()">
+        </div>
+        <div class="status-right">
+            <button class="btn-historico" onclick="toggleHistorico()">📋 Histórico</button>
+        </div>
+    </div>
+
+    <!-- PAINEL DE BUSCA GLOBAL -->
+    <div class="busca-resultados" id="buscaResultados" style="display:none"></div>
+
+    <!-- PAINEL DE HISTÓRICO -->
+    <div class="historico-painel" id="historicoPainel" style="display:none">
+        <h4>📋 Últimas Ações</h4>
+        <div id="historicoLista"></div>
+    </div>
+
     <!-- RESUMO GERAL -->
     <div class="resumo-geral">
         <div class="resumo-card receita">
@@ -683,7 +708,8 @@
 
     <footer class="footer">
         <p>Basílica Menor Nossa Senhora da Conceição Aparecida</p>
-        <p>Arraiá da Basílica 2026 | Sistema Financeiro</p>
+        <p>Arraiá da Basílica 2026 | Sistema Financeiro v5.0</p>
+        <p style="margin-top:4px;font-size:0.7rem;" id="footerSync">Última sincronização: --</p>
         <p style="margin-top:8px"><a href="painel.html" target="_blank" style="color:var(--cor-amarelo);text-decoration:none;font-weight:700;">🔗 Abrir Painel de Visualização (somente leitura)</a></p>
     </footer>
 
