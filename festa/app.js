@@ -862,8 +862,9 @@ function salvarEdicao() {
         const item = dados.patrocinadores.find(p => p.id === edicaoAtual.id);
         if (item) {
             item.nome = document.getElementById('editNome').value.trim() || item.nome;
-            item.tipo = document.getElementById('editTipo').value || item.tipo;
-            item.valor = parseFloat(document.getElementById('editValor').value) || item.valor;
+            item.tipo = document.getElementById('editTipo').value;
+            const novoValor = document.getElementById('editValor').value;
+            item.valor = novoValor === '' ? 0 : parseFloat(novoValor);
             item.desc = document.getElementById('editDesc').value.trim();
             item.barraca = document.getElementById('editBarraca').value;
             item.obs = document.getElementById('editObs').value.trim();
