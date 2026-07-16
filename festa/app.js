@@ -1272,25 +1272,24 @@ function gerarPDFComLogo(logoBase64) {
     // ===== CAPA =====
     const cfg = getConfigEvento();
     if (logoBase64) {
-        // Manter proporção do logo (mais largo que alto)
         const logoW = 70;
         const logoH = 45;
-        doc.addImage(logoBase64, 'PNG', (pageW - logoW) / 2, 25, logoW, logoH);
-        y = 80;
+        doc.addImage(logoBase64, 'PNG', (pageW - logoW) / 2, 60, logoW, logoH);
+        y = 120;
     } else {
-        y = 50;
+        y = 100;
     }
     doc.setFontSize(24);
     doc.setTextColor(230, 81, 0);
     center(cfg.nomeEvento, y, 24);
     doc.setTextColor(0);
-    center('Relatório Financeiro Completo', y + 12, 14);
-    center('Edição ' + cfg.edicao, y + 22, 12);
-    center(cfg.datas, y + 32, 11);
+    center('Relatório Financeiro Completo', y + 14, 14);
+    center('Edição ' + cfg.edicao, y + 26, 12);
+    center(cfg.datas, y + 38, 11);
     doc.setFontSize(10);
-    center(cfg.igreja, y + 50);
-    center(cfg.cidade, y + 58);
-    center('Gerado em: ' + new Date().toLocaleString('pt-BR'), y + 70);
+    center(cfg.igreja, y + 60);
+    center(cfg.cidade, y + 68);
+    center('Gerado em: ' + new Date().toLocaleString('pt-BR'), y + 82);
     doc.addPage();
     addHeaderFooter();
     y = 25;
