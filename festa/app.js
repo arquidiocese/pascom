@@ -1048,66 +1048,274 @@ function renderizarResumoDoacoes() {
     container.innerHTML = html;
 }
 
-// ===== RELATÓRIO PDF =====
+// ===== RELATÓRIO PDF COMPLETO =====
 function gerarRelatorioPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
-    doc.setFontSize(18);
-    doc.text('Arraiá da Basílica - Relatório Financeiro 2026', 14, 20);
+    const pageW = doc.internal.pageSize.getWidth();
+    let y = 20;
+
+    // Helpers
+    const center = (text, yy, size) => { doc.setFontSize(size || 12); doc.text(text, pageW / 2, yy, { align: 'center' }); };
+    const checkPage = (need) => { if (y + need > 270) { doc.addPage(); y = 20; } };
+    const titulo = (text) => { checkPage(15); doc.setFontSize(14); doc.setTextColor(230, 81, 0); doc.text(text, 14, y); y += 8; doc.setTextColor(0); doc.setFontSize(10); };
+
+    // ===== CAPA =====
+    doc.setFontSize(24);
+    doc.setTextColor(230, 81, 0);
+    center('ARRAIÁ DA BASÍLICA', 50, 24);
+    doc.setTextColor(0);
+    center('Relatório Financeiro Completo', 62, 14);
+    center('Edição 2026', 72, 12);
+    center('10 e 11 de Julho | 17 e 18 de Julho', 82, 11);
     doc.setFontSize(10);
-    doc.text('Datas: 10/Jul, 11/Jul, 17/Jul, 18/Jul', 14, 28);
-    doc.text('Gerado em: ' + new Date().toLocaleString('pt-BR'), 14, 34);
-    
-    // Resumo geral
+    center('Paróquia Nossa Senhora Aparecida - Basílica', 100);
+    center('Gerado em: ' + new Date().toLocaleString('pt-BR'), 110);
+    doc.addPage();
+    y = 20;
+
+    // ===== RESUMO EXECUTIVO =====
+    titulo('1. RESUMO EXECUTIVO');
     let totalVendas = 0, totalItens = 0;
     BARRACAS.forEach(b => {
-        if(dados[b]) { totalVendas += dados[b].vendas.reduce((s,v)=>s+v.total,0); totalItens += dados[b].vendas.reduce((s,v)=>s+v.qtd,0); }
+        if (dados[b]) {
+            totalVendas += dados[b].vendas.reduce((s,v) => s + v.total, 0);
+            totalItens += dados[b].vendas.reduce((s,v) => s + v.qtd, 0);
+        }
     });
-    const totalPatr = (dados.patrocinadores||[]).reduce((s,p)=>s+p.valor,0);
-    const totalDesp = (dados.despesas||[]).filter(d=>!d.doacao).reduce((s,d)=>s+d.valor,0);
-    const saldo = totalVendas + totalPatr - totalDesp;
-    
-    doc.setFontSize(12);
-    doc.text('RESUMO GERAL', 14, 44);
-    doc.setFontSize(10);
-    doc.text(`Vendas: R$ ${totalVendas.toFixed(2)} (${totalItens} itens)`, 14, 52);
-    doc.text(`Patrocínios: R$ ${totalPatr.toFixed(2)}`, 14, 58);
-    doc.text(`Despesas (compras): R$ ${totalDesp.toFixed(2)}`, 14, 64);
-    doc.text(`SALDO FINAL: R$ ${saldo.toFixed(2)}`, 14, 72);
-    
-    // Tabela por barraca
-    const tabelaBarracas = BARRACAS.filter(b=>dados[b]).map(b => {
-        const v = dados[b].vendas.reduce((s,x)=>s+x.total,0);
-        const it = dados[b].vendas.reduce((s,x)=>s+x.qtd,0);
-        const d = (dados.despesas||[]).filter(x=>x.destino===b&&!x.doacao).reduce((s,x)=>s+x.valor,0);
-        return [NOMES_BARRACAS[b].replace(/^.{2}/,''), it, `R$ ${v.toFixed(2)}`, `R$ ${d.toFixed(2)}`, `R$ ${(v-d).toFixed(2)}`];
-    });
-    
+    const patrDinheiro = (dados.patrocinadores||[]).filter(p => (p.tipo||'dinheiro') === 'dinheiro').reduce((s,p) => s + p.valor, 0);
+    const patrServico = (dados.patrocinadores||[]).filter(p => p.tipo === 'servico').reduce((s,p) => s + p.valor, 0);
+    const patrProduto = (dados.patrocinadores||[]).filter(p => p.tipo === 'produto').reduce((s,p) => s + p.valor, 0);
+    const patrTotal = (dados.patrocinadores||[]).reduce((s,p) => s + p.valor, 0);
+    const despCompras = (dados.despesas||[]).filter(d => !d.doacao).reduce((s,d) => s + d.valor, 0);
+    const despDoacoes = (dados.despesas||[]).filter(d => d.doacao).reduce((s,d) => s + d.valor, 0);
+    const receita = totalVendas + patrDinheiro;
+    const saldo = receita - despCompras;
+    const meta = dados.meta || 0;
+
     doc.autoTable({
-        startY: 80,
-        head: [['Barraca', 'Itens', 'Vendas', 'Custos', 'Lucro']],
-        body: tabelaBarracas,
-        theme: 'grid',
-        headStyles: { fillColor: [230, 81, 0] }
+        startY: y, theme: 'grid',
+        headStyles: { fillColor: [230, 81, 0] },
+        head: [['Indicador', 'Valor']],
+        body: [
+            ['Total de Vendas (barracas)', 'R$ ' + fmt(totalVendas)],
+            ['Total de Itens Vendidos', totalItens.toString()],
+            ['Patrocínios em Dinheiro', 'R$ ' + fmt(patrDinheiro)],
+            ['Patrocínios em Serviços (estimado)', 'R$ ' + fmt(patrServico)],
+            ['Patrocínios em Produtos (estimado)', 'R$ ' + fmt(patrProduto)],
+            ['RECEITA TOTAL (vendas + patrocínios $)', 'R$ ' + fmt(receita)],
+            ['Despesas (compras)', 'R$ ' + fmt(despCompras)],
+            ['Itens recebidos como doação', 'R$ ' + fmt(despDoacoes)],
+            ['SALDO FINAL', 'R$ ' + fmt(saldo)],
+            ['Meta de Faturamento', meta > 0 ? 'R$ ' + fmt(meta) + ' (' + Math.min((totalVendas/meta*100),100).toFixed(0) + '%)' : 'Não definida']
+        ]
     });
-    
-    // Tabela por dia
-    const tabelaDias = [1,2,3,4].map(d => {
-        let vd = 0, it = 0;
-        BARRACAS.forEach(b => { if(dados[b]) { vd += dados[b].vendas.filter(v=>v.dia===d).reduce((s,v)=>s+v.total,0); it += dados[b].vendas.filter(v=>v.dia===d).reduce((s,v)=>s+v.qtd,0); }});
-        return [DIAS_FESTA[d], it, `R$ ${vd.toFixed(2)}`];
+    y = doc.lastAutoTable.finalY + 15;
+
+    // ===== PATROCINADORES =====
+    checkPage(30);
+    titulo('2. PATROCINADORES');
+    const patrs = [...(dados.patrocinadores||[])].sort((a,b) => a.nome.localeCompare(b.nome));
+    if (patrs.length > 0) {
+        const TIPOS = { dinheiro: '$ Dinheiro', servico: 'Serviço', produto: 'Produto' };
+        doc.autoTable({
+            startY: y, theme: 'grid',
+            headStyles: { fillColor: [21, 101, 192] },
+            head: [['Patrocinador', 'Tipo', 'Descrição', 'Valor', 'Barraca', 'Status']],
+            body: patrs.map(p => [
+                p.nome,
+                TIPOS[p.tipo] || 'Dinheiro',
+                p.desc || '-',
+                'R$ ' + fmt(p.valor),
+                p.barraca ? (NOMES_BARRACAS[p.barraca] || p.barraca).replace(/^.{2}/, '') : '-',
+                p.recebido ? 'Recebido' : 'Pendente'
+            ]),
+            columnStyles: { 0: { cellWidth: 35 }, 2: { cellWidth: 35 } }
+        });
+        y = doc.lastAutoTable.finalY + 5;
+        doc.setFontSize(9);
+        doc.text(`Total: ${patrs.length} patrocinadores | Dinheiro: R$ ${fmt(patrDinheiro)} | Serviços: R$ ${fmt(patrServico)} | Produtos: R$ ${fmt(patrProduto)}`, 14, y);
+        y += 15;
+    } else {
+        doc.text('Nenhum patrocinador cadastrado.', 14, y); y += 15;
+    }
+
+    // ===== VENDAS POR BARRACA =====
+    checkPage(30);
+    titulo('3. VENDAS POR BARRACA');
+    const tabelaBarracas = BARRACAS.filter(b => dados[b] && dados[b].vendas.length > 0).map(b => {
+        const v = dados[b].vendas.reduce((s,x) => s + x.total, 0);
+        const it = dados[b].vendas.reduce((s,x) => s + x.qtd, 0);
+        const desp = (dados.despesas||[]).filter(d => d.destino === b && !d.doacao).reduce((s,d) => s + d.valor, 0);
+        const lucro = v - desp;
+        return [(NOMES_BARRACAS[b]||b).replace(/^.{2}/,''), it, 'R$ ' + fmt(v), 'R$ ' + fmt(desp), 'R$ ' + fmt(lucro)];
     });
-    
+    if (tabelaBarracas.length > 0) {
+        doc.autoTable({
+            startY: y, theme: 'grid',
+            headStyles: { fillColor: [46, 125, 50] },
+            head: [['Barraca', 'Itens', 'Vendas', 'Custos', 'Lucro']],
+            body: tabelaBarracas
+        });
+        y = doc.lastAutoTable.finalY + 15;
+    }
+
+    // ===== DETALHAMENTO POR PRODUTO =====
+    checkPage(30);
+    titulo('4. VENDAS DETALHADAS POR PRODUTO');
+    BARRACAS.forEach(b => {
+        if (!dados[b] || dados[b].vendas.length === 0) return;
+        checkPage(20);
+        const nome = (NOMES_BARRACAS[b]||b).replace(/^.{2}/,'');
+        // Agrupar por produto
+        const prodMap = {};
+        dados[b].vendas.forEach(v => {
+            if (!prodMap[v.produto]) prodMap[v.produto] = { qtd: 0, valor: 0, dias: {1:0,2:0,3:0,4:0} };
+            prodMap[v.produto].qtd += v.qtd;
+            prodMap[v.produto].valor += v.total;
+            prodMap[v.produto].dias[v.dia] = (prodMap[v.produto].dias[v.dia] || 0) + v.qtd;
+        });
+        const prods = Object.entries(prodMap).map(([n, d]) => [n, d.dias[1], d.dias[2], d.dias[3], d.dias[4], d.qtd, 'R$ ' + fmt(d.valor)]);
+
+        doc.autoTable({
+            startY: y, theme: 'striped',
+            headStyles: { fillColor: [92, 61, 46] },
+            head: [[nome, '10/Jul', '11/Jul', '17/Jul', '18/Jul', 'Total Qt', 'Faturamento']],
+            body: prods
+        });
+        y = doc.lastAutoTable.finalY + 8;
+    });
+
+    // ===== COMPARATIVO POR DIA =====
+    checkPage(30);
+    titulo('5. COMPARATIVO ENTRE DIAS');
+    const diasData = [1,2,3,4].map(d => {
+        let vendas = 0, itens = 0;
+        BARRACAS.forEach(b => {
+            if (dados[b]) {
+                vendas += dados[b].vendas.filter(v => v.dia === d).reduce((s,v) => s + v.total, 0);
+                itens += dados[b].vendas.filter(v => v.dia === d).reduce((s,v) => s + v.qtd, 0);
+            }
+        });
+        return [DIAS_FESTA[d], itens, 'R$ ' + fmt(vendas)];
+    });
     doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 10,
-        head: [['Dia', 'Itens', 'Vendas']],
-        body: tabelaDias,
-        theme: 'grid',
-        headStyles: { fillColor: [21, 101, 192] }
+        startY: y, theme: 'grid',
+        headStyles: { fillColor: [21, 101, 192] },
+        head: [['Dia', 'Itens Vendidos', 'Faturamento']],
+        body: diasData
     });
-    
+    y = doc.lastAutoTable.finalY + 15;
+
+    // ===== RANKING DE PRODUTOS =====
+    checkPage(30);
+    titulo('6. RANKING - PRODUTOS MAIS VENDIDOS');
+    const rankMap = {};
+    BARRACAS.forEach(b => {
+        if (!dados[b]) return;
+        dados[b].vendas.forEach(v => {
+            if (!rankMap[v.produto]) rankMap[v.produto] = { qtd: 0, valor: 0, barraca: b };
+            rankMap[v.produto].qtd += v.qtd;
+            rankMap[v.produto].valor += v.total;
+        });
+    });
+    const ranking = Object.entries(rankMap).map(([n,d]) => ({ nome: n, ...d })).sort((a,b) => b.qtd - a.qtd).slice(0, 20);
+    if (ranking.length > 0) {
+        doc.autoTable({
+            startY: y, theme: 'grid',
+            headStyles: { fillColor: [255, 143, 0] },
+            head: [['#', 'Produto', 'Barraca', 'Qtd Vendida', 'Faturamento']],
+            body: ranking.map((r, i) => [i+1, r.nome, (NOMES_BARRACAS[r.barraca]||'').replace(/^.{2}/,''), r.qtd, 'R$ ' + fmt(r.valor)])
+        });
+        y = doc.lastAutoTable.finalY + 15;
+    }
+
+    // ===== DESPESAS =====
+    checkPage(30);
+    titulo('7. DESPESAS');
+    const despesas = dados.despesas || [];
+    if (despesas.length > 0) {
+        // Resumo por categoria
+        const catMap = {};
+        despesas.forEach(d => {
+            if (!catMap[d.categoria]) catMap[d.categoria] = { compras: 0, doacoes: 0 };
+            if (d.doacao) catMap[d.categoria].doacoes += d.valor;
+            else catMap[d.categoria].compras += d.valor;
+        });
+        doc.autoTable({
+            startY: y, theme: 'grid',
+            headStyles: { fillColor: [198, 40, 40] },
+            head: [['Categoria', 'Compras', 'Doações', 'Total']],
+            body: Object.entries(catMap).map(([cat, v]) => [cat, 'R$ ' + fmt(v.compras), 'R$ ' + fmt(v.doacoes), 'R$ ' + fmt(v.compras + v.doacoes)])
+        });
+        y = doc.lastAutoTable.finalY + 5;
+        doc.setFontSize(9);
+        doc.text(`Total Compras: R$ ${fmt(despCompras)} | Total Doações: R$ ${fmt(despDoacoes)} | ${despesas.length} itens`, 14, y);
+        y += 15;
+
+        // Lista completa
+        checkPage(20);
+        doc.setFontSize(10); doc.text('Detalhamento:', 14, y); y += 5;
+        doc.autoTable({
+            startY: y, theme: 'striped', styles: { fontSize: 7 },
+            headStyles: { fillColor: [92, 61, 46] },
+            head: [['Categoria', 'Descrição', 'Qtd', 'Valor', 'Local', 'Destino', 'Tipo', 'Status']],
+            body: despesas.map(d => [
+                d.categoria, d.desc, (d.qtd||1) + ' ' + (d.unidade||'un'),
+                'R$ ' + fmt(d.valor), d.local || '-',
+                d.destino === 'geral' ? 'Geral' : (NOMES_BARRACAS[d.destino]||d.destino||'').replace(/^.{2}/,''),
+                d.doacao ? 'Doação' + (d.patrocinadorId ? ' (' + getNomePatrocinador(d.patrocinadorId) + ')' : '') : 'Compra',
+                d.pago ? 'Pago' : 'Pendente'
+            ])
+        });
+        y = doc.lastAutoTable.finalY + 15;
+    }
+
+    // ===== DOAÇÕES RECEBIDAS =====
+    const doacoes = despesas.filter(d => d.doacao);
+    if (doacoes.length > 0) {
+        checkPage(30);
+        titulo('8. DOAÇÕES RECEBIDAS');
+        doc.autoTable({
+            startY: y, theme: 'grid',
+            headStyles: { fillColor: [106, 27, 154] },
+            head: [['Item', 'Valor Estimado', 'Patrocinador', 'Barraca']],
+            body: doacoes.map(d => [
+                d.desc,
+                'R$ ' + fmt(d.valor),
+                d.patrocinadorId ? getNomePatrocinador(d.patrocinadorId) : '-',
+                d.destino === 'geral' ? 'Geral' : (NOMES_BARRACAS[d.destino]||d.destino||'').replace(/^.{2}/,'')
+            ])
+        });
+        y = doc.lastAutoTable.finalY + 5;
+        doc.setFontSize(9);
+        doc.text(`Total em doações: R$ ${fmt(despDoacoes)} (${doacoes.length} itens)`, 14, y);
+        y += 15;
+    }
+
+    // ===== RESULTADO FINAL =====
+    checkPage(40);
+    titulo('9. RESULTADO FINAL');
+    doc.autoTable({
+        startY: y, theme: 'grid',
+        headStyles: { fillColor: [46, 125, 50] },
+        head: [['', 'Valor']],
+        body: [
+            ['(+) Vendas nas barracas', 'R$ ' + fmt(totalVendas)],
+            ['(+) Patrocínios em dinheiro', 'R$ ' + fmt(patrDinheiro)],
+            ['(=) RECEITA TOTAL', 'R$ ' + fmt(receita)],
+            ['(-) Despesas (compras)', 'R$ ' + fmt(despCompras)],
+            ['(=) SALDO LÍQUIDO', 'R$ ' + fmt(saldo)],
+            ['', ''],
+            ['Itens vendidos no total', totalItens.toString()],
+            ['Barracas ativas', BARRACAS.filter(b => dados[b] && dados[b].vendas.length > 0).length.toString()],
+            ['Patrocinadores', (dados.patrocinadores||[]).length.toString()],
+            ['Economia com doações', 'R$ ' + fmt(despDoacoes)]
+        ]
+    });
+
     doc.save('relatorio_arraia_basilica_2026.pdf');
+    alert('Relatório PDF gerado com sucesso!');
 }
 
 // ===== CONFIGURAÇÕES: BARRACAS E PRODUTOS DINÂMICOS =====
