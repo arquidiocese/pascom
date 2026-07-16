@@ -1848,9 +1848,153 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// ===== ENCERRAR EDIÇÃO =====
+function encerrarEdicao() {
+    if (!confirm('Você está prestes a ENCERRAR a edição 2026.\n\nIsso vai:\n1. Gerar um backup automático\n2. Salvar como "edição anterior" para comparativo\n3. Limpar vendas, despesas e patrocínios\n4. Manter configuração de barracas e produtos\n\nTem certeza?')) return;
+    if (!confirm('ÚLTIMA CONFIRMAÇÃO: Todos os dados de vendas, despesas e patrocínios serão removidos. O backup será salvo automaticamente no seu computador.\n\nContinuar?')) return;
+
+    // 1. Gerar backup
+    exportarJSON();
+
+    // 2. Salvar como edição anterior
+    const edicaoAnterior = {
+        edicao: '2026',
+        encerradoEm: new Date().toISOString(),
+        dados: JSON.parse(JSON.stringify(dados))
+    };
+    localStorage.setItem('arraia_edicao_anterior', JSON.stringify(edicaoAnterior));
+
+    // 3. Limpar dados mantendo config
+    const configBarracas = dados.configBarracas;
+    const configProdutos = dados.configProdutos;
+    dados = dadosVazios();
+    dados.configBarracas = configBarracas;
+    dados.configProdutos = configProdutos;
+    salvarDados(dados);
+
+    alert('Edição 2026 encerrada!\n\nBackup salvo no computador.\nDados limpos para próxima edição.\nA configuração de barracas e produtos foi mantida.');
+    renderizarTudo();
+    registrarAcao('Edição 2026 encerrada');
+}
+
+// ===== COMPARATIVO COM EDIÇÃO ANTERIOR =====
+function importarEdicaoAnterior(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importado = JSON.parse(e.target.result);
+            const dadosAnt = importado.dados || importado;
+            if (dadosAnt && typeof dadosAnt === 'object') {
+                const edicaoAnterior = {
+                    edicao: importado.evento || importado.edicao || 'Anterior',
+                    dados: dadosAnt
+                };
+                localStorage.setItem('arraia_edicao_anterior', JSON.stringify(edicaoAnterior));
+                alert('Edição anterior importada! O comparativo aparecerá no dashboard.');
+                renderizarComparativoAnterior();
+            }
+        } catch (err) {
+            alert('Erro ao importar. Verifique se é um backup válido.');
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+function limparEdicaoAnterior() {
+    if (!confirm('Remover o comparativo com edição anterior?')) return;
+    localStorage.removeItem('arraia_edicao_anterior');
+    document.getElementById('comparativoAnterior').style.display = 'none';
+    document.getElementById('btnLimparAnterior').style.display = 'none';
+    document.getElementById('comparativoStatus').innerHTML = '';
+}
+
+function renderizarComparativoAnterior() {
+    const stored = localStorage.getItem('arraia_edicao_anterior');
+    if (!stored) return;
+
+    const anterior = JSON.parse(stored);
+    const dadosAnt = anterior.dados;
+    if (!dadosAnt) return;
+
+    // Normalizar dados anteriores
+    if (dadosAnt.patrocinadores && !Array.isArray(dadosAnt.patrocinadores)) dadosAnt.patrocinadores = Object.values(dadosAnt.patrocinadores);
+    if (dadosAnt.despesas && !Array.isArray(dadosAnt.despesas)) dadosAnt.despesas = Object.values(dadosAnt.despesas);
+
+    // Mostrar no config
+    document.getElementById('btnLimparAnterior').style.display = 'inline-block';
+    document.getElementById('comparativoStatus').innerHTML = `<p style="color:#66bb6a;font-size:0.85rem;margin-top:10px">✅ Edição "${anterior.edicao}" carregada para comparação</p>`;
+
+    // Calcular totais anteriores
+    let vendasAnt = 0, itensAnt = 0;
+    BARRACAS.forEach(b => {
+        if (dadosAnt[b] && dadosAnt[b].vendas) {
+            const v = Array.isArray(dadosAnt[b].vendas) ? dadosAnt[b].vendas : Object.values(dadosAnt[b].vendas);
+            vendasAnt += v.reduce((s, x) => s + (x.total || 0), 0);
+            itensAnt += v.reduce((s, x) => s + (x.qtd || 0), 0);
+        }
+    });
+    const despAnt = (dadosAnt.despesas || []).filter(d => !d.doacao).reduce((s, d) => s + d.valor, 0);
+    const patrAnt = (dadosAnt.patrocinadores || []).filter(p => (p.tipo || 'dinheiro') === 'dinheiro').reduce((s, p) => s + (p.valor || 0), 0);
+    const saldoAnt = vendasAnt + patrAnt - despAnt;
+
+    // Calcular totais atuais
+    let vendasAtual = 0, itensAtual = 0;
+    BARRACAS.forEach(b => {
+        if (dados[b]) {
+            vendasAtual += dados[b].vendas.reduce((s, v) => s + v.total, 0);
+            itensAtual += dados[b].vendas.reduce((s, v) => s + v.qtd, 0);
+        }
+    });
+    const despAtual = (dados.despesas || []).filter(d => !d.doacao).reduce((s, d) => s + d.valor, 0);
+    const patrAtual = (dados.patrocinadores || []).filter(p => (p.tipo || 'dinheiro') === 'dinheiro').reduce((s, p) => s + (p.valor || 0), 0);
+    const saldoAtual = vendasAtual + patrAtual - despAtual;
+
+    // Comparar
+    function compara(atual, anterior) {
+        if (anterior === 0) return { pct: atual > 0 ? '+100' : '0', cls: 'positivo', seta: '↑' };
+        const diff = ((atual - anterior) / anterior * 100);
+        return { pct: (diff >= 0 ? '+' : '') + diff.toFixed(0), cls: diff >= 0 ? 'positivo' : 'negativo', seta: diff >= 0 ? '↑' : '↓' };
+    }
+
+    const cVendas = compara(vendasAtual, vendasAnt);
+    const cItens = compara(itensAtual, itensAnt);
+    const cSaldo = compara(saldoAtual, saldoAnt);
+
+    const container = document.getElementById('comparativoCards');
+    const wrap = document.getElementById('comparativoAnterior');
+    wrap.style.display = 'block';
+
+    container.innerHTML = `
+        <div class="dash-card">
+            <h4>Vendas</h4>
+            <div class="valores"><span class="v-receita">Atual: ${R$(vendasAtual)}</span><span class="v-gasto">Anterior: ${R$(vendasAnt)}</span></div>
+            <div class="resultado ${cVendas.cls}">${cVendas.seta} ${cVendas.pct}%</div>
+        </div>
+        <div class="dash-card">
+            <h4>Itens Vendidos</h4>
+            <div class="valores"><span class="v-receita">Atual: ${itensAtual}</span><span class="v-gasto">Anterior: ${itensAnt}</span></div>
+            <div class="resultado ${cItens.cls}">${cItens.seta} ${cItens.pct}%</div>
+        </div>
+        <div class="dash-card">
+            <h4>Saldo Final</h4>
+            <div class="valores"><span class="v-receita">Atual: ${R$(saldoAtual)}</span><span class="v-gasto">Anterior: ${R$(saldoAnt)}</span></div>
+            <div class="resultado ${cSaldo.cls}">${cSaldo.seta} ${cSaldo.pct}%</div>
+        </div>
+        <div class="dash-card">
+            <h4>Despesas</h4>
+            <div class="valores"><span class="v-receita">Atual: ${R$(despAtual)}</span><span class="v-gasto">Anterior: ${R$(despAnt)}</span></div>
+            <div class="resultado ${compara(despAtual,despAnt).cls}">${compara(despAtual,despAnt).seta} ${compara(despAtual,despAnt).pct}%</div>
+        </div>
+    `;
+}
+
 // ===== INIT =====
 renderizarTudo();
 if (document.getElementById('caixaGrid')) renderizarCaixa();
 renderizarConfig();
 renderizarHistorico();
-atualizarStatusFirebase(false); // Começa offline até confirmar
+renderizarComparativoAnterior();
+atualizarStatusFirebase(false);

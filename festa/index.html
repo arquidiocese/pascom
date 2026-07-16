@@ -189,6 +189,14 @@
             <div id="dashboardCards" class="dashboard-grid"></div>
 
             <!-- Margem por Barraca -->
+            <div id="comparativoAnterior" style="display:none;margin-bottom:20px;">
+                <div class="grafico-box">
+                    <h3>📊 Comparativo com Edição Anterior</h3>
+                    <div id="comparativoCards" class="dashboard-grid"></div>
+                </div>
+            </div>
+
+            <!-- Margem por Barraca -->
             <div class="grafico-box" style="margin-bottom:20px;">
                 <h3>💰 Margem (Lucro/Prejuízo) por Barraca</h3>
                 <div id="margemBarracas" class="margem-grid"></div>
@@ -701,6 +709,28 @@
                 <div class="form-row">
                     <button class="btn-gasto" onclick="limparTodosDados()">🗑️ Limpar Todos os Dados</button>
                 </div>
+            </div>
+
+            <!-- Encerrar Edição -->
+            <div class="painel-madeira" style="margin-top:20px;border-color:rgba(21,101,192,0.4);">
+                <h3 style="color:#42a5f5;">📦 Encerrar Edição 2026</h3>
+                <p class="secao-desc">Ao encerrar a edição: gera backup automático do ano, salva os dados como "edição anterior" para comparação no próximo ano, e limpa vendas/despesas/patrocínios mantendo a configuração de barracas e produtos.</p>
+                <div class="form-row">
+                    <button class="btn-patrocinio" onclick="encerrarEdicao()">📦 Encerrar Edição e Preparar Próximo Ano</button>
+                </div>
+            </div>
+
+            <!-- Comparativo com ano anterior -->
+            <div class="painel-madeira" style="margin-top:20px;">
+                <h3>📊 Comparativo com Edição Anterior</h3>
+                <p class="secao-desc">Importe o backup da edição passada para comparar os resultados lado a lado no dashboard.</p>
+                <div class="form-row">
+                    <label class="btn-export btn-import">📂 Importar Edição Anterior
+                        <input type="file" accept=".json" onchange="importarEdicaoAnterior(event)" hidden>
+                    </label>
+                    <button class="btn-export" onclick="limparEdicaoAnterior()" id="btnLimparAnterior" style="display:none">🗑️ Remover Comparativo</button>
+                </div>
+                <div id="comparativoStatus"></div>
             </div>
         </section>
 
