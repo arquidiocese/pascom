@@ -515,19 +515,40 @@ function renderizarBarraca(barraca) {
     const resultado = totalVendas - totalDespesas;
     const custoUnit = totalItens > 0 ? totalDespesas / totalItens : 0;
 
-    tb.innerHTML = vendas.map(v => `
-        <tr>
-            <td><span class="badge-dia">${DIAS_FESTA[v.dia]}</span></td>
-            <td>${v.produto}</td>
-            <td>${v.qtd}</td>
-            <td>R$ ${fmt(v.preco)}</td>
-            <td>R$ ${fmt(v.total)}</td>
-            <td>
-                <button class="btn-edit" onclick="editarVenda('${barraca}', ${v.id})">✏️</button>
-                <button class="btn-delete" onclick="confirmarExclusao('Excluir esta venda?', () => removerVenda('${barraca}', ${v.id}))">X</button>
-            </td>
-        </tr>
-    `).join('');
+    // Se filtro "todos", agrupar vendas por produto
+    if (filtro === 'todos' && vendas.length > 0) {
+        const agrupado = {};
+        vendas.forEach(v => {
+            if (!agrupado[v.produto]) agrupado[v.produto] = { produto: v.produto, preco: v.preco, qtd: 0, total: 0 };
+            agrupado[v.produto].qtd += v.qtd;
+            agrupado[v.produto].total += v.total;
+        });
+        const lista = Object.values(agrupado).sort((a,b) => a.produto.localeCompare(b.produto));
+        tb.innerHTML = lista.map(v => `
+            <tr>
+                <td><span class="badge-dia">Todos</span></td>
+                <td>${v.produto}</td>
+                <td><strong>${v.qtd}</strong></td>
+                <td>R$ ${fmt(v.preco)}</td>
+                <td><strong>R$ ${fmt(v.total)}</strong></td>
+                <td></td>
+            </tr>
+        `).join('');
+    } else {
+        tb.innerHTML = vendas.map(v => `
+            <tr>
+                <td><span class="badge-dia">${DIAS_FESTA[v.dia]}</span></td>
+                <td>${v.produto}</td>
+                <td>${v.qtd}</td>
+                <td>R$ ${fmt(v.preco)}</td>
+                <td>R$ ${fmt(v.total)}</td>
+                <td>
+                    <button class="btn-edit" onclick="editarVenda('${barraca}', ${v.id})">✏️</button>
+                    <button class="btn-delete" onclick="confirmarExclusao('Excluir esta venda?', () => removerVenda('${barraca}', ${v.id}))">X</button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
     // Resumo por dia
     let resumoDiaHtml = '<div class="resumo-dias-barraca">';
