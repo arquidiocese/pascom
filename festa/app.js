@@ -1534,6 +1534,38 @@ function gerarPDFComLogo(logoBase64) {
         ]
     });
 
+    // ===== PÁGINA DE ASSINATURAS =====
+    doc.addPage();
+    y = 80;
+    doc.setFontSize(14); doc.setTextColor(230, 81, 0);
+    center('TERMO DE APROVAÇÃO', y, 14);
+    doc.setTextColor(0);
+    y += 15;
+    doc.setFontSize(10);
+    center(`Relatório financeiro do ${cfg.nomeEvento} - Edição ${cfg.edicao}`, y);
+    y += 8;
+    center(`${cfg.igreja} - ${cfg.cidade}`, y);
+    y += 20;
+    doc.text('Aprovamos o presente relatório financeiro, declarando que os valores apresentados', 14, y); y += 6;
+    doc.text('correspondem à realidade do evento realizado.', 14, y);
+    y += 30;
+
+    const assinaturas = [cfg.assinatura1, cfg.assinatura2, cfg.assinatura3].filter(a => a);
+    if (assinaturas.length > 0) {
+        const espaco = pageW / (assinaturas.length + 1);
+        assinaturas.forEach((ass, i) => {
+            const x = espaco * (i + 1);
+            doc.line(x - 35, y, x + 35, y);
+            doc.setFontSize(9);
+            doc.text(ass, x, y + 6, { align: 'center' });
+        });
+        y += 25;
+    }
+
+    y += 20;
+    doc.setFontSize(9); doc.setTextColor(100);
+    center(`${cfg.cidade}, ______ de __________________ de ${cfg.edicao}`, y);
+
     // Aplicar cabeçalho/rodapé em todas as páginas
     const totalPages = doc.internal.getNumberOfPages();
     const cfgPdf = getConfigEvento();
@@ -1718,6 +1750,9 @@ function carregarConfigEvento() {
     if (el('cfgDatas')) el('cfgDatas').value = cfg.datas || '10 e 11 de Julho | 17 e 18 de Julho';
     if (el('cfgIgreja')) el('cfgIgreja').value = cfg.igreja || 'Basílica Menor Nossa Senhora da Conceição Aparecida';
     if (el('cfgCidade')) el('cfgCidade').value = cfg.cidade || 'São José do Rio Preto - SP';
+    if (el('cfgAssinatura1')) el('cfgAssinatura1').value = cfg.assinatura1 || '';
+    if (el('cfgAssinatura2')) el('cfgAssinatura2').value = cfg.assinatura2 || '';
+    if (el('cfgAssinatura3')) el('cfgAssinatura3').value = cfg.assinatura3 || '';
 
     // Atualizar header da página
     const headerH1 = document.querySelector('.header h1');
@@ -1734,7 +1769,10 @@ function salvarConfigEvento() {
         edicao: document.getElementById('cfgEdicao').value.trim(),
         datas: document.getElementById('cfgDatas').value.trim(),
         igreja: document.getElementById('cfgIgreja').value.trim(),
-        cidade: document.getElementById('cfgCidade').value.trim()
+        cidade: document.getElementById('cfgCidade').value.trim(),
+        assinatura1: document.getElementById('cfgAssinatura1').value.trim(),
+        assinatura2: document.getElementById('cfgAssinatura2').value.trim(),
+        assinatura3: document.getElementById('cfgAssinatura3').value.trim()
     };
     salvarDados(dados);
     carregarConfigEvento();
