@@ -869,18 +869,33 @@ function confirmarExclusao(msg, callback) {
 }
 
 // ===== GASTO RÁPIDO =====
+function toggleCaixaPatrocinador() {
+    const check = document.getElementById('caixaDoacao').checked;
+    const row = document.getElementById('caixaPatrocinadorRow');
+    if (check) {
+        row.style.display = 'flex';
+        const select = document.getElementById('caixaPatrocinador');
+        const opts = (dados.patrocinadores||[]).map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+        select.innerHTML = '<option value="">Selecione quem doou (opcional)...</option>' + opts;
+    } else {
+        row.style.display = 'none';
+    }
+}
+
 function gastoRapido() {
     const desc = document.getElementById('caixaDesc').value.trim();
     const valor = parseFloat(document.getElementById('caixaValor').value);
     const destino = document.getElementById('caixaDestino').value;
     const categoria = document.getElementById('caixaCategoria').value;
     const doacao = document.getElementById('caixaDoacao').checked;
+    const pagarDepois = document.getElementById('caixaPagar') ? document.getElementById('caixaPagar').checked : false;
+    const patrocinadorId = doacao ? (document.getElementById('caixaPatrocinador')?.value || '') : '';
 
     if (!desc || isNaN(valor) || valor <= 0) return;
 
     dados.despesas.push({
         id: Date.now(), categoria, desc, qtd: 1, unidade: 'un',
-        valor, local: '', obs: '(Lançado rápido)', destino, doacao, pago: true
+        valor, local: '', obs: '(Lançado rápido)', destino, doacao, pago: !pagarDepois, patrocinadorId
     });
     salvarDados(dados);
 
@@ -893,6 +908,8 @@ function gastoRapido() {
     document.getElementById('caixaDesc').value = '';
     document.getElementById('caixaValor').value = '';
     document.getElementById('caixaDoacao').checked = false;
+    if (document.getElementById('caixaPagar')) document.getElementById('caixaPagar').checked = false;
+    document.getElementById('caixaPatrocinadorRow').style.display = 'none';
 
     renderizarUltimosGastos();
     renderizarTudo();

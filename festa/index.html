@@ -139,7 +139,13 @@
                         <option value="Outros Alimentos">Outros Alimentos</option>
                         <option value="Outros">Outros</option>
                     </select>
-                    <label class="checkbox-opt"><input type="checkbox" id="caixaDoacao"> 🎁 Doação</label>
+                    <label class="checkbox-opt"><input type="checkbox" id="caixaDoacao" onchange="toggleCaixaPatrocinador()"> 🎁 Doação</label>
+                    <label class="checkbox-opt"><input type="checkbox" id="caixaPagar"> ⏳ Pagar depois</label>
+                </div>
+                <div class="form-row" id="caixaPatrocinadorRow" style="display:none">
+                    <select id="caixaPatrocinador" style="width:100%">
+                        <option value="">Selecione quem doou...</option>
+                    </select>
                 </div>
                 <button class="btn-gasto" style="width:100%;padding:16px;font-size:1.1rem;margin-top:10px" onclick="gastoRapido()">Lançar Gasto</button>
             </div>
