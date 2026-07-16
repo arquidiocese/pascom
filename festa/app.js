@@ -1069,7 +1069,7 @@ function gerarRelatorioPDF() {
     center('Edição 2026', 72, 12);
     center('10 e 11 de Julho | 17 e 18 de Julho', 82, 11);
     doc.setFontSize(10);
-    center('Paróquia Nossa Senhora Aparecida - Basílica', 100);
+    center('Basílica Menor Nossa Senhora da Conceição Aparecida', 100);
     center('Gerado em: ' + new Date().toLocaleString('pt-BR'), 110);
     doc.addPage();
     y = 20;
