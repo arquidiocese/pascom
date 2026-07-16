@@ -579,3 +579,46 @@ td .btn-edit:hover { background: var(--cor-amarelo); color: var(--cor-fundo); }
     border: 1px solid rgba(245,222,179,0.15);
 }
 .config-produto-item .btn-delete { padding: 2px 6px; font-size: 0.6rem; }
+
+/* RESUMO POR DIA NA BARRACA */
+.resumo-dias-barraca {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
+    padding-bottom: 10px; border-bottom: 1px solid rgba(245,222,179,0.1);
+}
+.resumo-dia-item {
+    background: rgba(0,0,0,0.2); padding: 4px 12px; border-radius: 8px;
+    font-size: 0.78rem; color: var(--cor-palha);
+}
+.resumo-dia-item strong { color: var(--cor-amarelo); }
+.resumo-barraca-inner {
+    display: flex; justify-content: space-around; flex-wrap: wrap; gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* DESPESAS VINCULADAS NA BARRACA */
+.desp-vinculadas {
+    border-top: 1px solid rgba(245,222,179,0.1); padding-top: 12px; margin-top: 10px;
+}
+.desp-vinculadas h4 { font-size: 0.85rem !important; margin-bottom: 8px !important; }
+.desp-vinc-lista { display: flex; flex-direction: column; gap: 4px; }
+.desp-vinc-item {
+    font-size: 0.78rem; color: var(--cor-palha); padding: 4px 0;
+    border-bottom: 1px solid rgba(245,222,179,0.05);
+}
+
+/* DETALHE PATROCINADORES */
+.patr-detalhe-card {
+    background: rgba(0,0,0,0.2); border-radius: 10px; padding: 12px 15px;
+    margin-bottom: 10px; border-left: 3px solid var(--cor-amarelo);
+}
+.patr-detalhe-header {
+    font-weight: 700; color: var(--cor-palha); font-size: 0.95rem; margin-bottom: 5px;
+}
+.patr-detalhe-header small { margin-left: 5px; }
+.patr-detalhe-desc { font-size: 0.8rem; color: var(--cor-palha); opacity: 0.7; margin-bottom: 6px; }
+.patr-detalhe-itens { padding-left: 10px; }
+.patr-detalhe-item { font-size: 0.78rem; color: var(--cor-palha); padding: 3px 0; }
+.patr-detalhe-total {
+    margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(245,222,179,0.15);
+    font-size: 0.82rem; font-weight: 700; color: #66bb6a;
+}

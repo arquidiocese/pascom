@@ -315,6 +315,27 @@ function renderizarDespesas() {
         <div class="item negativo"><span>Pendente</span><strong>${R$(totalPendente)}</strong></div>
         <div class="item neutro"><span>Itens Lanç.</span><strong>${totalItens}</strong></div>
     `;
+
+    // Totalizador por local de compra
+    const localEl = document.getElementById('totaisPorLocal');
+    if (localEl) {
+        const localMap = {};
+        dados.despesas.forEach(d => {
+            if (d.doacao) return; // não conta doações
+            const loc = (d.local && d.local.trim()) ? d.local.trim() : 'Não informado';
+            if (!localMap[loc]) localMap[loc] = { valor: 0, qtd: 0 };
+            localMap[loc].valor += d.valor;
+            localMap[loc].qtd++;
+        });
+        const locais = Object.entries(localMap).sort((a,b) => b[1].valor - a[1].valor);
+        if (locais.length > 0) {
+            localEl.innerHTML = locais.map(([loc, v]) => 
+                `<div class="ranking-item"><span class="ranking-nome">🏪 ${loc}</span><span class="ranking-qtd">${v.qtd} itens</span><span class="ranking-valor">${R$(v.valor)}</span></div>`
+            ).join('');
+        } else {
+            localEl.innerHTML = '<p style="opacity:0.5;text-align:center;padding:10px">Nenhuma compra registrada</p>';
+        }
+    }
 }
 
 // ===== PATROCINADORES =====
@@ -446,6 +467,31 @@ function renderizarPatrocinadores() {
         <div class="item negativo"><span>Pendente</span><strong>${R$(pendente)}</strong></div>
         <div class="item neutro"><span>Qtd</span><strong>${todos.length}</strong></div>
     `;
+
+    // Detalhe de doações por patrocinador (expandido abaixo da tabela)
+    const detalheEl = document.getElementById('detalhePatrocinadores');
+    if (detalheEl) {
+        let detHtml = '';
+        todos.sort((a,b) => a.nome.localeCompare(b.nome)).forEach(p => {
+            const doacoes = (dados.despesas||[]).filter(d => d.doacao && d.patrocinadorId == p.id);
+            if (doacoes.length === 0 && !p.desc) return;
+            detHtml += `<div class="patr-detalhe-card">
+                <div class="patr-detalhe-header">${p.nome} <small>${{dinheiro:'💵',servico:'🔧',produto:'📦'}[p.tipo]||'💵'}</small></div>`;
+            if (p.desc) detHtml += `<div class="patr-detalhe-desc">${p.desc}</div>`;
+            if (doacoes.length > 0) {
+                detHtml += '<div class="patr-detalhe-itens">';
+                doacoes.forEach(d => {
+                    const dest = d.destino === 'geral' ? '' : ` → ${(NOMES_BARRACAS[d.destino]||'').replace(/^.{2}/,'')}`;
+                    detHtml += `<div class="patr-detalhe-item">• ${d.desc}${dest} — <strong>${R$(d.valor)}</strong></div>`;
+                });
+                const totalDoado = doacoes.reduce((s,d) => s + d.valor, 0);
+                detHtml += `<div class="patr-detalhe-total">Total doado: ${R$(totalDoado)}</div>`;
+                detHtml += '</div>';
+            }
+            detHtml += '</div>';
+        });
+        detalheEl.innerHTML = detHtml || '<p style="opacity:0.5;text-align:center;padding:15px">Nenhuma doação vinculada ainda</p>';
+    }
 }
 
 // ===== RENDERIZAR BARRACA (só vendas) =====
@@ -467,6 +513,7 @@ function renderizarBarraca(barraca) {
     const totalDespesas = despesasBarraca.filter(d => !d.doacao).reduce((s, d) => s + d.valor, 0);
     const totalDoacoes = despesasBarraca.filter(d => d.doacao).reduce((s, d) => s + d.valor, 0);
     const resultado = totalVendas - totalDespesas;
+    const custoUnit = totalItens > 0 ? totalDespesas / totalItens : 0;
 
     tb.innerHTML = vendas.map(v => `
         <tr>
@@ -482,14 +529,40 @@ function renderizarBarraca(barraca) {
         </tr>
     `).join('');
 
+    // Resumo por dia
+    let resumoDiaHtml = '<div class="resumo-dias-barraca">';
+    [1,2,3,4].forEach(d => {
+        const vDia = dados[barraca].vendas.filter(v => v.dia === d);
+        const tDia = vDia.reduce((s,v) => s + v.total, 0);
+        const iDia = vDia.reduce((s,v) => s + v.qtd, 0);
+        if (iDia > 0) resumoDiaHtml += `<span class="resumo-dia-item"><strong>${DIAS_FESTA[d]}</strong>: ${iDia} un = ${R$(tDia)}</span>`;
+    });
+    resumoDiaHtml += '</div>';
+
+    // Lista de despesas vinculadas
+    let despHtml = '';
+    if (despesasBarraca.length > 0) {
+        despHtml = '<div class="desp-vinculadas"><h4>Despesas desta barraca:</h4><div class="desp-vinc-lista">';
+        despHtml += despesasBarraca.map(d => {
+            const tipo = d.doacao ? `<span class="badge-doacao">🎁 ${getNomePatrocinador(d.patrocinadorId)}</span>` : '<span class="badge-compra">Compra</span>';
+            return `<div class="desp-vinc-item">${tipo} ${d.desc} — <strong>${R$(d.valor)}</strong></div>`;
+        }).join('');
+        despHtml += '</div></div>';
+    }
+
     const cls = resultado >= 0 ? 'positivo' : 'negativo';
     const lbl = filtro === 'todos' ? '' : ` (${DIAS_FESTA[filtro]})`;
     document.getElementById('resumo-' + barraca).innerHTML = `
-        <div class="item positivo"><span>Vendas${lbl}</span><strong>${R$(totalVendas)}</strong></div>
-        <div class="item neutro"><span>Itens Vendidos</span><strong>${totalItens}</strong></div>
-        <div class="item negativo"><span>Despesas</span><strong>${R$(totalDespesas)}</strong></div>
-        <div class="item doacao"><span>🎁 Doações</span><strong>${R$(totalDoacoes)}</strong></div>
-        <div class="item ${cls}"><span>Resultado</span><strong>${R$(resultado)}</strong></div>
+        ${resumoDiaHtml}
+        <div class="resumo-barraca-inner">
+            <div class="item positivo"><span>Vendas${lbl}</span><strong>${R$(totalVendas)}</strong></div>
+            <div class="item neutro"><span>Itens</span><strong>${totalItens}</strong></div>
+            <div class="item negativo"><span>Custos</span><strong>${R$(totalDespesas)}</strong></div>
+            <div class="item doacao"><span>🎁 Doações</span><strong>${R$(totalDoacoes)}</strong></div>
+            <div class="item ${cls}"><span>Resultado</span><strong>${R$(resultado)}</strong></div>
+            <div class="item neutro"><span>Custo/Item</span><strong>${R$(custoUnit)}</strong></div>
+        </div>
+        ${despHtml}
     `;
 }
 
@@ -583,6 +656,8 @@ function renderizarDashboard() {
 // ===== GRÁFICOS =====
 let chartBarracas = null;
 let chartDias = null;
+let chartPizza = null;
+let chartRecDesp = null;
 
 function renderizarGraficos() {
     const labels = BARRACAS.map(b => NOMES_BARRACAS[b].replace(/^.{2}/, ''));
@@ -642,6 +717,56 @@ function renderizarGraficos() {
             }
         }
     });
+
+    // Gráfico de Pizza — % por barraca
+    const pizzaColors = ['#e53935','#ffb300','#43a047','#1e88e5','#8e24aa','#f4511e','#00897b','#5c6bc0','#d81b60','#6d4c41','#00acc1','#7cb342'];
+    const pizzaData = BARRACAS.map(b => {
+        const v = filtro === 'todos' ? dados[b].vendas : dados[b].vendas.filter(x => x.dia === filtro);
+        return v.reduce((s, x) => s + x.total, 0);
+    }).filter((v,i) => v > 0 || false);
+    const pizzaLabels = BARRACAS.map((b,i) => ({ nome: (NOMES_BARRACAS[b]||b).replace(/^.{2}/,''), val: filtro === 'todos' ? dados[b].vendas.reduce((s,x)=>s+x.total,0) : dados[b].vendas.filter(x=>x.dia===filtro).reduce((s,x)=>s+x.total,0) })).filter(x => x.val > 0);
+
+    const ctxP = document.getElementById('graficoPizza');
+    if (ctxP) {
+        if (chartPizza) chartPizza.destroy();
+        chartPizza = new Chart(ctxP, {
+            type: 'doughnut',
+            data: {
+                labels: pizzaLabels.map(x => x.nome),
+                datasets: [{ data: pizzaLabels.map(x => x.val), backgroundColor: pizzaColors, borderWidth: 2, borderColor: '#1a0f0a' }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom', labels: { color: '#f5deb3', font: { size: 10 } } } }
+            }
+        });
+    }
+
+    // Gráfico Receita vs Despesa
+    const totalVendasGeral = BARRACAS.reduce((s,b) => s + dados[b].vendas.reduce((ss,v)=>ss+v.total,0), 0);
+    const totalPatrDinheiro = (dados.patrocinadores||[]).filter(p=>(p.tipo||'dinheiro')==='dinheiro').reduce((s,p)=>s+(p.valor||0),0);
+    const totalDespGeral = (dados.despesas||[]).filter(d=>!d.doacao).reduce((s,d)=>s+d.valor,0);
+    const totalDoacGeral = (dados.despesas||[]).filter(d=>d.doacao).reduce((s,d)=>s+d.valor,0);
+
+    const ctxRD = document.getElementById('graficoReceitaDespesa');
+    if (ctxRD) {
+        if (chartRecDesp) chartRecDesp.destroy();
+        chartRecDesp = new Chart(ctxRD, {
+            type: 'doughnut',
+            data: {
+                labels: ['Vendas', 'Patrocínios $', 'Despesas (compras)', 'Doações recebidas'],
+                datasets: [{
+                    data: [totalVendasGeral, totalPatrDinheiro, totalDespGeral, totalDoacGeral],
+                    backgroundColor: ['#66bb6a','#42a5f5','#ef5350','#ce93d8'],
+                    borderWidth: 2, borderColor: '#1a0f0a'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom', labels: { color: '#f5deb3', font: { size: 10 } } } }
+            }
+        });
+    }
 }
 
 // ===== RANKING =====
