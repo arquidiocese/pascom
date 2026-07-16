@@ -631,7 +631,7 @@ function renderizarDashboard() {
         const cls = resultado >= 0 ? 'positivo' : 'negativo';
 
         html += `
-            <div class="dash-card">
+            <div class="dash-card clickable" onclick="navegarPara('${b}')">
                 <h4>${NOMES_BARRACAS[b]}</h4>
                 <div class="valores">
                     <span class="v-receita">Vendas: ${R$(tVendas)}</span>
@@ -648,7 +648,7 @@ function renderizarDashboard() {
     const tDespGeral = despGeral.reduce((s, d) => s + d.valor, 0);
     const tDoacoes = dados.despesas.filter(d => d.doacao).reduce((s, d) => s + d.valor, 0);
     html += `
-        <div class="dash-card">
+        <div class="dash-card clickable" onclick="navegarPara('despesas')">
             <h4>💰 Despesas Gerais</h4>
             <div class="valores">
                 <span class="v-gasto">Compras gerais: ${R$(tDespGeral)}</span>
@@ -662,7 +662,7 @@ function renderizarDashboard() {
     const tPatr = dados.patrocinadores.reduce((s, p) => s + p.valor, 0);
     const patrPend = dados.patrocinadores.filter(p => !p.recebido).reduce((s, p) => s + p.valor, 0);
     html += `
-        <div class="dash-card">
+        <div class="dash-card clickable" onclick="navegarPara('patrocinadores')">
             <h4>🤝 Patrocinadores</h4>
             <div class="valores">
                 <span class="v-receita">Total: ${R$(tPatr)}</span>
@@ -1513,9 +1513,42 @@ function gerarPDFComLogo(logoBase64) {
         y += 15;
     }
 
+    // ===== ECONOMIA COM DOAÇÕES =====
+    const doacoesPDF = (dados.despesas||[]).filter(d => d.doacao);
+    if (doacoesPDF.length > 0) {
+        checkPage(40);
+        titulo('9. ECONOMIA COM DOAÇÕES');
+        const totalEconomia = doacoesPDF.reduce((s,d) => s + d.valor, 0);
+        const pctEcon = despCompras > 0 ? ((totalEconomia / (despCompras + totalEconomia)) * 100).toFixed(0) : 0;
+        
+        doc.setFontSize(11);
+        const textoEcon = `Graças às doações dos patrocinadores, a festa economizou R$ ${fmt(totalEconomia)} em produtos e serviços, o que representa ${pctEcon}% do total de gastos que seriam necessários (R$ ${fmt(despCompras + totalEconomia)}).`;
+        const linhasEcon = doc.splitTextToSize(textoEcon, pageW - 28);
+        doc.text(linhasEcon, 14, y);
+        y += linhasEcon.length * 6 + 10;
+
+        // Tabela de doadores
+        const doadoresMap = {};
+        doacoesPDF.forEach(d => {
+            const nome = d.patrocinadorId ? getNomePatrocinador(d.patrocinadorId) : 'Não identificado';
+            if (!doadoresMap[nome]) doadoresMap[nome] = { itens: 0, valor: 0 };
+            doadoresMap[nome].itens++;
+            doadoresMap[nome].valor += d.valor;
+        });
+        const doadoresLista = Object.entries(doadoresMap).sort((a,b) => b[1].valor - a[1].valor);
+        
+        doc.autoTable({
+            startY: y, theme: 'grid',
+            headStyles: { fillColor: [106, 27, 154] },
+            head: [['Doador', 'Qtd Itens', 'Valor Total']],
+            body: doadoresLista.map(([nome, d]) => [nome, d.itens, 'R$ ' + fmt(d.valor)])
+        });
+        y = doc.lastAutoTable.finalY + 15;
+    }
+
     // ===== RESULTADO FINAL =====
     checkPage(40);
-    titulo('9. RESULTADO FINAL');
+    titulo(doacoesPDF.length > 0 ? '10. RESULTADO FINAL' : '9. RESULTADO FINAL');
     doc.autoTable({
         startY: y, theme: 'grid',
         headStyles: { fillColor: [46, 125, 50] },
@@ -1975,6 +2008,12 @@ document.addEventListener('keydown', (e) => {
         });
     }
 });
+
+// ===== NAVEGAÇÃO VIA CARD =====
+function navegarPara(secao) {
+    const btn = document.querySelector(`.menu-btn[data-section="${secao}"]`);
+    if (btn) btn.click();
+}
 
 // ===== ENCERRAR EDIÇÃO =====
 function encerrarEdicao() {

@@ -702,3 +702,11 @@ td .btn-edit:hover { background: var(--cor-amarelo); color: var(--cor-fundo); }
     .status-center { max-width: 100%; margin: 0; }
     .status-right { text-align: center; }
 }
+
+/* CARD CLICÁVEL */
+.dash-card.clickable { cursor: pointer; }
+.dash-card.clickable:hover {
+    transform: translateY(-4px);
+    border-color: var(--cor-amarelo);
+    box-shadow: 0 6px 20px rgba(255, 143, 0, 0.2);
+}

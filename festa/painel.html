@@ -92,9 +92,23 @@
                 <canvas id="graficoDias"></canvas>
             </div>
         </div>
+        <div class="graficos-container">
+            <div class="grafico-box">
+                <h3>% de cada Barraca no Total</h3>
+                <canvas id="graficoPizza"></canvas>
+            </div>
+            <div class="grafico-box">
+                <h3>Receita vs Despesas</h3>
+                <canvas id="graficoRecDesp"></canvas>
+            </div>
+        </div>
         <div class="ranking-box">
             <h3>🏆 Ranking - Mais Vendidos</h3>
             <div id="rankingProdutos"></div>
+        </div>
+        <div class="ranking-box">
+            <h3>💚 Economia com Doações</h3>
+            <div id="painelEconomiaDoacoes"></div>
         </div>
     </div>
 
@@ -193,7 +207,7 @@
         event.target.classList.add('active');
     }
 
-    let chartB = null, chartD = null;
+    let chartB = null, chartD = null, chartPizza = null, chartRD = null;
 
     function renderizar() {
         const dados = carregarDados();
@@ -306,6 +320,55 @@
         const ctxD = document.getElementById('graficoDias');
         if (chartD) chartD.destroy();
         chartD = new Chart(ctxD, {type:'bar',data:{labels:dLabels,datasets:[{label:'Vendas',data:vDia,backgroundColor:['rgba(229,57,53,0.7)','rgba(255,179,0,0.7)','rgba(67,160,71,0.7)','rgba(30,136,229,0.7)'],borderWidth:1}]},options:{responsive:true,plugins:{legend:{labels:{color:'#f5deb3'}}},scales:{x:{ticks:{color:'#f5deb3'},grid:{color:'rgba(245,222,179,0.08)'}},y:{ticks:{color:'#f5deb3'},grid:{color:'rgba(245,222,179,0.08)'}}}}});
+
+        // Gráfico Pizza - % por barraca
+        const pizzaColors = ['#e53935','#ffb300','#43a047','#1e88e5','#8e24aa','#f4511e','#00897b','#5c6bc0','#d81b60','#6d4c41','#00acc1','#7cb342'];
+        const pizzaLabels = BARRACAS.filter(b => dados[b] && dados[b].vendas.reduce((s,v)=>s+v.total,0) > 0).map(b => NOMES[b].replace(/^.{2}/,''));
+        const pizzaData = BARRACAS.filter(b => dados[b] && dados[b].vendas.reduce((s,v)=>s+v.total,0) > 0).map(b => dados[b].vendas.reduce((s,v)=>s+v.total,0));
+        const ctxP = document.getElementById('graficoPizza');
+        if (ctxP) {
+            if (chartPizza) chartPizza.destroy();
+            chartPizza = new Chart(ctxP, {type:'doughnut',data:{labels:pizzaLabels,datasets:[{data:pizzaData,backgroundColor:pizzaColors,borderWidth:2,borderColor:'#1a0f0a'}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#f5deb3',font:{size:10}}}}}});
+        }
+
+        // Gráfico Receita vs Despesa
+        const totalPatrDin = (dados.patrocinadores||[]).filter(p=>(p.tipo||'dinheiro')==='dinheiro').reduce((s,p)=>s+(p.valor||0),0);
+        const ctxRD = document.getElementById('graficoRecDesp');
+        if (ctxRD) {
+            if (chartRD) chartRD.destroy();
+            chartRD = new Chart(ctxRD, {type:'doughnut',data:{labels:['Vendas','Patrocínios $','Despesas','Doações recebidas'],datasets:[{data:[totalVendas,totalPatrDin,totalDesp,tDoac],backgroundColor:['#66bb6a','#42a5f5','#ef5350','#ce93d8'],borderWidth:2,borderColor:'#1a0f0a'}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#f5deb3',font:{size:10}}}}}});
+        }
+
+        // Economia com doações
+        const econEl = document.getElementById('painelEconomiaDoacoes');
+        if (econEl) {
+            if (tDoac > 0) {
+                const pctEcon = totalDesp > 0 ? ((tDoac / (totalDesp + tDoac)) * 100).toFixed(0) : 0;
+                econEl.innerHTML = `
+                    <div class="ranking-item" style="border-bottom:2px solid var(--cor-amarelo);padding-bottom:10px;margin-bottom:10px">
+                        <span class="ranking-nome" style="color:#ce93d8;font-size:1rem">Graças às doações dos patrocinadores, a festa economizou <strong style="color:#66bb6a">R$ ${tDoac.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong> em produtos e serviços (${pctEcon}% do total de gastos)</span>
+                    </div>`;
+                // Listar principais doadores
+                const doadores = {};
+                doacoes.forEach(d => {
+                    const pid = d.patrocinadorId;
+                    if (pid) {
+                        const p = (dados.patrocinadores||[]).find(x => x.id == pid);
+                        const nome = p ? p.nome : 'Não identificado';
+                        if (!doadores[nome]) doadores[nome] = 0;
+                        doadores[nome] += d.valor;
+                    }
+                });
+                const listaDoadores = Object.entries(doadores).sort((a,b)=>b[1]-a[1]);
+                if (listaDoadores.length > 0) {
+                    econEl.innerHTML += listaDoadores.map(([nome,val]) =>
+                        `<div class="ranking-item"><span class="ranking-nome">🎁 ${nome}</span><span class="ranking-valor">R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span></div>`
+                    ).join('');
+                }
+            } else {
+                econEl.innerHTML = '<p style="text-align:center;opacity:0.5;padding:15px">Nenhuma doação registrada ainda</p>';
+            }
+        }
     }
 
     // Escuta mudanças em tempo real do Firebase
