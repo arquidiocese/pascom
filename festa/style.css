@@ -437,6 +437,9 @@ td .btn-delete:hover { background: #f44336; color: #fff; }
 }
 .modal .campo input:focus,
 .modal .campo select:focus { outline: none; border-color: var(--cor-amarelo); }
+.modal .campo select option {
+    background: var(--cor-madeira); color: var(--cor-palha);
+}
 .modal-btns {
     display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;
 }
