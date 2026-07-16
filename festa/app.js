@@ -321,12 +321,12 @@ function renderizarDespesas() {
 function lancarPatrocinio() {
     const nome = document.getElementById('nomePatrocinador').value.trim();
     const tipo = document.getElementById('tipoPatrocinio').value;
-    const valor = parseFloat(document.getElementById('valorPatrocinio').value);
+    const valor = parseFloat(document.getElementById('valorPatrocinio').value) || 0;
     const desc = document.getElementById('descPatrocinio').value.trim();
     const barraca = document.getElementById('barracaPatrocinio').value;
     const obs = document.getElementById('obsPatrocinio').value.trim();
     const recebido = document.getElementById('recebidoPatrocinio').checked;
-    if (!nome || isNaN(valor) || valor <= 0) return;
+    if (!nome) { alert('Preencha o nome do patrocinador'); return; }
 
     dados.patrocinadores.push({ id: Date.now(), nome, tipo, valor, desc, barraca, obs, recebido });
     salvarDados(dados);
@@ -395,18 +395,30 @@ function renderizarPatrocinadores() {
     else if (ordenacaoPatr === 'pendente') lista = lista.filter(p => !p.recebido).sort((a,b) => a.nome.localeCompare(b.nome));
     else if (ordenacaoPatr === 'recebido') lista = lista.filter(p => p.recebido).sort((a,b) => a.nome.localeCompare(b.nome));
 
+    // Função para calcular total de doações vinculadas a um patrocinador
+    function totalDoacoesPatrocinador(id) {
+        return (dados.despesas || []).filter(d => d.doacao && d.patrocinadorId == id).reduce((s, d) => s + d.valor, 0);
+    }
+
     const TIPO_BADGE = { dinheiro: '💵 Dinheiro', servico: '🔧 Serviço', produto: '📦 Produto' };
 
     tbody.innerHTML = lista.map(p => {
         const tipoBadge = TIPO_BADGE[p.tipo] || '💵 Dinheiro';
         const barracaNome = p.barraca ? (NOMES_BARRACAS[p.barraca] || p.barraca) : '-';
         const descTxt = p.desc || p.obs || '-';
+        const doacoesVinculadas = totalDoacoesPatrocinador(p.id);
+        const valorTotal = (p.valor || 0) + doacoesVinculadas;
+        const valorDisplay = p.valor > 0 && doacoesVinculadas > 0 
+            ? `R$ ${fmt(valorTotal)}<br><small style="opacity:0.6">Direto: R$ ${fmt(p.valor)} + Doações: R$ ${fmt(doacoesVinculadas)}</small>`
+            : doacoesVinculadas > 0 
+                ? `R$ ${fmt(doacoesVinculadas)}<br><small style="opacity:0.6">(via doações)</small>`
+                : p.valor > 0 ? `R$ ${fmt(p.valor)}` : '-';
         return `
         <tr>
             <td style="font-weight:700">${p.nome}</td>
             <td><span class="badge-categoria">${tipoBadge}</span></td>
             <td>${descTxt}</td>
-            <td>R$ ${fmt(p.valor)}</td>
+            <td>${valorDisplay}</td>
             <td>${barracaNome}</td>
             <td><span class="${p.recebido ? 'badge-pago' : 'badge-pendente'}" onclick="toggleRecebido(${p.id})">${p.recebido ? 'Recebido' : 'Pendente'}</span></td>
             <td>
@@ -416,17 +428,17 @@ function renderizarPatrocinadores() {
         </tr>`;
     }).join('');
 
-    // Resumo
+    // Resumo — somar doações vinculadas no total
     const todos = dados.patrocinadores || [];
-    const totalDinheiro = todos.filter(p => (p.tipo||'dinheiro') === 'dinheiro').reduce((s,p) => s + p.valor, 0);
-    const totalServico = todos.filter(p => p.tipo === 'servico').reduce((s,p) => s + p.valor, 0);
-    const totalProduto = todos.filter(p => p.tipo === 'produto').reduce((s,p) => s + p.valor, 0);
-    const total = todos.reduce((s,p) => s + p.valor, 0);
-    const recebido = todos.filter(p => p.recebido).reduce((s,p) => s + p.valor, 0);
-    const pendente = total - recebido;
+    const totalDinheiro = todos.filter(p => (p.tipo||'dinheiro') === 'dinheiro').reduce((s,p) => s + (p.valor||0), 0);
+    const totalServico = todos.filter(p => p.tipo === 'servico').reduce((s,p) => s + (p.valor||0) + totalDoacoesPatrocinador(p.id), 0);
+    const totalProduto = todos.filter(p => p.tipo === 'produto').reduce((s,p) => s + (p.valor||0) + totalDoacoesPatrocinador(p.id), 0);
+    const totalGeral = todos.reduce((s,p) => s + (p.valor||0) + totalDoacoesPatrocinador(p.id), 0);
+    const recebido = todos.filter(p => p.recebido).reduce((s,p) => s + (p.valor||0) + totalDoacoesPatrocinador(p.id), 0);
+    const pendente = totalGeral - recebido;
 
     document.getElementById('resumoPatrocinadores').innerHTML = `
-        <div class="item positivo"><span>Total Geral</span><strong>${R$(total)}</strong></div>
+        <div class="item positivo"><span>Total Geral</span><strong>${R$(totalGeral)}</strong></div>
         <div class="item positivo"><span>💵 Dinheiro</span><strong>${R$(totalDinheiro)}</strong></div>
         <div class="item doacao"><span>🔧 Serviços</span><strong>${R$(totalServico)}</strong></div>
         <div class="item doacao"><span>📦 Produtos</span><strong>${R$(totalProduto)}</strong></div>
