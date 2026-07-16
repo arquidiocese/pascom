@@ -535,7 +535,8 @@ function renderizarBarraca(barraca) {
             </tr>
         `).join('');
     } else {
-        tb.innerHTML = vendas.map(v => `
+        const vendasOrdenadas = [...vendas].sort((a,b) => a.produto.localeCompare(b.produto));
+        tb.innerHTML = vendasOrdenadas.map(v => `
             <tr>
                 <td><span class="badge-dia">${DIAS_FESTA[v.dia]}</span></td>
                 <td>${v.produto}</td>
@@ -1395,7 +1396,7 @@ function gerarPDFComLogo(logoBase64) {
             prodMap[v.produto].valor += v.total;
             prodMap[v.produto].dias[v.dia] = (prodMap[v.produto].dias[v.dia] || 0) + v.qtd;
         });
-        const prods = Object.entries(prodMap).map(([n, d]) => [n, d.dias[1], d.dias[2], d.dias[3], d.dias[4], d.qtd, 'R$ ' + fmt(d.valor)]);
+        const prods = Object.entries(prodMap).map(([n, d]) => [n, d.dias[1], d.dias[2], d.dias[3], d.dias[4], d.qtd, 'R$ ' + fmt(d.valor)]).sort((a,b) => a[0].localeCompare(b[0]));
 
         doc.autoTable({
             startY: y, theme: 'striped',
