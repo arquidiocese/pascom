@@ -20,10 +20,10 @@ const NOMES_BARRACAS = {
 };
 
 const DIAS_FESTA = {
-    1: '10/Jul (Qui)',
-    2: '11/Jul (Sex)',
-    3: '17/Jul (Qui)',
-    4: '18/Jul (Sex)'
+    1: '10/Jul (Sex)',
+    2: '11/Jul (Sáb)',
+    3: '17/Jul (Sex)',
+    4: '18/Jul (Sáb)'
 };
 
 // ===== FORMATAÇÃO BRASILEIRA =====
@@ -36,17 +36,17 @@ function R$(valor) {
 
 // Produtos por barraca (para caixa rápido)
 const PRODUTOS_BARRACA = {
-    'fazendinha': [{nome:'Milho Cozido',preco:10},{nome:'Pipoca',preco:5},{nome:'Pamonha',preco:20},{nome:'Curau',preco:15},{nome:'Quentão',preco:12},{nome:'Vinho Quente',preco:17},{nome:'Chocolate Quente',preco:15}],
+    'fazendinha': [{nome:'Chocolate Quente',preco:15},{nome:'Curau',preco:15},{nome:'Milho Cozido',preco:10},{nome:'Pamonha',preco:20},{nome:'Pipoca',preco:5},{nome:'Quentão',preco:12},{nome:'Vinho Quente',preco:17}],
     'cachorro-quente': [{nome:'Cachorro Quente',preco:17}],
     'kafta': [{nome:'Kafta',preco:17}],
     'pernil': [{nome:'Lanche de Pernil',preco:20}],
     'pastel': [{nome:'Pastel',preco:15}],
     'batata-frita': [{nome:'Batata Frita',preco:15}],
     'doces': [{nome:'Doce 250g',preco:25},{nome:'Doce 500g',preco:35},{nome:'Doces Variados',preco:15},{nome:'Geleia',preco:30},{nome:'Morango no Espeto',preco:25},{nome:'Pudim de Pote',preco:20}],
-    'bar': [{nome:'Cerveja',preco:10},{nome:'Refrigerante',preco:8},{nome:'Suco',preco:7},{nome:'Água',preco:5}],
+    'bar': [{nome:'Água',preco:5},{nome:'Cerveja',preco:10},{nome:'Refrigerante',preco:8},{nome:'Suco',preco:7}],
     'chopp': [{nome:'Chopp Ashby Pilsen',preco:10},{nome:'Chopp de Vinho',preco:14},{nome:'Chopp Heineken',preco:14},{nome:'Chopp IPA Session',preco:14}],
     'kids': [{nome:'Espaço Kids',preco:20}],
-    'bingo': [{nome:'Bingo Simples',preco:10},{nome:'Bingo Especial',preco:20}],
+    'bingo': [{nome:'Bingo Cartela Especial',preco:20},{nome:'Bingo Cartela Simples',preco:10}],
     'artesanato': []
 };
 

@@ -94,10 +94,10 @@
         <span class="dia-label">Filtrar vendas por dia:</span>
         <div class="dias-btns">
             <button class="dia-btn active" data-dia="todos">Todos</button>
-            <button class="dia-btn" data-dia="1">10/Jul <small>Qui</small></button>
-            <button class="dia-btn" data-dia="2">11/Jul <small>Sex</small></button>
-            <button class="dia-btn" data-dia="3">17/Jul <small>Qui</small></button>
-            <button class="dia-btn" data-dia="4">18/Jul <small>Sex</small></button>
+            <button class="dia-btn" data-dia="1">10/Jul <small>Sex</small></button>
+            <button class="dia-btn" data-dia="2">11/Jul <small>Sáb</small></button>
+            <button class="dia-btn" data-dia="3">17/Jul <small>Sex</small></button>
+            <button class="dia-btn" data-dia="4">18/Jul <small>Sáb</small></button>
         </div>
     </div>
 
@@ -262,13 +262,13 @@
                 <h3>Lançar Venda</h3>
                 <div class="form-row">
                     <select id="prod-fazendinha">
-                        <option value="Milho Cozido" data-preco="10">Milho Cozido - R$ 10,00</option>
-                        <option value="Pipoca" data-preco="5">Pipoca - R$ 5,00</option>
-                        <option value="Pamonha" data-preco="20">Pamonha - R$ 20,00</option>
+                        <option value="Chocolate Quente" data-preco="15">Chocolate Quente - R$ 15,00</option>
                         <option value="Curau" data-preco="15">Curau - R$ 15,00</option>
+                        <option value="Milho Cozido" data-preco="10">Milho Cozido - R$ 10,00</option>
+                        <option value="Pamonha" data-preco="20">Pamonha - R$ 20,00</option>
+                        <option value="Pipoca" data-preco="5">Pipoca - R$ 5,00</option>
                         <option value="Quentão" data-preco="12">Quentão - R$ 12,00</option>
                         <option value="Vinho Quente" data-preco="17">Vinho Quente - R$ 17,00</option>
-                        <option value="Chocolate Quente" data-preco="15">Chocolate Quente - R$ 15,00</option>
                     </select>
                     <input type="number" id="qtd-fazendinha" placeholder="Qtd" min="1" value="1">
                     <button class="btn-venda" onclick="lancarVenda('fazendinha')">Lançar</button>
@@ -392,10 +392,10 @@
                 <h3>Lançar Venda</h3>
                 <div class="form-row">
                     <select id="prod-bar">
+                        <option value="Água" data-preco="5">Água - R$ 5,00</option>
                         <option value="Cerveja" data-preco="10">Cerveja (com e sem álcool) - R$ 10,00</option>
                         <option value="Refrigerante" data-preco="8">Refrigerante - R$ 8,00</option>
                         <option value="Suco" data-preco="7">Suco - R$ 7,00</option>
-                        <option value="Água" data-preco="5">Água - R$ 5,00</option>
                     </select>
                     <input type="number" id="qtd-bar" placeholder="Qtd" min="1" value="1">
                     <button class="btn-venda" onclick="lancarVenda('bar')">Lançar</button>
@@ -449,8 +449,8 @@
                 <h3>Lançar Venda</h3>
                 <div class="form-row">
                     <select id="prod-bingo">
-                        <option value="Bingo Cartela Simples" data-preco="10">Bingo Cartela Simples - R$ 10,00</option>
                         <option value="Bingo Cartela Especial" data-preco="20">Bingo Cartela Especial - R$ 20,00</option>
+                        <option value="Bingo Cartela Simples" data-preco="10">Bingo Cartela Simples - R$ 10,00</option>
                     </select>
                     <input type="number" id="qtd-bingo" placeholder="Qtd" min="1" value="1">
                     <button class="btn-venda" onclick="lancarVenda('bingo')">Lançar</button>
