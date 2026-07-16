@@ -1609,11 +1609,12 @@ function removerProduto(barraca, index) {
 }
 
 function atualizarSelectsProdutos(barraca) {
-    // Atualizar o select da barraca na seção de vendas
+    // Atualizar o select da barraca na seção de vendas - sempre em ordem alfabética
     const select = document.getElementById('prod-' + barraca);
     if (select) {
-        const produtos = dados.configProdutos ? dados.configProdutos[barraca] : PRODUTOS_BARRACA[barraca];
+        let produtos = dados.configProdutos ? dados.configProdutos[barraca] : PRODUTOS_BARRACA[barraca];
         if (produtos) {
+            produtos = [...produtos].sort((a, b) => a.nome.localeCompare(b.nome));
             select.innerHTML = produtos.map(p => 
                 `<option value="${p.nome}" data-preco="${p.preco}">${p.nome} - R$ ${fmt(p.preco)}</option>`
             ).join('');
@@ -1672,12 +1673,17 @@ function carregarConfigDinamica() {
     if (dados.configProdutos) {
         Object.keys(dados.configProdutos).forEach(b => {
             if (dados.configProdutos[b]) {
-                PRODUTOS_BARRACA[b] = Array.isArray(dados.configProdutos[b]) 
+                let prods = Array.isArray(dados.configProdutos[b]) 
                     ? dados.configProdutos[b] 
                     : Object.values(dados.configProdutos[b]);
+                // Ordenar A-Z
+                prods.sort((a, b) => a.nome.localeCompare(b.nome));
+                PRODUTOS_BARRACA[b] = prods;
             }
         });
     }
+    // Atualizar todos os selects existentes
+    BARRACAS.forEach(b => atualizarSelectsProdutos(b));
 }
 
 carregarConfigDinamica();
