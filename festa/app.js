@@ -1536,35 +1536,42 @@ function gerarPDFComLogo(logoBase64) {
 
     // ===== PÁGINA DE ASSINATURAS =====
     doc.addPage();
-    y = 80;
+    y = 60;
     doc.setFontSize(14); doc.setTextColor(230, 81, 0);
     center('TERMO DE APROVAÇÃO', y, 14);
     doc.setTextColor(0);
-    y += 15;
-    doc.setFontSize(10);
-    center(`Relatório financeiro do ${cfg.nomeEvento} - Edição ${cfg.edicao}`, y);
-    y += 8;
-    center(`${cfg.igreja} - ${cfg.cidade}`, y);
     y += 20;
-    doc.text('Aprovamos o presente relatório financeiro, declarando que os valores apresentados', 14, y); y += 6;
-    doc.text('correspondem à realidade do evento realizado.', 14, y);
+    
+    // Texto do termo
+    doc.setFontSize(10);
+    const texto = `Em cumprimento às normas de transparência e responsabilidade administrativa, declaramos que o Relatório Financeiro do ${cfg.nomeEvento} – Edição ${cfg.edicao} foi devidamente analisado, encontrando-se em conformidade com a movimentação financeira realizada durante o evento. Assim, aprovamos a presente prestação de contas, por expressar fielmente as receitas, despesas e o resultado financeiro obtido.`;
+    const linhas = doc.splitTextToSize(texto, pageW - 28);
+    doc.text(linhas, 14, y);
+    y += linhas.length * 6 + 25;
+
+    // Data acima das assinaturas
+    doc.setFontSize(10);
+    center(`${cfg.cidade}, ______ de __________________ de ${cfg.edicao}`, y);
     y += 30;
 
-    const assinaturas = [cfg.assinatura1, cfg.assinatura2, cfg.assinatura3].filter(a => a);
-    if (assinaturas.length > 0) {
-        const espaco = pageW / (assinaturas.length + 1);
-        assinaturas.forEach((ass, i) => {
-            const x = espaco * (i + 1);
-            doc.line(x - 35, y, x + 35, y);
-            doc.setFontSize(9);
-            doc.text(ass, x, y + 6, { align: 'center' });
-        });
-        y += 25;
-    }
+    // Assinaturas em formato de 2 linhas (nome + cargo), uma abaixo da outra
+    const assinaturas = [
+        { nome: cfg.ass1Nome, cargo: cfg.ass1Cargo },
+        { nome: cfg.ass2Nome, cargo: cfg.ass2Cargo },
+        { nome: cfg.ass3Nome, cargo: cfg.ass3Cargo }
+    ].filter(a => a.nome);
 
-    y += 20;
-    doc.setFontSize(9); doc.setTextColor(100);
-    center(`${cfg.cidade}, ______ de __________________ de ${cfg.edicao}`, y);
+    assinaturas.forEach(ass => {
+        doc.line(14, y, 100, y); // linha
+        y += 5;
+        doc.setFontSize(10);
+        doc.text(ass.nome, 14, y); // nome
+        y += 5;
+        doc.setFontSize(9); doc.setTextColor(80);
+        doc.text(ass.cargo, 14, y); // cargo
+        doc.setTextColor(0);
+        y += 20;
+    });
 
     // Aplicar cabeçalho/rodapé em todas as páginas
     const totalPages = doc.internal.getNumberOfPages();
@@ -1750,9 +1757,12 @@ function carregarConfigEvento() {
     if (el('cfgDatas')) el('cfgDatas').value = cfg.datas || '10 e 11 de Julho | 17 e 18 de Julho';
     if (el('cfgIgreja')) el('cfgIgreja').value = cfg.igreja || 'Basílica Menor Nossa Senhora da Conceição Aparecida';
     if (el('cfgCidade')) el('cfgCidade').value = cfg.cidade || 'São José do Rio Preto - SP';
-    if (el('cfgAssinatura1')) el('cfgAssinatura1').value = cfg.assinatura1 || '';
-    if (el('cfgAssinatura2')) el('cfgAssinatura2').value = cfg.assinatura2 || '';
-    if (el('cfgAssinatura3')) el('cfgAssinatura3').value = cfg.assinatura3 || '';
+    if (el('cfgAss1Nome')) el('cfgAss1Nome').value = cfg.ass1Nome || '';
+    if (el('cfgAss1Cargo')) el('cfgAss1Cargo').value = cfg.ass1Cargo || '';
+    if (el('cfgAss2Nome')) el('cfgAss2Nome').value = cfg.ass2Nome || '';
+    if (el('cfgAss2Cargo')) el('cfgAss2Cargo').value = cfg.ass2Cargo || '';
+    if (el('cfgAss3Nome')) el('cfgAss3Nome').value = cfg.ass3Nome || '';
+    if (el('cfgAss3Cargo')) el('cfgAss3Cargo').value = cfg.ass3Cargo || '';
 
     // Atualizar header da página
     const headerH1 = document.querySelector('.header h1');
@@ -1770,9 +1780,12 @@ function salvarConfigEvento() {
         datas: document.getElementById('cfgDatas').value.trim(),
         igreja: document.getElementById('cfgIgreja').value.trim(),
         cidade: document.getElementById('cfgCidade').value.trim(),
-        assinatura1: document.getElementById('cfgAssinatura1').value.trim(),
-        assinatura2: document.getElementById('cfgAssinatura2').value.trim(),
-        assinatura3: document.getElementById('cfgAssinatura3').value.trim()
+        ass1Nome: document.getElementById('cfgAss1Nome').value.trim(),
+        ass1Cargo: document.getElementById('cfgAss1Cargo').value.trim(),
+        ass2Nome: document.getElementById('cfgAss2Nome').value.trim(),
+        ass2Cargo: document.getElementById('cfgAss2Cargo').value.trim(),
+        ass3Nome: document.getElementById('cfgAss3Nome').value.trim(),
+        ass3Cargo: document.getElementById('cfgAss3Cargo').value.trim()
     };
     salvarDados(dados);
     carregarConfigEvento();
