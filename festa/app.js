@@ -803,9 +803,23 @@ function editarPatrocinio(id) {
     if (!item) return;
     edicaoAtual = { tipo: 'patrocinio', id };
 
+    const tipoSel = (t) => item.tipo === t ? 'selected' : '';
+    const barracaOpts = ['','geral','fazendinha','cachorro-quente','kafta','pernil','pastel','batata-frita','doces','bar','chopp','kids','bingo','artesanato'];
+    const barracaLabels = {'':'Sem vínculo','geral':'Geral','fazendinha':'Fazendinha','cachorro-quente':'Cachorro Quente','kafta':'Kafta','pernil':'Pernil','pastel':'Pastel','batata-frita':'Batata Frita','doces':'Doces','bar':'Bar','chopp':'Chopp','kids':'Espaço Kids','bingo':'Bingo/Leilão','artesanato':'Artesanato'};
+    const barracaSel = barracaOpts.map(b => `<option value="${b}" ${(item.barraca||'')=== b?'selected':''}>${barracaLabels[b]}</option>`).join('');
+
     document.getElementById('modalConteudo').innerHTML = `
         <div class="campo"><label>Patrocinador</label><input type="text" id="editNome" value="${item.nome}"></div>
+        <div class="campo"><label>Tipo de Patrocínio</label>
+            <select id="editTipo">
+                <option value="dinheiro" ${tipoSel('dinheiro')}>💵 Dinheiro</option>
+                <option value="servico" ${tipoSel('servico')}>🔧 Serviço</option>
+                <option value="produto" ${tipoSel('produto')}>📦 Produto/Material</option>
+            </select>
+        </div>
         <div class="campo"><label>Valor (R$)</label><input type="number" id="editValor" value="${item.valor}" step="0.01"></div>
+        <div class="campo"><label>Descrição (o que fornece)</label><input type="text" id="editDesc" value="${item.desc || ''}"></div>
+        <div class="campo"><label>Barraca vinculada</label><select id="editBarraca">${barracaSel}</select></div>
         <div class="campo"><label>Observação</label><input type="text" id="editObs" value="${item.obs || ''}"></div>
     `;
     abrirModal('Editar Patrocínio');
@@ -836,7 +850,10 @@ function salvarEdicao() {
         const item = dados.patrocinadores.find(p => p.id === edicaoAtual.id);
         if (item) {
             item.nome = document.getElementById('editNome').value.trim() || item.nome;
+            item.tipo = document.getElementById('editTipo').value || item.tipo;
             item.valor = parseFloat(document.getElementById('editValor').value) || item.valor;
+            item.desc = document.getElementById('editDesc').value.trim();
+            item.barraca = document.getElementById('editBarraca').value;
             item.obs = document.getElementById('editObs').value.trim();
         }
     }
