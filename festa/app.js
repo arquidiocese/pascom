@@ -1856,13 +1856,17 @@ function encerrarEdicao() {
     // 1. Gerar backup
     exportarJSON();
 
-    // 2. Salvar como edição anterior
+    // 2. Salvar como edição anterior NO FIREBASE
     const edicaoAnterior = {
         edicao: '2026',
         encerradoEm: new Date().toISOString(),
         dados: JSON.parse(JSON.stringify(dados))
     };
     localStorage.setItem('arraia_edicao_anterior', JSON.stringify(edicaoAnterior));
+    // Salvar no Firebase para acessar de qualquer lugar
+    if (typeof db !== 'undefined') {
+        db.ref('edicao_anterior').set(edicaoAnterior);
+    }
 
     // 3. Limpar dados mantendo config
     const configBarracas = dados.configBarracas;
@@ -1892,6 +1896,9 @@ function importarEdicaoAnterior(event) {
                     dados: dadosAnt
                 };
                 localStorage.setItem('arraia_edicao_anterior', JSON.stringify(edicaoAnterior));
+                if (typeof db !== 'undefined') {
+                    db.ref('edicao_anterior').set(edicaoAnterior);
+                }
                 alert('Edição anterior importada! O comparativo aparecerá no dashboard.');
                 renderizarComparativoAnterior();
             }
@@ -1906,16 +1913,32 @@ function importarEdicaoAnterior(event) {
 function limparEdicaoAnterior() {
     if (!confirm('Remover o comparativo com edição anterior?')) return;
     localStorage.removeItem('arraia_edicao_anterior');
+    if (typeof db !== 'undefined') db.ref('edicao_anterior').remove();
     document.getElementById('comparativoAnterior').style.display = 'none';
     document.getElementById('btnLimparAnterior').style.display = 'none';
     document.getElementById('comparativoStatus').innerHTML = '';
 }
 
 function renderizarComparativoAnterior() {
-    const stored = localStorage.getItem('arraia_edicao_anterior');
+    let stored = localStorage.getItem('arraia_edicao_anterior');
+    
+    // Se não tem local, tenta buscar do Firebase
+    if (!stored && typeof db !== 'undefined') {
+        db.ref('edicao_anterior').once('value').then(snap => {
+            const val = snap.val();
+            if (val) {
+                localStorage.setItem('arraia_edicao_anterior', JSON.stringify(val));
+                _renderComparativo(val);
+            }
+        });
+        return;
+    }
+    
     if (!stored) return;
+    _renderComparativo(JSON.parse(stored));
+}
 
-    const anterior = JSON.parse(stored);
+function _renderComparativo(anterior) {
     const dadosAnt = anterior.dados;
     if (!dadosAnt) return;
 
