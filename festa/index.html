@@ -672,7 +672,31 @@
 
         <!-- CONFIGURAÇÕES -->
         <section id="sec-config" class="section">
-            <h2>⚙️ Configurações - Barracas e Produtos</h2>
+            <h2>⚙️ Configurações</h2>
+
+            <!-- Dados do Evento -->
+            <div class="painel-madeira">
+                <h3>📋 Dados do Evento</h3>
+                <p class="secao-desc">Essas informações aparecem no cabeçalho da página e na capa do relatório PDF.</p>
+                <div class="form-row">
+                    <input type="text" id="cfgNomeEvento" placeholder="Nome do Evento (ex: Arraiá da Basílica)">
+                    <input type="text" id="cfgEdicao" placeholder="Edição (ex: 2026)">
+                </div>
+                <div class="form-row">
+                    <input type="text" id="cfgDatas" placeholder="Datas (ex: 10 e 11 de Julho | 17 e 18 de Julho)">
+                </div>
+                <div class="form-row">
+                    <input type="text" id="cfgIgreja" placeholder="Nome da Igreja/Paróquia">
+                    <input type="text" id="cfgCidade" placeholder="Cidade - UF (ex: São José do Rio Preto - SP)">
+                </div>
+                <div class="form-row">
+                    <button class="btn-venda" onclick="salvarConfigEvento()">Salvar Dados do Evento</button>
+                </div>
+            </div>
+
+            <!-- Barracas e Produtos -->
+            <div class="painel-madeira" style="margin-top:20px;">
+                <h3>🏪 Barracas e Produtos</h3>
             <p class="secao-desc">Adicione novas barracas ou novos produtos a barracas existentes. As alterações ficam salvas para esta edição.</p>
 
             <!-- Adicionar nova barraca -->
@@ -700,6 +724,7 @@
             <div class="tabela-box">
                 <h4>Barracas e Produtos Cadastrados</h4>
                 <div id="listaBarracasProdutos"></div>
+            </div>
             </div>
 
             <!-- Limpar dados -->

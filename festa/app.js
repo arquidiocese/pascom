@@ -1248,6 +1248,7 @@ function gerarPDFComLogo(logoBase64) {
     }
 
     // ===== CAPA =====
+    const cfg = getConfigEvento();
     if (logoBase64) {
         // Manter proporção do logo (mais largo que alto)
         const logoW = 70;
@@ -1259,14 +1260,14 @@ function gerarPDFComLogo(logoBase64) {
     }
     doc.setFontSize(24);
     doc.setTextColor(230, 81, 0);
-    center('ARRAIÁ DA BASÍLICA', y, 24);
+    center(cfg.nomeEvento, y, 24);
     doc.setTextColor(0);
     center('Relatório Financeiro Completo', y + 12, 14);
-    center('Edição 2026', y + 22, 12);
-    center('10 e 11 de Julho | 17 e 18 de Julho', y + 32, 11);
+    center('Edição ' + cfg.edicao, y + 22, 12);
+    center(cfg.datas, y + 32, 11);
     doc.setFontSize(10);
-    center('Basílica Menor Nossa Senhora da Conceição Aparecida', y + 50);
-    center('São José do Rio Preto - SP', y + 58);
+    center(cfg.igreja, y + 50);
+    center(cfg.cidade, y + 58);
     center('Gerado em: ' + new Date().toLocaleString('pt-BR'), y + 70);
     doc.addPage();
     addHeaderFooter();
@@ -1514,12 +1515,13 @@ function gerarPDFComLogo(logoBase64) {
 
     // Aplicar cabeçalho/rodapé em todas as páginas
     const totalPages = doc.internal.getNumberOfPages();
+    const cfgPdf = getConfigEvento();
     for (let i = 2; i <= totalPages; i++) {
         doc.setPage(i);
         doc.setFontSize(8); doc.setTextColor(150);
-        doc.text('Arraiá da Basílica 2026 | Relatório Financeiro', 14, 10);
+        doc.text(`${cfgPdf.nomeEvento} ${cfgPdf.edicao} | Relatório Financeiro`, 14, 10);
         doc.text(`Página ${i} de ${totalPages}`, pageW - 14, 10, { align: 'right' });
-        doc.text('Basílica Menor Nossa Senhora da Conceição Aparecida', pageW / 2, 290, { align: 'center' });
+        doc.text(cfgPdf.igreja, pageW / 2, 290, { align: 'center' });
         doc.setTextColor(0);
     }
 
@@ -1679,6 +1681,51 @@ function carregarConfigDinamica() {
 }
 
 carregarConfigDinamica();
+
+// ===== CONFIG DO EVENTO =====
+function carregarConfigEvento() {
+    const cfg = dados.configEvento || {};
+    const el = (id) => document.getElementById(id);
+    if (el('cfgNomeEvento')) el('cfgNomeEvento').value = cfg.nomeEvento || 'ARRAIÁ DA BASÍLICA';
+    if (el('cfgEdicao')) el('cfgEdicao').value = cfg.edicao || '2026';
+    if (el('cfgDatas')) el('cfgDatas').value = cfg.datas || '10 e 11 de Julho | 17 e 18 de Julho';
+    if (el('cfgIgreja')) el('cfgIgreja').value = cfg.igreja || 'Basílica Menor Nossa Senhora da Conceição Aparecida';
+    if (el('cfgCidade')) el('cfgCidade').value = cfg.cidade || 'São José do Rio Preto - SP';
+
+    // Atualizar header da página
+    const headerH1 = document.querySelector('.header h1');
+    const headerP = document.querySelector('.header p');
+    const headerDatas = document.querySelector('.header .header-datas');
+    if (headerH1) headerH1.textContent = cfg.nomeEvento || 'ARRAIÁ DA BASÍLICA';
+    if (headerP) headerP.textContent = `Controle Financeiro - Edição ${cfg.edicao || '2026'}`;
+    if (headerDatas) headerDatas.textContent = cfg.datas || '10 e 11 de Julho | 17 e 18 de Julho';
+}
+
+function salvarConfigEvento() {
+    dados.configEvento = {
+        nomeEvento: document.getElementById('cfgNomeEvento').value.trim(),
+        edicao: document.getElementById('cfgEdicao').value.trim(),
+        datas: document.getElementById('cfgDatas').value.trim(),
+        igreja: document.getElementById('cfgIgreja').value.trim(),
+        cidade: document.getElementById('cfgCidade').value.trim()
+    };
+    salvarDados(dados);
+    carregarConfigEvento();
+    alert('Dados do evento salvos!');
+    registrarAcao('Config do evento atualizada');
+}
+
+function getConfigEvento() {
+    return dados.configEvento || {
+        nomeEvento: 'ARRAIÁ DA BASÍLICA',
+        edicao: '2026',
+        datas: '10 e 11 de Julho | 17 e 18 de Julho',
+        igreja: 'Basílica Menor Nossa Senhora da Conceição Aparecida',
+        cidade: 'São José do Rio Preto - SP'
+    };
+}
+
+carregarConfigEvento();
 
 // ===== FIREBASE STATUS =====
 let firebaseOnline = false;
@@ -1874,9 +1921,11 @@ function encerrarEdicao() {
     // 3. Limpar dados mantendo config
     const configBarracas = dados.configBarracas;
     const configProdutos = dados.configProdutos;
+    const configEvento = dados.configEvento;
     dados = dadosVazios();
     dados.configBarracas = configBarracas;
     dados.configProdutos = configProdutos;
+    dados.configEvento = configEvento;
     salvarDados(dados);
 
     alert('Edição 2026 encerrada!\n\nBackup salvo no computador.\nDados limpos para próxima edição.\nA configuração de barracas e produtos foi mantida.');
