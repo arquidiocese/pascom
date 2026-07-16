@@ -1080,6 +1080,27 @@ function renderizarResumoDoacoes() {
 
 // ===== RELATÓRIO PDF COMPLETO =====
 function gerarRelatorioPDF() {
+    // Carregar logo antes de gerar
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() {
+        // Converter para base64
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const logoBase64 = canvas.toDataURL('image/png');
+        gerarPDFComLogo(logoBase64);
+    };
+    img.onerror = function() {
+        // Se não carregar o logo, gera sem
+        gerarPDFComLogo(null);
+    };
+    img.src = 'logo.png';
+}
+
+function gerarPDFComLogo(logoBase64) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const pageW = doc.internal.pageSize.getWidth();
@@ -1091,16 +1112,23 @@ function gerarRelatorioPDF() {
     const titulo = (text) => { checkPage(15); doc.setFontSize(14); doc.setTextColor(230, 81, 0); doc.text(text, 14, y); y += 8; doc.setTextColor(0); doc.setFontSize(10); };
 
     // ===== CAPA =====
+    if (logoBase64) {
+        doc.addImage(logoBase64, 'PNG', (pageW - 80) / 2, 20, 80, 80);
+        y = 110;
+    } else {
+        y = 50;
+    }
     doc.setFontSize(24);
     doc.setTextColor(230, 81, 0);
-    center('ARRAIÁ DA BASÍLICA', 50, 24);
+    center('ARRAIÁ DA BASÍLICA', y, 24);
     doc.setTextColor(0);
-    center('Relatório Financeiro Completo', 62, 14);
-    center('Edição 2026', 72, 12);
-    center('10 e 11 de Julho | 17 e 18 de Julho', 82, 11);
+    center('Relatório Financeiro Completo', y + 12, 14);
+    center('Edição 2026', y + 22, 12);
+    center('10 e 11 de Julho | 17 e 18 de Julho', y + 32, 11);
     doc.setFontSize(10);
-    center('Basílica Menor Nossa Senhora da Conceição Aparecida', 100);
-    center('Gerado em: ' + new Date().toLocaleString('pt-BR'), 110);
+    center('Basílica Menor Nossa Senhora da Conceição Aparecida', y + 50);
+    center('São José do Rio Preto - SP', y + 58);
+    center('Gerado em: ' + new Date().toLocaleString('pt-BR'), y + 70);
     doc.addPage();
     y = 20;
 
