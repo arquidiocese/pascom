@@ -119,6 +119,7 @@
         <button class="menu-btn" data-section="pastel">🥟 Pastel</button>
         <button class="menu-btn" data-section="despesas">💰 Despesas</button>
         <button class="menu-btn" data-section="patrocinadores">🤝 Patrocinadores</button>
+        <button class="menu-btn" data-section="doadores">🎁 Doadores</button>
         <button class="menu-btn" data-section="config">⚙️ Config</button>
     </nav>
 
@@ -668,6 +669,36 @@
                 <h4>Doações detalhadas por patrocinador</h4>
                 <div id="detalhePatrocinadores"></div>
             </div>
+        </section>
+
+        <!-- DOADORES (bingo/leilão) -->
+        <section id="sec-doadores" class="section">
+            <h2>🎁 Doadores - Bingo e Leilão</h2>
+            <p class="secao-desc">Empresas e pessoas que doaram itens/prêmios para o bingo e leilão. Não são patrocinadores financeiros, mas contribuíram com produtos para a festa. Serão listados no relatório como agradecimento.</p>
+
+            <div class="painel-madeira">
+                <h3>Cadastrar Doação</h3>
+                <div class="form-row">
+                    <input type="text" id="doadorNome" placeholder="Nome da empresa/pessoa" list="listaDoadoresExistentes" autocomplete="off">
+                    <datalist id="listaDoadoresExistentes"></datalist>
+                    <input type="text" id="doadorItem" placeholder="Item doado (ex: Cesta básica, TV 32pol...)">
+                </div>
+                <div class="form-row">
+                    <input type="number" id="doadorValor" placeholder="Valor estimado R$ (opcional)" step="0.01" min="0">
+                    <input type="text" id="doadorObs" placeholder="Observação (opcional)">
+                    <button class="btn-patrocinio" onclick="lancarDoador()">Cadastrar</button>
+                </div>
+            </div>
+
+            <!-- Busca -->
+            <div class="filtros-despesa">
+                <input type="text" id="buscaDoador" placeholder="🔍 Buscar doador..." oninput="renderizarDoadores()" style="padding:6px 12px;border-radius:15px;border:1px solid var(--cor-madeira-clara);background:rgba(0,0,0,0.3);color:var(--cor-palha);font-size:0.82rem;min-width:200px;">
+            </div>
+
+            <div class="tabela-box">
+                <table id="tabelaDoadores"><thead><tr><th>Doador</th><th>Item Doado</th><th>Valor Est.</th><th>Obs</th><th></th></tr></thead><tbody></tbody></table>
+            </div>
+            <div class="resumo-barraca" id="resumoDoadores"></div>
         </section>
 
         <!-- CONFIGURAÇÕES -->

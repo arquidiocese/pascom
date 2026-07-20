@@ -94,6 +94,9 @@ function normalizarDados(d) {
             }
         });
     }
+    // Normalizar doadores
+    if (d.doadores && !Array.isArray(d.doadores)) d.doadores = Object.values(d.doadores);
+    if (!d.doadores) d.doadores = [];
 
     return d;
 }
@@ -906,6 +909,7 @@ function renderizarTudo() {
     renderizarMargem();
     renderizarResumoDoacoes();
     renderizarUltimosGastos();
+    renderizarDoadores();
 }
 
 // ===== MODAL DE EDIÇÃO =====
@@ -1014,6 +1018,16 @@ function salvarEdicao() {
             item.valor = novoValor === '' ? 0 : parseFloat(novoValor);
             item.desc = document.getElementById('editDesc').value.trim();
             item.barraca = document.getElementById('editBarraca').value;
+            item.obs = document.getElementById('editObs').value.trim();
+        }
+    } else if (edicaoAtual.tipo === 'doador') {
+        if (!dados.doadores) dados.doadores = [];
+        const item = dados.doadores.find(d => d.id === edicaoAtual.id);
+        if (item) {
+            item.nome = document.getElementById('editNome').value.trim() || item.nome;
+            item.item = document.getElementById('editItem').value.trim() || item.item;
+            const novoValor = document.getElementById('editValor').value;
+            item.valor = novoValor === '' ? 0 : parseFloat(novoValor);
             item.obs = document.getElementById('editObs').value.trim();
         }
     }
@@ -1546,9 +1560,47 @@ function gerarPDFComLogo(logoBase64) {
         y = doc.lastAutoTable.finalY + 15;
     }
 
+    // ===== DOADORES - BINGO E LEILÃO =====
+    const doadoresPDF = dados.doadores || [];
+    if (doadoresPDF.length > 0) {
+        checkPage(30);
+        const secDoadores = (doacoesPDF.length > 0 ? 10 : 9);
+        titulo(secDoadores + '. DOADORES - BINGO E LEILÃO (Agradecimento)');
+        doc.setFontSize(10);
+        doc.text('Agradecemos às empresas e pessoas que doaram itens/prêmios para o bingo e leilão:', 14, y);
+        y += 8;
+
+        // Agrupar por doador
+        const doadoresAgrup = {};
+        doadoresPDF.forEach(d => {
+            if (!doadoresAgrup[d.nome]) doadoresAgrup[d.nome] = [];
+            doadoresAgrup[d.nome].push(d);
+        });
+
+        const bodyDoadores = [];
+        Object.entries(doadoresAgrup).sort((a,b) => a[0].localeCompare(b[0])).forEach(([nome, itens]) => {
+            const itensTxt = itens.map(i => i.item).join(', ');
+            const totalVal = itens.reduce((s,i) => s + (i.valor||0), 0);
+            bodyDoadores.push([nome, itensTxt, itens.length, totalVal > 0 ? 'R$ ' + fmt(totalVal) : '-']);
+        });
+
+        doc.autoTable({
+            startY: y, theme: 'grid',
+            headStyles: { fillColor: [106, 27, 154] },
+            head: [['Doador', 'Itens Doados', 'Qtd', 'Valor Est.']],
+            body: bodyDoadores,
+            columnStyles: { 0: { cellWidth: 45 }, 1: { cellWidth: 80 } }
+        });
+        y = doc.lastAutoTable.finalY + 5;
+        doc.setFontSize(9);
+        doc.text(`Total: ${Object.keys(doadoresAgrup).length} doadores | ${doadoresPDF.length} itens`, 14, y);
+        y += 15;
+    }
+
     // ===== RESULTADO FINAL =====
     checkPage(40);
-    titulo(doacoesPDF.length > 0 ? '10. RESULTADO FINAL' : '9. RESULTADO FINAL');
+    const secFinal = (doacoesPDF.length > 0 ? 10 : 9) + ((dados.doadores||[]).length > 0 ? 1 : 0);
+    titulo(secFinal + '. RESULTADO FINAL');
     doc.autoTable({
         startY: y, theme: 'grid',
         headStyles: { fillColor: [46, 125, 50] },
@@ -2008,6 +2060,99 @@ document.addEventListener('keydown', (e) => {
         });
     }
 });
+
+// ===== DOADORES (BINGO/LEILÃO) =====
+function lancarDoador() {
+    const nome = document.getElementById('doadorNome').value.trim();
+    const item = document.getElementById('doadorItem').value.trim();
+    const valor = parseFloat(document.getElementById('doadorValor').value) || 0;
+    const obs = document.getElementById('doadorObs').value.trim();
+    if (!nome || !item) { alert('Preencha o nome do doador e o item doado'); return; }
+
+    if (!dados.doadores) dados.doadores = [];
+    dados.doadores.push({ id: Date.now(), nome, item, valor, obs });
+    salvarDados(dados);
+    document.getElementById('doadorNome').value = '';
+    document.getElementById('doadorItem').value = '';
+    document.getElementById('doadorValor').value = '';
+    document.getElementById('doadorObs').value = '';
+    renderizarDoadores();
+    registrarAcao(`Doador: ${nome} - ${item}`);
+}
+
+function removerDoador(id) {
+    if (!dados.doadores) return;
+    dados.doadores = dados.doadores.filter(d => d.id !== id);
+    salvarDados(dados);
+    renderizarDoadores();
+}
+
+function renderizarDoadores() {
+    if (!dados.doadores) dados.doadores = [];
+    const busca = (document.getElementById('buscaDoador')?.value || '').toLowerCase();
+    let lista = [...dados.doadores].sort((a,b) => a.nome.localeCompare(b.nome) || a.item.localeCompare(b.item));
+    if (busca) lista = lista.filter(d => d.nome.toLowerCase().includes(busca) || d.item.toLowerCase().includes(busca));
+
+    const tbody = document.querySelector('#tabelaDoadores tbody');
+    if (!tbody) return;
+
+    // Agrupar por doador para exibição
+    const agrupado = {};
+    lista.forEach(d => {
+        if (!agrupado[d.nome]) agrupado[d.nome] = [];
+        agrupado[d.nome].push(d);
+    });
+
+    let html = '';
+    Object.entries(agrupado).sort((a,b) => a[0].localeCompare(b[0])).forEach(([nome, itens]) => {
+        itens.forEach((d, i) => {
+            html += `<tr${i === 0 ? ' style="border-top:2px solid rgba(245,222,179,0.2)"' : ''}>
+                <td style="font-weight:700">${i === 0 ? nome : ''}</td>
+                <td>${d.item}</td>
+                <td>${d.valor > 0 ? R$(d.valor) : '-'}</td>
+                <td>${d.obs || '-'}</td>
+                <td>
+                    <button class="btn-edit" onclick="editarDoador(${d.id})">✏️</button>
+                    <button class="btn-delete" onclick="confirmarExclusao('Remover esta doação?', () => removerDoador(${d.id}))">X</button>
+                </td>
+            </tr>`;
+        });
+    });
+    tbody.innerHTML = html;
+
+    // Resumo
+    const total = dados.doadores.reduce((s,d) => s + (d.valor || 0), 0);
+    const qtdItens = dados.doadores.length;
+    const qtdDoadores = Object.keys(agrupado).length;
+
+    document.getElementById('resumoDoadores').innerHTML = `
+        <div class="item doacao"><span>Valor Total Estimado</span><strong>${R$(total)}</strong></div>
+        <div class="item neutro"><span>Itens Doados</span><strong>${qtdItens}</strong></div>
+        <div class="item neutro"><span>Doadores</span><strong>${qtdDoadores}</strong></div>
+    `;
+
+    // Atualizar datalist com nomes únicos (autocomplete)
+    const datalist = document.getElementById('listaDoadoresExistentes');
+    if (datalist) {
+        const nomesUnicos = [...new Set(dados.doadores.map(d => d.nome))].sort();
+        datalist.innerHTML = nomesUnicos.map(n => `<option value="${n}">`).join('');
+    }
+}
+
+function editarDoador(id) {
+    if (!dados.doadores) return;
+    const item = dados.doadores.find(d => d.id === id);
+    if (!item) return;
+    edicaoAtual = { tipo: 'doador', id };
+
+    document.getElementById('modalConteudo').innerHTML = `
+        <div class="campo"><label>Doador</label><input type="text" id="editNome" value="${item.nome}"></div>
+        <div class="campo"><label>Item Doado</label><input type="text" id="editItem" value="${item.item}"></div>
+        <div class="campo"><label>Valor Estimado R$</label><input type="number" id="editValor" value="${item.valor || 0}" step="0.01"></div>
+        <div class="campo"><label>Observação</label><input type="text" id="editObs" value="${item.obs || ''}"></div>
+    `;
+    abrirModal('Editar Doador');
+}
 
 // ===== NAVEGAÇÃO VIA CARD =====
 function navegarPara(secao) {
