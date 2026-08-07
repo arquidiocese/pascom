@@ -181,6 +181,21 @@
             background: #e0e7ff;
             color: #3730a3;
         }
+        .btn-editar {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: none;
+            border-radius: 6px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-editar:hover {
+            background: #0369a1;
+            color: #fff;
+        }
         .btn-remover {
             background: #fee2e2;
             color: #dc2626;
@@ -196,12 +211,109 @@
             background: #dc2626;
             color: #fff;
         }
+        .acoes-cell {
+            display: flex;
+            gap: 0.3rem;
+        }
 
         .vazio {
             text-align: center;
             padding: 3rem;
             color: #94a3b8;
             font-style: italic;
+        }
+
+        /* Modal de Edição */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9000;
+            padding: 1rem;
+        }
+        .modal-overlay.ativo {
+            display: flex;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .modal h2 {
+            color: #1a3a7a;
+            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+            text-align: center;
+        }
+        .modal .form-group {
+            margin-bottom: 1rem;
+        }
+        .modal .form-group label {
+            display: block;
+            color: #4a5568;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+        }
+        .modal .form-group input,
+        .modal .form-group select {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+            color: #2d3748;
+            background: #f7fafc;
+        }
+        .modal .form-group input:focus,
+        .modal .form-group select:focus {
+            outline: none;
+            border-color: #2952a3;
+            box-shadow: 0 0 0 3px rgba(41,82,163,0.1);
+        }
+        .modal .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+        }
+        .modal-btns button {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-salvar {
+            background: linear-gradient(135deg, #1a3a7a, #2952a3);
+            color: #fff;
+        }
+        .btn-salvar:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26,58,122,0.3);
+        }
+        .btn-cancelar {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        .btn-cancelar:hover {
+            background: #e2e8f0;
         }
 
         /* Responsivo - cards em mobile */
@@ -239,11 +351,18 @@
             .inscrito-card-info strong {
                 color: #334155;
             }
+            .inscrito-card-acoes {
+                display: flex;
+                gap: 0.4rem;
+                margin-top: 0.6rem;
+            }
             .header h1 { font-size: 0.95rem; }
             .stats { padding: 1rem; gap: 0.5rem; }
             .stat-card { padding: 0.8rem 1rem; min-width: 80px; }
             .stat-num { font-size: 1.5rem; }
+            .modal .form-row { grid-template-columns: 1fr; }
         }
+
         /* Tela de Login */
         .login-overlay {
             position: fixed;
@@ -356,6 +475,50 @@
         </div>
     </div>
 
+    <!-- Modal de Edição -->
+    <div class="modal-overlay" id="modal-editar">
+        <div class="modal">
+            <h2>✏️ Editar Inscrição</h2>
+            <input type="hidden" id="edit-id">
+            <div class="form-group">
+                <label>Nome completo</label>
+                <input type="text" id="edit-nome">
+            </div>
+            <div class="form-group">
+                <label>Vocação / Função</label>
+                <select id="edit-vocacao">
+                    <option value="Padre">Padre</option>
+                    <option value="Diácono">Diácono</option>
+                    <option value="Seminarista">Seminarista</option>
+                    <option value="Religioso(a)">Religioso(a)</option>
+                    <option value="Liderança Leiga">Liderança Leiga</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Diocese</label>
+                    <input type="text" id="edit-diocese">
+                </div>
+                <div class="form-group">
+                    <label>Cidade</label>
+                    <input type="text" id="edit-cidade">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Paróquia</label>
+                <input type="text" id="edit-paroquia">
+            </div>
+            <div class="form-group">
+                <label>Telefone / Contato</label>
+                <input type="tel" id="edit-telefone">
+            </div>
+            <div class="modal-btns">
+                <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-salvar" onclick="salvarEdicao()">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // === AUTENTICAÇÃO ===
         const SENHA_ADMIN = 'Pascom123456';
@@ -379,6 +542,7 @@
             }
         }
 
+        // === DADOS ===
         const STORAGE_KEY = 'recepcao_criativa_inscritos';
 
         function getInscritos() {
@@ -389,6 +553,7 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
         }
 
+        // === ESTATÍSTICAS ===
         function renderStats() {
             const inscritos = getInscritos();
             const vocacoes = {};
@@ -403,6 +568,7 @@
             document.getElementById('stats').innerHTML = html;
         }
 
+        // === LISTA ===
         function renderLista() {
             const busca = document.getElementById('busca').value.trim().toLowerCase();
             const filtroVocacao = document.getElementById('filtro-vocacao').value;
@@ -421,13 +587,13 @@
                 inscritos = inscritos.filter(i => i.vocacao === filtroVocacao);
             }
 
-            // Tabela desktop
             if (!inscritos.length) {
                 document.getElementById('lista-table').innerHTML = '<p class="vazio">Nenhum inscrito encontrado.</p>';
                 document.getElementById('lista-mobile').innerHTML = '<p class="vazio">Nenhum inscrito encontrado.</p>';
                 return;
             }
 
+            // Tabela desktop
             let tableHtml = `<table>
                 <thead><tr>
                     <th>Nome</th>
@@ -447,7 +613,10 @@
                     <td>${i.cidade}</td>
                     <td>${i.paroquia || '—'}</td>
                     <td>${i.telefone}</td>
-                    <td><button class="btn-remover" onclick="remover('${i.id}')">Remover</button></td>
+                    <td><div class="acoes-cell">
+                        <button class="btn-editar" onclick="abrirEdicao('${i.id}')">Editar</button>
+                        <button class="btn-remover" onclick="remover('${i.id}')">Excluir</button>
+                    </div></td>
                 </tr>`;
             });
             tableHtml += '</tbody></table>';
@@ -467,20 +636,70 @@
                         ${i.paroquia ? '<strong>Paróquia:</strong> ' + i.paroquia + '<br>' : ''}
                         <strong>Telefone:</strong> ${i.telefone}
                     </div>
-                    <div style="margin-top:0.5rem;"><button class="btn-remover" onclick="remover('${i.id}')">Remover</button></div>
+                    <div class="inscrito-card-acoes">
+                        <button class="btn-editar" onclick="abrirEdicao('${i.id}')">Editar</button>
+                        <button class="btn-remover" onclick="remover('${i.id}')">Excluir</button>
+                    </div>
                 </div>`;
             });
             document.getElementById('lista-mobile').innerHTML = mobileHtml;
         }
 
+        // === EDITAR ===
+        function abrirEdicao(id) {
+            const inscritos = getInscritos();
+            const i = inscritos.find(x => x.id === id);
+            if (!i) return;
+
+            document.getElementById('edit-id').value = i.id;
+            document.getElementById('edit-nome').value = i.nome;
+            document.getElementById('edit-vocacao').value = i.vocacao;
+            document.getElementById('edit-diocese').value = i.diocese;
+            document.getElementById('edit-cidade').value = i.cidade;
+            document.getElementById('edit-paroquia').value = i.paroquia || '';
+            document.getElementById('edit-telefone').value = i.telefone;
+
+            document.getElementById('modal-editar').classList.add('ativo');
+        }
+
+        function fecharModal() {
+            document.getElementById('modal-editar').classList.remove('ativo');
+        }
+
+        function salvarEdicao() {
+            const id = document.getElementById('edit-id').value;
+            const inscritos = getInscritos();
+            const idx = inscritos.findIndex(i => i.id === id);
+            if (idx === -1) return;
+
+            inscritos[idx].nome = document.getElementById('edit-nome').value.trim();
+            inscritos[idx].vocacao = document.getElementById('edit-vocacao').value;
+            inscritos[idx].diocese = document.getElementById('edit-diocese').value.trim();
+            inscritos[idx].cidade = document.getElementById('edit-cidade').value.trim();
+            inscritos[idx].paroquia = document.getElementById('edit-paroquia').value.trim();
+            inscritos[idx].telefone = document.getElementById('edit-telefone').value.trim();
+
+            salvarInscritos(inscritos);
+            fecharModal();
+            renderStats();
+            renderLista();
+        }
+
+        // Fechar modal clicando fora
+        document.getElementById('modal-editar').addEventListener('click', function(e) {
+            if (e.target === this) fecharModal();
+        });
+
+        // === EXCLUIR ===
         function remover(id) {
-            if (!confirm('Deseja remover este inscrito?')) return;
+            if (!confirm('Tem certeza que deseja excluir esta inscrição?')) return;
             const inscritos = getInscritos().filter(i => i.id !== id);
             salvarInscritos(inscritos);
             renderStats();
             renderLista();
         }
 
+        // === EXPORTAR CSV ===
         function exportarCSV() {
             const inscritos = getInscritos();
             if (!inscritos.length) { alert('Nenhum inscrito para exportar.'); return; }
@@ -499,7 +718,7 @@
             URL.revokeObjectURL(url);
         }
 
-        // Eventos
+        // === EVENTOS ===
         document.getElementById('busca').addEventListener('input', renderLista);
         document.getElementById('filtro-vocacao').addEventListener('change', renderLista);
     </script>
