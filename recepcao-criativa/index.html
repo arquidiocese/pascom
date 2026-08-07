@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscricao - Recepcao Criativa das Diretrizes Gerais</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a237e 0%, #0d47a1 50%, #01579b 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            background: rgba(255,255,255,0.07);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .header-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            color: #bbdefb;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+        .header h1 {
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 1.2rem;
+        }
+        .header-detalhes {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .header-detalhes p {
+            color: #e3f2fd;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .header-detalhes p small {
+            color: #90caf9;
+            display: block;
+        }
+        .header-detalhes .icon {
+            font-size: 1.1rem;
+        }
+        .header-palestrante {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            margin-top: 0.8rem;
+        }
+        .header-palestrante strong {
+            color: #fff;
+            font-size: 0.95rem;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+        .header-palestrante small {
+            color: #90caf9;
+            font-size: 0.8rem;
+        }
+
+        /* Banner info */
+        .banner-aberto {
+            text-align: center;
+            background: linear-gradient(135deg, #2e7d32, #388e3c);
+            color: #fff;
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .form-card h2 {
+            color: #1a237e;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            color: #333;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #333;
+            background: #fafafa;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1a237e;
+            box-shadow: 0 0 0 3px rgba(26,35,126,0.1);
+            background: #fff;
+        }
+        .form-group input::placeholder {
+            color: #999;
+        }
+        .form-group select {
+            appearance: auto;
+            cursor: pointer;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Submit */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(13,71,161,0.4);
+        }
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Mensagem */
+        .msg {
+            text-align: center;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: none;
+        }
+        .msg-sucesso {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+        .msg-erro {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        /* Lista de inscritos */
+        .inscritos-section {
+            margin-top: 2rem;
+        }
+        .inscritos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .inscritos-total {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .busca-inscritos {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 0.85rem;
+            min-width: 200px;
+        }
+        .busca-inscritos::placeholder { color: rgba(255,255,255,0.5); }
+        .busca-inscritos:focus { outline: none; border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.15); }
+
+        .lista-inscritos {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .inscrito-card {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .inscrito-nome {
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .inscrito-info {
+            color: #90caf9;
+            font-size: 0.8rem;
+        }
+        .inscrito-badge {
+            background: rgba(255,255,255,0.15);
+            color: #bbdefb;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .inscrito-acoes {
+            display: flex;
+            gap: 0.3rem;
+        }
+        .btn-remover {
+            background: rgba(244,67,54,0.2);
+            color: #ef9a9a;
+            border: none;
+            border-radius: 6px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-remover:hover {
+            background: rgba(244,67,54,0.5);
+            color: #fff;
+        }
+
+        .vazio {
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.2rem; }
+            .form-card { padding: 1.5rem 1rem; }
+            .inscritos-header { flex-direction: column; align-items: stretch; }
+            .busca-inscritos { min-width: unset; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header do Evento -->
+        <header class="header">
+            <div class="header-badge">Arquidiocese de Sao Jose do Rio Preto</div>
+            <h1>Recepcao Criativa das Diretrizes Gerais da Acao Evangelizadora da Igreja no Brasil</h1>
+            <div class="header-detalhes">
+                <p><span class="icon">&#128197;</span> Quinta-feira, 20 de agosto</p>
+                <p><span class="icon">&#128336;</span> Das 8h as 11h30</p>
+                <p><span class="icon">&#128205;</span> Centro de Pastoral Sao Jose — Av. Constituicao, 1373 - Boa Vista</p>
+            </div>
+            <div class="header-palestrante">
+                <strong>Formacao com Pe. Wagner Carvalho</strong>
+                <small>Assessor da Comissao Biblico-Catequetica da CNBB</small>
+            </div>
+        </header>
+
+        <!-- Banner -->
+        <div class="banner-aberto">&#10003; INSCRICOES ABERTAS!</div>
+
+        <!-- Formulario -->
+        <div class="form-card">
+            <h2>Formulario de Inscricao</h2>
+            <form id="form-inscricao" autocomplete="off">
+                <div class="form-group">
+                    <label for="rc-nome">Nome completo *</label>
+                    <input type="text" id="rc-nome" required placeholder="Digite seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="rc-vocacao">Vocacao / Funcao *</label>
+                    <select id="rc-vocacao" required>
+                        <option value="">Selecione...</option>
+                        <option value="Padre">Padre</option>
+                        <option value="Diacono">Diacono</option>
+                        <option value="Seminarista">Seminarista</option>
+                        <option value="Religioso(a)">Religioso(a)</option>
+                        <option value="Lideranca Leiga">Lideranca Leiga</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rc-diocese">Diocese *</label>
+                        <input type="text" id="rc-diocese" required placeholder="Ex: Sao Jose do Rio Preto">
+                    </div>
+                    <div class="form-group">
+                        <label for="rc-cidade">Cidade *</label>
+                        <input type="text" id="rc-cidade" required placeholder="Ex: Rio Preto">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rc-paroquia">Paroquia</label>
+                    <input type="text" id="rc-paroquia" placeholder="Ex: Paroquia Sao Jose">
+                </div>
+                <div class="form-group">
+                    <label for="rc-telefone">Telefone / Contato *</label>
+                    <input type="tel" id="rc-telefone" required placeholder="(00) 00000-0000">
+                </div>
+                <button type="submit" class="btn-submit">Realizar Inscricao</button>
+            </form>
+            <div id="rc-msg" class="msg"></div>
+        </div>
+
+        <!-- Lista de Inscritos -->
+        <div class="inscritos-section">
+            <div class="inscritos-header">
+                <div class="inscritos-total" id="rc-total">0 inscritos</div>
+                <input type="text" id="rc-busca" class="busca-inscritos" placeholder="Buscar inscrito...">
+            </div>
+            <div id="rc-lista" class="lista-inscritos"></div>
+        </div>
+    </div>
+
+    <script>
+        // === DADOS - LocalStorage ===
+        const STORAGE_KEY = 'recepcao_criativa_inscritos';
+
+        function getInscritos() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        }
+
+        function salvarInscritos(lista) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+        }
+
+        // === FORMULARIO ===
+        const form = document.getElementById('form-inscricao');
+        const msgEl = document.getElementById('rc-msg');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const nome = document.getElementById('rc-nome').value.trim();
+            const vocacao = document.getElementById('rc-vocacao').value;
+            const diocese = document.getElementById('rc-diocese').value.trim();
+            const cidade = document.getElementById('rc-cidade').value.trim();
+            const paroquia = document.getElementById('rc-paroquia').value.trim();
+            const telefone = document.getElementById('rc-telefone').value.trim();
+
+            if (!nome || !vocacao || !diocese || !cidade || !telefone) {
+                mostrarMsg('Preencha todos os campos obrigatorios (*).', 'erro');
+                return;
+            }
+
+            const inscrito = {
+                id: Date.now().toString(),
+                nome,
+                vocacao,
+                diocese,
+                cidade,
+                paroquia,
+                telefone,
+                dataInscricao: new Date().toLocaleString('pt-BR')
+            };
+
+            const inscritos = getInscritos();
+            inscritos.push(inscrito);
+            salvarInscritos(inscritos);
+
+            form.reset();
+            mostrarMsg('Inscricao realizada com sucesso!', 'sucesso');
+            renderLista();
+
+            // Enviar para Google Sheets (se configurado)
+            enviarParaPlanilha(inscrito);
+        });
+
+        function mostrarMsg(texto, tipo) {
+            msgEl.textContent = texto;
+            msgEl.className = 'msg msg-' + tipo;
+            msgEl.style.display = 'block';
+            setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
+        }
+
+        // === LISTA DE INSCRITOS ===
+        function renderLista(filtro) {
+            let inscritos = getInscritos();
+            const total = inscritos.length;
+            document.getElementById('rc-total').textContent = total + ' inscrito' + (total !== 1 ? 's' : '');
+
+            if (filtro) {
+                const f = filtro.toLowerCase();
+                inscritos = inscritos.filter(i =>
+                    i.nome.toLowerCase().includes(f) ||
+                    i.cidade.toLowerCase().includes(f) ||
+                    i.paroquia.toLowerCase().includes(f) ||
+                    i.diocese.toLowerCase().includes(f) ||
+                    i.vocacao.toLowerCase().includes(f)
+                );
+            }
+
+            const lista = document.getElementById('rc-lista');
+            if (!inscritos.length) {
+                lista.innerHTML = '<p class="vazio">' + (filtro ? 'Nenhum resultado encontrado.' : 'Nenhuma inscricao ainda.') + '</p>';
+                return;
+            }
+
+            lista.innerHTML = inscritos.map(i => `
+                <div class="inscrito-card">
+                    <div>
+                        <div class="inscrito-nome">${i.nome}</div>
+                        <div class="inscrito-info">${i.diocese} &middot; ${i.cidade}${i.paroquia ? ' &middot; ' + i.paroquia : ''} &middot; ${i.telefone}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span class="inscrito-badge">${i.vocacao}</span>
+                        <button class="btn-remover" onclick="removerInscrito('${i.id}')" title="Remover">&times;</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removerInscrito(id) {
+            if (!confirm('Deseja remover esta inscricao?')) return;
+            const inscritos = getInscritos().filter(i => i.id !== id);
+            salvarInscritos(inscritos);
+            renderLista(document.getElementById('rc-busca').value.trim());
+        }
+
+        // Busca
+        document.getElementById('rc-busca').addEventListener('input', function() {
+            renderLista(this.value.trim());
+        });
+
+        // === GOOGLE SHEETS (opcional) ===
+        const SCRIPT_URL = ''; // Cole aqui a URL do Google Apps Script Web App
+
+        function enviarParaPlanilha(inscrito) {
+            if (!SCRIPT_URL) return;
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    acao: 'recepcao_criativa',
+                    ...inscrito
+                })
+            }).catch(() => {});
+        }
+
+        // Mascara telefone
+        document.getElementById('rc-telefone').addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 6) {
+                v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+            } else if (v.length > 2) {
+                v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+            } else if (v.length > 0) {
+                v = '(' + v;
+            }
+            e.target.value = v;
+        });
+
+        // Inicializar lista
+        renderLista();
+    </script>
+</body>
+</html>
