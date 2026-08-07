@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscritos - Recepção Criativa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a3a7a, #2952a3);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        .header h1 {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .btn-voltar {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn-voltar:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        .btn-exportar {
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-exportar:hover {
+            background: #15803d;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e8edf3;
+            min-width: 120px;
+        }
+        .stat-num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a3a7a;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* Busca e filtros */
+        .filtros {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1.5rem 1rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .busca {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.7rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+            background: #fff;
+            transition: all 0.3s;
+        }
+        .busca:focus {
+            outline: none;
+            border-color: #2952a3;
+            box-shadow: 0 0 0 3px rgba(41,82,163,0.1);
+        }
+        .filtro-select {
+            padding: 0.7rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: 'Montserrat', sans-serif;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        /* Lista */
+        .lista-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+        }
+        .lista-table {
+            width: 100%;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e8edf3;
+        }
+        .lista-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .lista-table th {
+            background: #f8fafc;
+            padding: 0.8rem 1rem;
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .lista-table td {
+            padding: 0.8rem 1rem;
+            font-size: 0.85rem;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .lista-table tr:hover td {
+            background: #f8fafc;
+        }
+        .lista-table .nome-cell {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .badge-vocacao {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+        .btn-remover {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 6px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-remover:hover {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .vazio {
+            text-align: center;
+            padding: 3rem;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        /* Responsivo - cards em mobile */
+        .lista-mobile {
+            display: none;
+        }
+
+        @media (max-width: 700px) {
+            .lista-table { display: none; }
+            .lista-mobile { display: block; }
+            .inscrito-card {
+                background: #fff;
+                border: 1px solid #e8edf3;
+                border-radius: 12px;
+                padding: 1rem;
+                margin-bottom: 0.8rem;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            }
+            .inscrito-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+            }
+            .inscrito-card-nome {
+                font-weight: 700;
+                color: #1e293b;
+                font-size: 0.95rem;
+            }
+            .inscrito-card-info {
+                font-size: 0.8rem;
+                color: #64748b;
+                line-height: 1.6;
+            }
+            .inscrito-card-info strong {
+                color: #334155;
+            }
+            .header h1 { font-size: 0.95rem; }
+            .stats { padding: 1rem; gap: 0.5rem; }
+            .stat-card { padding: 0.8rem 1rem; min-width: 80px; }
+            .stat-num { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>📋 Inscritos — Recepção Criativa</h1>
+        <div class="header-actions">
+            <a href="index.html" class="btn-voltar">← Voltar</a>
+            <button class="btn-exportar" onclick="exportarCSV()">⬇ Exportar CSV</button>
+        </div>
+    </header>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="filtros">
+        <input type="text" class="busca" id="busca" placeholder="Buscar por nome, cidade, paróquia...">
+        <select class="filtro-select" id="filtro-vocacao">
+            <option value="">Todas as vocações</option>
+            <option value="Padre">Padre</option>
+            <option value="Diácono">Diácono</option>
+            <option value="Seminarista">Seminarista</option>
+            <option value="Religioso(a)">Religioso(a)</option>
+            <option value="Liderança Leiga">Liderança Leiga</option>
+        </select>
+    </div>
+
+    <div class="lista-container">
+        <div class="lista-table" id="lista-table"></div>
+        <div class="lista-mobile" id="lista-mobile"></div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'recepcao_criativa_inscritos';
+
+        function getInscritos() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        }
+
+        function salvarInscritos(lista) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+        }
+
+        function renderStats() {
+            const inscritos = getInscritos();
+            const vocacoes = {};
+            inscritos.forEach(i => {
+                vocacoes[i.vocacao] = (vocacoes[i.vocacao] || 0) + 1;
+            });
+
+            let html = `<div class="stat-card"><div class="stat-num">${inscritos.length}</div><div class="stat-label">Total</div></div>`;
+            Object.entries(vocacoes).sort((a,b) => b[1] - a[1]).forEach(([v, n]) => {
+                html += `<div class="stat-card"><div class="stat-num">${n}</div><div class="stat-label">${v}</div></div>`;
+            });
+            document.getElementById('stats').innerHTML = html;
+        }
+
+        function renderLista() {
+            const busca = document.getElementById('busca').value.trim().toLowerCase();
+            const filtroVocacao = document.getElementById('filtro-vocacao').value;
+            let inscritos = getInscritos();
+
+            if (busca) {
+                inscritos = inscritos.filter(i =>
+                    i.nome.toLowerCase().includes(busca) ||
+                    i.cidade.toLowerCase().includes(busca) ||
+                    (i.paroquia || '').toLowerCase().includes(busca) ||
+                    i.diocese.toLowerCase().includes(busca) ||
+                    i.telefone.includes(busca)
+                );
+            }
+            if (filtroVocacao) {
+                inscritos = inscritos.filter(i => i.vocacao === filtroVocacao);
+            }
+
+            // Tabela desktop
+            if (!inscritos.length) {
+                document.getElementById('lista-table').innerHTML = '<p class="vazio">Nenhum inscrito encontrado.</p>';
+                document.getElementById('lista-mobile').innerHTML = '<p class="vazio">Nenhum inscrito encontrado.</p>';
+                return;
+            }
+
+            let tableHtml = `<table>
+                <thead><tr>
+                    <th>Nome</th>
+                    <th>Vocação</th>
+                    <th>Diocese</th>
+                    <th>Cidade</th>
+                    <th>Paróquia</th>
+                    <th>Telefone</th>
+                    <th>Ações</th>
+                </tr></thead><tbody>`;
+
+            inscritos.forEach(i => {
+                tableHtml += `<tr>
+                    <td class="nome-cell">${i.nome}</td>
+                    <td><span class="badge-vocacao">${i.vocacao}</span></td>
+                    <td>${i.diocese}</td>
+                    <td>${i.cidade}</td>
+                    <td>${i.paroquia || '—'}</td>
+                    <td>${i.telefone}</td>
+                    <td><button class="btn-remover" onclick="remover('${i.id}')">Remover</button></td>
+                </tr>`;
+            });
+            tableHtml += '</tbody></table>';
+            document.getElementById('lista-table').innerHTML = tableHtml;
+
+            // Cards mobile
+            let mobileHtml = '';
+            inscritos.forEach(i => {
+                mobileHtml += `<div class="inscrito-card">
+                    <div class="inscrito-card-header">
+                        <span class="inscrito-card-nome">${i.nome}</span>
+                        <span class="badge-vocacao">${i.vocacao}</span>
+                    </div>
+                    <div class="inscrito-card-info">
+                        <strong>Diocese:</strong> ${i.diocese}<br>
+                        <strong>Cidade:</strong> ${i.cidade}<br>
+                        ${i.paroquia ? '<strong>Paróquia:</strong> ' + i.paroquia + '<br>' : ''}
+                        <strong>Telefone:</strong> ${i.telefone}
+                    </div>
+                    <div style="margin-top:0.5rem;"><button class="btn-remover" onclick="remover('${i.id}')">Remover</button></div>
+                </div>`;
+            });
+            document.getElementById('lista-mobile').innerHTML = mobileHtml;
+        }
+
+        function remover(id) {
+            if (!confirm('Deseja remover este inscrito?')) return;
+            const inscritos = getInscritos().filter(i => i.id !== id);
+            salvarInscritos(inscritos);
+            renderStats();
+            renderLista();
+        }
+
+        function exportarCSV() {
+            const inscritos = getInscritos();
+            if (!inscritos.length) { alert('Nenhum inscrito para exportar.'); return; }
+
+            let csv = 'Nome,Vocação,Diocese,Cidade,Paróquia,Telefone,Data Inscrição\n';
+            inscritos.forEach(i => {
+                csv += `"${i.nome}","${i.vocacao}","${i.diocese}","${i.cidade}","${i.paroquia || ''}","${i.telefone}","${i.dataInscricao || ''}"\n`;
+            });
+
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'inscritos-recepcao-criativa.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Eventos
+        document.getElementById('busca').addEventListener('input', renderLista);
+        document.getElementById('filtro-vocacao').addEventListener('change', renderLista);
+
+        // Inicializar
+        renderStats();
+        renderLista();
+    </script>
+</body>
+</html>
