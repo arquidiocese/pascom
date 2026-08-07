@@ -460,7 +460,9 @@
         <div class="filtros">
             <input type="text" class="busca" id="busca" placeholder="Buscar por nome, cidade, paróquia...">
             <select class="filtro-select" id="filtro-vocacao">
-                <option value="">Todas as vocações</option>
+                <option value="">Todas as funções</option>
+                <option value="Arcebispo">Arcebispo</option>
+                <option value="Bispo">Bispo</option>
                 <option value="Padre">Padre</option>
                 <option value="Diácono">Diácono</option>
                 <option value="Seminarista">Seminarista</option>
@@ -485,8 +487,10 @@
                 <input type="text" id="edit-nome">
             </div>
             <div class="form-group">
-                <label>Vocação / Função</label>
+                <label>Função</label>
                 <select id="edit-vocacao">
+                    <option value="Arcebispo">Arcebispo</option>
+                    <option value="Bispo">Bispo</option>
                     <option value="Padre">Padre</option>
                     <option value="Diácono">Diácono</option>
                     <option value="Seminarista">Seminarista</option>
@@ -597,7 +601,7 @@
             let tableHtml = `<table>
                 <thead><tr>
                     <th>Nome</th>
-                    <th>Vocação</th>
+                    <th>Função</th>
                     <th>Diocese</th>
                     <th>Cidade</th>
                     <th>Paróquia</th>
@@ -704,7 +708,7 @@
             const inscritos = getInscritos();
             if (!inscritos.length) { alert('Nenhum inscrito para exportar.'); return; }
 
-            let csv = 'Nome,Vocação,Diocese,Cidade,Paróquia,Telefone,Data Inscrição\n';
+            let csv = 'Nome,Função,Diocese,Cidade,Paróquia,Telefone,Data Inscrição\n';
             inscritos.forEach(i => {
                 csv += `"${i.nome}","${i.vocacao}","${i.diocese}","${i.cidade}","${i.paroquia || ''}","${i.telefone}","${i.dataInscricao || ''}"\n`;
             });
