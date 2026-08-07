@@ -244,37 +244,141 @@
             .stat-card { padding: 0.8rem 1rem; min-width: 80px; }
             .stat-num { font-size: 1.5rem; }
         }
+        /* Tela de Login */
+        .login-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #1a3a7a, #2952a3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .login-box h2 {
+            color: #1a3a7a;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .login-box p {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+        .login-box input:focus {
+            outline: none;
+            border-color: #2952a3;
+            box-shadow: 0 0 0 3px rgba(41,82,163,0.1);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #1a3a7a, #2952a3);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(26,58,122,0.3);
+        }
+        .login-erro {
+            color: #dc2626;
+            font-size: 0.8rem;
+            margin-top: 0.8rem;
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <header class="header">
-        <h1>📋 Inscritos — Recepção Criativa</h1>
-        <div class="header-actions">
-            <a href="index.html" class="btn-voltar">← Voltar</a>
-            <button class="btn-exportar" onclick="exportarCSV()">⬇ Exportar CSV</button>
+    <!-- Tela de Senha -->
+    <div class="login-overlay" id="login-overlay">
+        <div class="login-box">
+            <h2>🔒 Área Administrativa</h2>
+            <p>Digite a senha para acessar a lista de inscritos</p>
+            <input type="password" id="login-senha" placeholder="Senha..." autofocus>
+            <button class="login-btn" id="login-btn">Entrar</button>
+            <p class="login-erro" id="login-erro">Senha incorreta. Tente novamente.</p>
         </div>
-    </header>
-
-    <div class="stats" id="stats"></div>
-
-    <div class="filtros">
-        <input type="text" class="busca" id="busca" placeholder="Buscar por nome, cidade, paróquia...">
-        <select class="filtro-select" id="filtro-vocacao">
-            <option value="">Todas as vocações</option>
-            <option value="Padre">Padre</option>
-            <option value="Diácono">Diácono</option>
-            <option value="Seminarista">Seminarista</option>
-            <option value="Religioso(a)">Religioso(a)</option>
-            <option value="Liderança Leiga">Liderança Leiga</option>
-        </select>
     </div>
 
-    <div class="lista-container">
-        <div class="lista-table" id="lista-table"></div>
-        <div class="lista-mobile" id="lista-mobile"></div>
+    <!-- Painel (oculto até autenticar) -->
+    <div id="painel" style="display:none;">
+        <header class="header">
+            <h1>📋 Inscritos — Recepção Criativa</h1>
+            <div class="header-actions">
+                <a href="index.html" class="btn-voltar">← Voltar</a>
+                <button class="btn-exportar" onclick="exportarCSV()">⬇ Exportar CSV</button>
+            </div>
+        </header>
+
+        <div class="stats" id="stats"></div>
+
+        <div class="filtros">
+            <input type="text" class="busca" id="busca" placeholder="Buscar por nome, cidade, paróquia...">
+            <select class="filtro-select" id="filtro-vocacao">
+                <option value="">Todas as vocações</option>
+                <option value="Padre">Padre</option>
+                <option value="Diácono">Diácono</option>
+                <option value="Seminarista">Seminarista</option>
+                <option value="Religioso(a)">Religioso(a)</option>
+                <option value="Liderança Leiga">Liderança Leiga</option>
+            </select>
+        </div>
+
+        <div class="lista-container">
+            <div class="lista-table" id="lista-table"></div>
+            <div class="lista-mobile" id="lista-mobile"></div>
+        </div>
     </div>
 
     <script>
+        // === AUTENTICAÇÃO ===
+        const SENHA_ADMIN = 'Pascom123456';
+
+        document.getElementById('login-btn').addEventListener('click', tentarLogin);
+        document.getElementById('login-senha').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') tentarLogin();
+        });
+
+        function tentarLogin() {
+            const senha = document.getElementById('login-senha').value;
+            if (senha === SENHA_ADMIN) {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('painel').style.display = 'block';
+                renderStats();
+                renderLista();
+            } else {
+                document.getElementById('login-erro').style.display = 'block';
+                document.getElementById('login-senha').value = '';
+                document.getElementById('login-senha').focus();
+            }
+        }
+
         const STORAGE_KEY = 'recepcao_criativa_inscritos';
 
         function getInscritos() {
@@ -398,10 +502,6 @@
         // Eventos
         document.getElementById('busca').addEventListener('input', renderLista);
         document.getElementById('filtro-vocacao').addEventListener('change', renderLista);
-
-        // Inicializar
-        renderStats();
-        renderLista();
     </script>
 </body>
 </html>
