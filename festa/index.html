@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financeiro - Arraiá da Basílica 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bandeirinhas">
+        <div class="bandeirinha b1"></div><div class="bandeirinha b2"></div>
+        <div class="bandeirinha b3"></div><div class="bandeirinha b4"></div>
+        <div class="bandeirinha b5"></div><div class="bandeirinha b6"></div>
+        <div class="bandeirinha b7"></div><div class="bandeirinha b8"></div>
+        <div class="bandeirinha b9"></div><div class="bandeirinha b10"></div>
+        <div class="bandeirinha b11"></div><div class="bandeirinha b12"></div>
+        <div class="bandeirinha b1"></div><div class="bandeirinha b2"></div>
+        <div class="bandeirinha b3"></div><div class="bandeirinha b4"></div>
+    </div>
+
+    <header class="header">
+	<img src="logo.png" alt="Arraiá da Basílica" class="header-logo">
+        <h1>ARRAIÁ DA BASÍLICA</h1>
+        <p>Controle Financeiro - Edição 2026</p>
+        <p class="header-datas">10 e 11 de Julho | 17 e 18 de Julho</p>
+    </header>
+
+    <!-- BARRA DE STATUS -->
+    <div class="status-bar">
+        <div class="status-left">
+            <span class="firebase-status" id="firebaseStatus">
+                <span class="status-dot offline"></span> Conectando...
+            </span>
+            <span class="last-sync" id="lastSync"></span>
+        </div>
+        <div class="status-center">
+            <input type="text" id="buscaGlobal" placeholder="🔍 Buscar (vendas, despesas, patrocinadores...)" oninput="buscaGlobalFn()">
+        </div>
+        <div class="status-right">
+            <button class="btn-historico" onclick="toggleHistorico()">📋 Histórico</button>
+        </div>
+    </div>
+
+    <!-- PAINEL DE BUSCA GLOBAL -->
+    <div class="busca-resultados" id="buscaResultados" style="display:none"></div>
+
+    <!-- PAINEL DE HISTÓRICO -->
+    <div class="historico-painel" id="historicoPainel" style="display:none">
+        <h4>📋 Últimas Ações</h4>
+        <div id="historicoLista"></div>
+    </div>
+
+    <!-- RESUMO GERAL -->
+    <div class="resumo-geral">
+        <div class="resumo-card receita">
+            <span>Receita Total</span>
+            <strong id="receitaTotal">R$ 0,00</strong>
+            <small id="receitaDetalhe"></small>
+        </div>
+        <div class="resumo-card gasto">
+            <span>Despesas Totais</span>
+            <strong id="gastoTotal">R$ 0,00</strong>
+            <small id="gastoDetalhe"></small>
+        </div>
+        <div class="resumo-card saldo">
+            <span>Saldo Final</span>
+            <strong id="saldoFinal">R$ 0,00</strong>
+            <small id="saldoDetalhe"></small>
+        </div>
+    </div>
+
+    <!-- CONTADOR EM TEMPO REAL -->
+    <div class="contador-topo" id="contadorTopo"></div>
+
+    <!-- META -->
+    <div class="meta-container">
+        <div class="meta-header">
+            <span>🎯 Meta de Faturamento:</span>
+            <input type="number" id="metaValor" placeholder="Definir meta R$" step="1000" min="0">
+            <button class="btn-meta-salvar" onclick="salvarMeta()">Salvar Meta</button>
+            <span id="metaTexto"></span>
+        </div>
+        <div class="meta-barra"><div class="meta-progresso" id="metaProgresso"></div></div>
+    </div>
+
+    <!-- SELETOR DE DIA (apenas para vendas) -->
+    <div class="dia-selector">
+        <span class="dia-label">Filtrar vendas por dia:</span>
+        <div class="dias-btns">
+            <button class="dia-btn active" data-dia="todos">Todos</button>
+            <button class="dia-btn" data-dia="1">10/Jul <small>Sex</small></button>
+            <button class="dia-btn" data-dia="2">11/Jul <small>Sáb</small></button>
+            <button class="dia-btn" data-dia="3">17/Jul <small>Sex</small></button>
+            <button class="dia-btn" data-dia="4">18/Jul <small>Sáb</small></button>
+        </div>
+    </div>
+
+    <!-- MENU -->
+    <nav class="menu-barracas">
+        <button class="menu-btn active" data-section="dashboard">📊 Resumo</button>
+        <button class="menu-btn" data-section="caixa">⚡ Gasto Rápido</button>
+        <button class="menu-btn" data-section="artesanato">🎨 Artesanato</button>
+        <button class="menu-btn" data-section="bar">🍺 Bar</button>
+        <button class="menu-btn" data-section="batata-frita">🍟 Batata Frita</button>
+        <button class="menu-btn" data-section="bingo">🎯 Bingo/Leilão</button>
+        <button class="menu-btn" data-section="cachorro-quente">🌭 C. Quente</button>
+        <button class="menu-btn" data-section="chopp">🍻 Chopp</button>
+        <button class="menu-btn" data-section="doces">🍬 Doces</button>
+        <button class="menu-btn" data-section="kids">🎠 Espaço Kids</button>
+        <button class="menu-btn" data-section="fazendinha">🌽 Fazendinha</button>
+        <button class="menu-btn" data-section="kafta">🥙 Kafta</button>
+        <button class="menu-btn" data-section="pernil">🥪 Pernil</button>
+        <button class="menu-btn" data-section="pastel">🥟 Pastel</button>
+        <button class="menu-btn" data-section="despesas">💰 Despesas</button>
+        <button class="menu-btn" data-section="patrocinadores">🤝 Patrocinadores</button>
+        <button class="menu-btn" data-section="doadores">🎁 Doadores</button>
+        <button class="menu-btn" data-section="config">⚙️ Config</button>
+    </nav>
+
+    <main class="container">
+
+        <!-- CAIXA RÁPIDO (gastos durante a festa) -->
+        <section id="sec-caixa" class="section">
+            <h2>⚡ Lançamento Rápido</h2>
+            <p class="secao-desc">Para lançar gastos durante a festa de forma rápida pelo celular (compras de última hora, pagamentos, etc.)</p>
+            
+            <div class="painel-madeira">
+                <h3>Gasto Rápido</h3>
+                <div class="form-row">
+                    <input type="text" id="caixaDesc" placeholder="O que? (ex: 10 pães, segurança, gelo...)">
+                </div>
+                <div class="form-row">
+                    <input type="number" id="caixaValor" placeholder="Valor R$" step="0.01" min="0">
+                    <select id="caixaDestino">
+                        <option value="geral">Geral (estrutura)</option>
+                        <option value="fazendinha">Fazendinha</option>
+                        <option value="cachorro-quente">Cachorro Quente</option>
+                        <option value="kafta">Kafta</option>
+                        <option value="pernil">Pernil</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="batata-frita">Batata Frita</option>
+                        <option value="doces">Doces</option>
+                        <option value="bar">Bar</option>
+                        <option value="chopp">Chopp</option>
+                        <option value="kids">Espaço Kids</option>
+                        <option value="bingo">Bingo/Leilão</option>
+                        <option value="artesanato">Artesanato</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <select id="caixaCategoria">
+                        <option value="Carnes">Carnes</option>
+                        <option value="Pães e Massas">Pães e Massas</option>
+                        <option value="Bebidas (compra)">Bebidas</option>
+                        <option value="Gás">Gás</option>
+                        <option value="Gelo">Gelo</option>
+                        <option value="Descartáveis">Descartáveis</option>
+                        <option value="Segurança">Segurança</option>
+                        <option value="Outros Alimentos">Outros Alimentos</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                    <label class="checkbox-opt"><input type="checkbox" id="caixaDoacao" onchange="toggleCaixaPatrocinador()"> 🎁 Doação</label>
+                    <label class="checkbox-opt"><input type="checkbox" id="caixaPagar"> ⏳ Pagar depois</label>
+                </div>
+                <div class="form-row" id="caixaPatrocinadorRow" style="display:none">
+                    <select id="caixaPatrocinador" style="width:100%">
+                        <option value="">Selecione quem doou...</option>
+                    </select>
+                </div>
+                <button class="btn-gasto" style="width:100%;padding:16px;font-size:1.1rem;margin-top:10px" onclick="gastoRapido()">Lançar Gasto</button>
+            </div>
+            
+            <div class="caixa-feedback" id="caixaFeedback"></div>
+            
+            <div class="tabela-box" style="margin-top:15px">
+                <h4>Últimos lançamentos rápidos</h4>
+                <div id="caixaUltimos"></div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD -->
+        <section id="sec-dashboard" class="section active">
+            <h2>📊 Resumo Geral - Arraiá da Basílica <span id="edicaoEvento">2026</span></h2>
+            <div id="dashboardCards" class="dashboard-grid"></div>
+
+            <!-- Margem por Barraca -->
+            <div id="comparativoAnterior" style="display:none;margin-bottom:20px;">
+                <div class="grafico-box">
+                    <h3>📊 Comparativo com Edição Anterior</h3>
+                    <div id="comparativoCards" class="dashboard-grid"></div>
+                </div>
+            </div>
+
+            <!-- Margem por Barraca -->
+            <div class="grafico-box" style="margin-bottom:20px;">
+                <h3>💰 Margem (Lucro/Prejuízo) por Barraca</h3>
+                <div id="margemBarracas" class="margem-grid"></div>
+            </div>
+
+            <!-- Comparativo entre dias -->
+            <div class="grafico-box" style="margin-bottom:20px;">
+                <h3>📅 Comparativo entre Dias</h3>
+                <div class="tabela-box" style="border:none;padding:0;background:none;">
+                    <table id="tabelaComparativo">
+                        <thead><tr><th>Barraca</th><th>10/Jul</th><th>11/Jul</th><th>17/Jul</th><th>18/Jul</th><th>Total</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="graficos-container">
+                <div class="grafico-box">
+                    <h3>Faturamento por Barraca</h3>
+                    <canvas id="graficoBarracas"></canvas>
+                </div>
+                <div class="grafico-box">
+                    <h3>Faturamento por Dia</h3>
+                    <canvas id="graficoDias"></canvas>
+                </div>
+            </div>
+            <div class="graficos-container">
+                <div class="grafico-box">
+                    <h3>% de cada Barraca no Total</h3>
+                    <canvas id="graficoPizza"></canvas>
+                </div>
+                <div class="grafico-box">
+                    <h3>Receita vs Despesas</h3>
+                    <canvas id="graficoReceitaDespesa"></canvas>
+                </div>
+            </div>
+
+            <div class="ranking-box">
+                <h3>🏆 Ranking - Produtos Mais Vendidos</h3>
+                <div id="rankingProdutos"></div>
+            </div>
+
+            <!-- Resumo de Doações -->
+            <div class="ranking-box">
+                <h3>🎁 Resumo de Doações Recebidas</h3>
+                <div id="resumoDoacoes"></div>
+            </div>
+
+            <div class="export-btns">
+                <button class="btn-export" onclick="gerarRelatorioPDF()">📄 Relatório PDF</button>
+                <button class="btn-export" onclick="exportarCSV()">📥 Exportar CSV (Excel)</button>
+                <button class="btn-export" onclick="exportarJSON()">💾 Backup Completo</button>
+                <label class="btn-export btn-import">📂 Restaurar Backup
+                    <input type="file" id="importJSON" accept=".json" onchange="importarJSON(event)" hidden>
+                </label>
+            </div>
+        </section>
+
+        <!-- FAZENDINHA -->
+        <section id="sec-fazendinha" class="section">
+            <h2>🌽 Fazendinha</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-fazendinha">
+                        <option value="Chocolate Quente" data-preco="15">Chocolate Quente - R$ 15,00</option>
+                        <option value="Curau" data-preco="15">Curau - R$ 15,00</option>
+                        <option value="Milho Cozido" data-preco="10">Milho Cozido - R$ 10,00</option>
+                        <option value="Pamonha" data-preco="20">Pamonha - R$ 20,00</option>
+                        <option value="Pipoca" data-preco="5">Pipoca - R$ 5,00</option>
+                        <option value="Quentão" data-preco="12">Quentão - R$ 12,00</option>
+                        <option value="Vinho Quente" data-preco="17">Vinho Quente - R$ 17,00</option>
+                    </select>
+                    <input type="number" id="qtd-fazendinha" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('fazendinha')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-fazendinha"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-fazendinha"></div>
+        </section>
+
+        <!-- CACHORRO QUENTE -->
+        <section id="sec-cachorro-quente" class="section">
+            <h2>🌭 Cachorro Quente</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-cachorro-quente">
+                        <option value="Cachorro Quente" data-preco="17">Cachorro Quente - R$ 17,00</option>
+                    </select>
+                    <input type="number" id="qtd-cachorro-quente" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('cachorro-quente')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-cachorro-quente"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-cachorro-quente"></div>
+        </section>
+
+        <!-- KAFTA -->
+        <section id="sec-kafta" class="section">
+            <h2>🥙 Kafta</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-kafta">
+                        <option value="Kafta" data-preco="17">Kafta - R$ 17,00</option>
+                    </select>
+                    <input type="number" id="qtd-kafta" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('kafta')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-kafta"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-kafta"></div>
+        </section>
+
+        <!-- LANCHE DE PERNIL -->
+        <section id="sec-pernil" class="section">
+            <h2>🥪 Lanche de Pernil</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-pernil">
+                        <option value="Lanche de Pernil" data-preco="20">Lanche de Pernil - R$ 20,00</option>
+                    </select>
+                    <input type="number" id="qtd-pernil" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('pernil')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-pernil"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-pernil"></div>
+        </section>
+
+        <!-- PASTEL -->
+        <section id="sec-pastel" class="section">
+            <h2>🥟 Pastel</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-pastel">
+                        <option value="Pastel" data-preco="15">Pastel - R$ 15,00</option>
+                    </select>
+                    <input type="number" id="qtd-pastel" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('pastel')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-pastel"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-pastel"></div>
+        </section>
+
+        <!-- BATATA FRITA -->
+        <section id="sec-batata-frita" class="section">
+            <h2>🍟 Batata Frita</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-batata-frita">
+                        <option value="Batata Frita" data-preco="15">Batata Frita - R$ 15,00</option>
+                    </select>
+                    <input type="number" id="qtd-batata-frita" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('batata-frita')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-batata-frita"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-batata-frita"></div>
+        </section>
+
+        <!-- DOCES -->
+        <section id="sec-doces" class="section">
+            <h2>🍬 Doces e Sobremesas</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-doces">
+                        <option value="Doce 250g" data-preco="25">Doce 250g (Ambrosia/Cidra/Abóbora/Leite/Mamão) - R$ 25</option>
+                        <option value="Doce 500g" data-preco="35">Doce 500g (Ambrosia/Cidra/Abóbora/Leite/Mamão) - R$ 35</option>
+                        <option value="Doces Variados" data-preco="15">Doces Variados (Bolo/Canjica/Cocada/Mousse...) - R$ 15</option>
+                        <option value="Geleia" data-preco="30">Geleia - R$ 30,00</option>
+                        <option value="Morango no Espeto" data-preco="25">Morango no Espeto - R$ 25,00</option>
+                        <option value="Pudim de Pote" data-preco="20">Pudim de Pote - R$ 20,00</option>
+                    </select>
+                    <input type="number" id="qtd-doces" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('doces')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-doces"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-doces"></div>
+        </section>
+
+        <!-- BAR -->
+        <section id="sec-bar" class="section">
+            <h2>🍺 Bar</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-bar">
+                        <option value="Água" data-preco="5">Água - R$ 5,00</option>
+                        <option value="Cerveja" data-preco="10">Cerveja (com e sem álcool) - R$ 10,00</option>
+                        <option value="Refrigerante" data-preco="8">Refrigerante - R$ 8,00</option>
+                        <option value="Suco" data-preco="7">Suco - R$ 7,00</option>
+                    </select>
+                    <input type="number" id="qtd-bar" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('bar')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-bar"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-bar"></div>
+        </section>
+
+        <!-- CHOPP -->
+        <section id="sec-chopp" class="section">
+            <h2>🍻 Chopp</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-chopp">
+                        <option value="Chopp Ashby Pilsen" data-preco="10">Chopp Ashby Pilsen - R$ 10,00</option>
+                        <option value="Chopp de Vinho" data-preco="14">Chopp de Vinho - R$ 14,00</option>
+                        <option value="Chopp Heineken" data-preco="14">Chopp Heineken - R$ 14,00</option>
+                        <option value="Chopp IPA Session" data-preco="14">Chopp IPA Session - R$ 14,00</option>
+                    </select>
+                    <input type="number" id="qtd-chopp" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('chopp')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-chopp"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-chopp"></div>
+        </section>
+
+        <!-- ESPAÇO KIDS -->
+        <section id="sec-kids" class="section">
+            <h2>🎠 Espaço Kids</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-kids">
+                        <option value="Espaço Kids" data-preco="20">Espaço Kids - R$ 20,00</option>
+                    </select>
+                    <input type="number" id="qtd-kids" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('kids')">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-kids"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-kids"></div>
+        </section>
+
+        <!-- BINGO / LEILÃO -->
+        <section id="sec-bingo" class="section">
+            <h2>🎯 Bingo e Leilão</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda</h3>
+                <div class="form-row">
+                    <select id="prod-bingo">
+                        <option value="Bingo Cartela Especial" data-preco="20">Bingo Cartela Especial - R$ 20,00</option>
+                        <option value="Bingo Cartela Simples" data-preco="10">Bingo Cartela Simples - R$ 10,00</option>
+                    </select>
+                    <input type="number" id="qtd-bingo" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVenda('bingo')">Lançar</button>
+                </div>
+                <h3>Lançar Venda Leilão (valor variável)</h3>
+                <div class="form-row">
+                    <input type="text" id="descVenda-bingo" placeholder="Descrição do item leiloado">
+                    <input type="number" id="precoVenda-bingo" placeholder="Valor R$" step="0.01" min="0">
+                    <input type="number" id="qtdLeilao-bingo" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVendaLeilao()">Lançar Leilão</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-bingo"><thead><tr><th>Dia</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-bingo"></div>
+        </section>
+
+        <!-- ARTESANATO -->
+        <section id="sec-artesanato" class="section">
+            <h2>🎨 Artesanato</h2>
+            <div class="painel-madeira">
+                <h3>Lançar Venda (preço variável)</h3>
+                <div class="form-row">
+                    <input type="text" id="descVenda-artesanato" placeholder="Descrição do item">
+                    <input type="number" id="precoVenda-artesanato" placeholder="Preço R$" step="0.01" min="0">
+                    <input type="number" id="qtd-artesanato" placeholder="Qtd" min="1" value="1">
+                    <button class="btn-venda" onclick="lancarVendaArtesanato()">Lançar</button>
+                </div>
+            </div>
+            <div class="tabela-box"><h4>Vendas</h4><table id="tblVendas-artesanato"><thead><tr><th>Dia</th><th>Item</th><th>Qtd</th><th>Unit.</th><th>Total</th><th></th></tr></thead><tbody></tbody></table></div>
+            <div class="resumo-barraca" id="resumo-artesanato"></div>
+        </section>
+
+        <!-- DESPESAS (sem vínculo a dia) -->
+        <section id="sec-despesas" class="section">
+            <h2>💰 Despesas Gerais</h2>
+            <p class="secao-desc">Todos os custos do evento: ingredientes, infraestrutura, segurança, equipamentos, etc. Não vinculado a dia específico. Pode ser lançado antes, durante ou depois da festa.</p>
+            
+            <div class="painel-madeira">
+                <h3>Lançar Despesa</h3>
+                <div class="form-row">
+                    <select id="categoriaDespesa">
+                        <optgroup label="Alimentos e Bebidas">
+                            <option value="Carnes">Carnes (pernil, linguiça, kafta...)</option>
+                            <option value="Pães e Massas">Pães e Massas</option>
+                            <option value="Verduras e Legumes">Verduras e Legumes</option>
+                            <option value="Temperos e Condimentos">Temperos e Condimentos</option>
+                            <option value="Laticínios">Laticínios (queijo, leite...)</option>
+                            <option value="Bebidas (compra)">Bebidas (compra de estoque)</option>
+                            <option value="Doces e Ingredientes">Doces e Ingredientes (açúcar, frutas...)</option>
+                            <option value="Óleos e Gorduras">Óleos e Gorduras</option>
+                            <option value="Outros Alimentos">Outros Alimentos</option>
+                        </optgroup>
+                        <optgroup label="Infraestrutura">
+                            <option value="Barracas e Tendas">Barracas e Tendas</option>
+                            <option value="Mesas e Cadeiras">Mesas e Cadeiras</option>
+                            <option value="Iluminação">Iluminação</option>
+                            <option value="Energia / Gerador">Energia / Gerador</option>
+                            <option value="Palco">Palco</option>
+                            <option value="Banheiros Químicos">Banheiros Químicos</option>
+                        </optgroup>
+                        <optgroup label="Equipamentos">
+                            <option value="Som e Música">Som e Música</option>
+                            <option value="Refrigeração">Refrigeração (freezer, geladeira)</option>
+                            <option value="Fogão / Chapa / Fritadeira">Fogão / Chapa / Fritadeira</option>
+                            <option value="Chopeira">Chopeira</option>
+                            <option value="Outros Equipamentos">Outros Equipamentos</option>
+                        </optgroup>
+                        <optgroup label="Operacional">
+                            <option value="Segurança">Segurança</option>
+                            <option value="Descartáveis">Descartáveis (copos, pratos, talheres)</option>
+                            <option value="Limpeza">Limpeza</option>
+                            <option value="Gás">Gás</option>
+                            <option value="Carvão / Lenha">Carvão / Lenha</option>
+                            <option value="Embalagens">Embalagens (sacolas, marmitex)</option>
+                        </optgroup>
+                        <optgroup label="Divulgação e Decoração">
+                            <option value="Decoração">Decoração</option>
+                            <option value="Divulgação / Marketing">Divulgação / Marketing</option>
+                            <option value="Impressos">Impressos (ingressos, fichas, banners)</option>
+                        </optgroup>
+                        <optgroup label="Serviços e Outros">
+                            <option value="Transporte / Frete">Transporte / Frete</option>
+                            <option value="Pessoal / Mão de obra">Pessoal / Mão de obra</option>
+                            <option value="Taxas e Licenças">Taxas e Licenças (alvará, bombeiros)</option>
+                            <option value="Seguros">Seguros</option>
+                            <option value="Outros">Outros</option>
+                        </optgroup>
+                    </select>
+                    <input type="text" id="descDespesa" placeholder="Item (ex: 10kg de pernil, 500 pães, 3 botijões...)">
+                </div>
+                <div class="form-row">
+                    <input type="number" id="qtdDespesa" placeholder="Qtd" min="1" value="1" step="1">
+                    <select id="unidadeDespesa">
+                        <option value="un">Unidade(s)</option>
+                        <option value="kg">Kg</option>
+                        <option value="g">Gramas</option>
+                        <option value="L">Litros</option>
+                        <option value="ml">ml</option>
+                        <option value="cx">Caixa(s)</option>
+                        <option value="pct">Pacote(s)</option>
+                        <option value="fardo">Fardo(s)</option>
+                        <option value="dz">Dúzia(s)</option>
+                        <option value="m">Metro(s)</option>
+                        <option value="diária">Diária(s)</option>
+                        <option value="serviço">Serviço</option>
+                    </select>
+                    <input type="number" id="valorDespesa" placeholder="Valor Total R$" step="0.01" min="0">
+                    <input type="text" id="localDespesa" placeholder="Local da compra (ex: Assaí, Porecatu...)">
+                </div>
+                <div class="form-row">
+                    <select id="destinoDespesa">
+                        <option value="geral">Geral (evento todo)</option>
+                        <option value="fazendinha">Fazendinha</option>
+                        <option value="cachorro-quente">Cachorro Quente</option>
+                        <option value="kafta">Kafta</option>
+                        <option value="pernil">Lanche de Pernil</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="batata-frita">Batata Frita</option>
+                        <option value="doces">Doces</option>
+                        <option value="bar">Bar</option>
+                        <option value="chopp">Chopp</option>
+                        <option value="kids">Espaço Kids</option>
+                        <option value="bingo">Bingo / Leilão</option>
+                        <option value="artesanato">Artesanato</option>
+                    </select>
+                    <input type="text" id="obsDespesa" placeholder="Observação (opcional)">
+                    <label class="checkbox-opt"><input type="checkbox" id="doacaoDespesa" onchange="togglePatrocinadorDespesa()"> 🎁 Doação</label>
+                    <select id="patrocinadorDespesa" style="display:none">
+                        <option value="">Selecione o patrocinador...</option>
+                    </select>
+                    <label class="checkbox-opt"><input type="checkbox" id="pagarDespesa"> ⏳ Pagar depois</label>
+                    <button class="btn-gasto" onclick="lancarDespesa()">Lançar Despesa</button>
+                </div>
+            </div>
+
+            <!-- Filtros da tabela -->
+            <div class="filtros-despesa">
+                <button class="filtro-btn active" data-filtro="todos" onclick="filtrarDespesas('todos')">Todos</button>
+                <button class="filtro-btn" data-filtro="alimentos" onclick="filtrarDespesas('alimentos')">🥩 Alimentos</button>
+                <button class="filtro-btn" data-filtro="infraestrutura" onclick="filtrarDespesas('infraestrutura')">🏗️ Infraestrutura</button>
+                <button class="filtro-btn" data-filtro="equipamentos" onclick="filtrarDespesas('equipamentos')">⚙️ Equipamentos</button>
+                <button class="filtro-btn" data-filtro="operacional" onclick="filtrarDespesas('operacional')">🧹 Operacional</button>
+                <button class="filtro-btn" data-filtro="divulgacao" onclick="filtrarDespesas('divulgacao')">📢 Divulgação</button>
+                <button class="filtro-btn" data-filtro="servicos" onclick="filtrarDespesas('servicos')">🔧 Serviços</button>
+                <button class="filtro-btn" data-filtro="doacao" onclick="filtrarDespesas('doacao')">🎁 Doações</button>
+                <button class="filtro-btn" data-filtro="pendente" onclick="filtrarDespesas('pendente')">⏳ Pendentes</button>
+            </div>
+
+            <div class="tabela-box">
+                <table id="tabelaDespesas">
+                    <thead><tr><th>Categoria</th><th>Descrição</th><th>Qtd</th><th>Barraca</th><th>Valor</th><th>Local</th><th>Tipo</th><th>Status</th><th></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="resumo-barraca" id="resumoDespesas"></div>
+            <div class="tabela-box" style="margin-top:15px">
+                <h4>Totais por Local de Compra</h4>
+                <div id="totaisPorLocal"></div>
+            </div>
+        </section>
+
+        <!-- PATROCINADORES -->
+        <section id="sec-patrocinadores" class="section">
+            <h2>🤝 Patrocinadores</h2>
+            <p class="secao-desc">Valores de patrocínio que entram como receita/saldo do evento.</p>
+            <div class="painel-madeira">
+                <h3>Lançar Patrocínio</h3>
+                <div class="form-row">
+                    <input type="text" id="nomePatrocinador" placeholder="Nome do Patrocinador (ex: Tereos, Unimed...)">
+                    <select id="tipoPatrocinio">
+                        <option value="dinheiro">💵 Dinheiro</option>
+                        <option value="servico">🔧 Serviço (ambulância, segurança...)</option>
+                        <option value="produto">📦 Produto/Material (açúcar, cerveja...)</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <input type="number" id="valorPatrocinio" placeholder="Valor R$ (ou valor estimado)" step="0.01" min="0">
+                    <input type="text" id="descPatrocinio" placeholder="O que fornece? (ex: 50 sacos de açúcar, ambulância...)">
+                </div>
+                <div class="form-row">
+                    <select id="barracaPatrocinio">
+                        <option value="">Sem vínculo com barraca</option>
+                        <option value="geral">Geral (evento todo)</option>
+                        <option value="fazendinha">Fazendinha</option>
+                        <option value="cachorro-quente">Cachorro Quente</option>
+                        <option value="kafta">Kafta</option>
+                        <option value="pernil">Pernil</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="batata-frita">Batata Frita</option>
+                        <option value="doces">Doces</option>
+                        <option value="bar">Bar</option>
+                        <option value="chopp">Chopp</option>
+                        <option value="kids">Espaço Kids</option>
+                        <option value="bingo">Bingo/Leilão</option>
+                        <option value="artesanato">Artesanato</option>
+                    </select>
+                    <input type="text" id="obsPatrocinio" placeholder="Observação (opcional)">
+                    <label class="checkbox-opt"><input type="checkbox" id="recebidoPatrocinio"> Já recebido/confirmado</label>
+                    <button class="btn-patrocinio" onclick="lancarPatrocinio()">Lançar</button>
+                </div>
+            </div>
+            <!-- Busca e ordenação -->
+            <div class="filtros-despesa">
+                <input type="text" id="buscaPatrocinador" placeholder="🔍 Buscar patrocinador..." oninput="renderizarPatrocinadores()" style="padding:6px 12px;border-radius:15px;border:1px solid var(--cor-madeira-clara);background:rgba(0,0,0,0.3);color:var(--cor-palha);font-size:0.82rem;min-width:200px;">
+                <button class="filtro-btn active" data-ordpatr="alfa" onclick="ordenarPatrocinadores('alfa')">A-Z</button>
+                <button class="filtro-btn" data-ordpatr="valor" onclick="ordenarPatrocinadores('valor')">Maior Valor</button>
+                <button class="filtro-btn" data-ordpatr="pendente" onclick="ordenarPatrocinadores('pendente')">Pendentes</button>
+                <button class="filtro-btn" data-ordpatr="recebido" onclick="ordenarPatrocinadores('recebido')">Recebidos</button>
+            </div>
+            <div class="tabela-box">
+                <table id="tabelaPatrocinadores"><thead><tr><th>Patrocinador</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Barraca</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
+            </div>
+            <div class="resumo-barraca" id="resumoPatrocinadores"></div>
+            <div class="tabela-box" style="margin-top:15px">
+                <h4>Doações detalhadas por patrocinador</h4>
+                <div id="detalhePatrocinadores"></div>
+            </div>
+        </section>
+
+        <!-- DOADORES (bingo/leilão) -->
+        <section id="sec-doadores" class="section">
+            <h2>🎁 Doadores - Bingo e Leilão</h2>
+            <p class="secao-desc">Empresas e pessoas que doaram itens/prêmios para o bingo e leilão. Não são patrocinadores financeiros, mas contribuíram com produtos para a festa. Serão listados no relatório como agradecimento.</p>
+
+            <div class="painel-madeira">
+                <h3>Cadastrar Doação</h3>
+                <div class="form-row">
+                    <input type="text" id="doadorNome" placeholder="Nome da empresa/pessoa" list="listaDoadoresExistentes" autocomplete="off">
+                    <datalist id="listaDoadoresExistentes"></datalist>
+                    <input type="text" id="doadorItem" placeholder="Item doado (ex: Cesta básica, TV 32pol...)">
+                </div>
+                <div class="form-row">
+                    <input type="number" id="doadorValor" placeholder="Valor estimado R$ (opcional)" step="0.01" min="0">
+                    <input type="text" id="doadorObs" placeholder="Observação (opcional)">
+                    <button class="btn-patrocinio" onclick="lancarDoador()">Cadastrar</button>
+                </div>
+            </div>
+
+            <!-- Busca -->
+            <div class="filtros-despesa">
+                <input type="text" id="buscaDoador" placeholder="🔍 Buscar doador..." oninput="renderizarDoadores()" style="padding:6px 12px;border-radius:15px;border:1px solid var(--cor-madeira-clara);background:rgba(0,0,0,0.3);color:var(--cor-palha);font-size:0.82rem;min-width:200px;">
+            </div>
+
+            <div class="tabela-box">
+                <table id="tabelaDoadores"><thead><tr><th>Doador</th><th>Item Doado</th><th>Valor Est.</th><th>Obs</th><th></th></tr></thead><tbody></tbody></table>
+            </div>
+            <div class="resumo-barraca" id="resumoDoadores"></div>
+        </section>
+
+        <!-- CONFIGURAÇÕES -->
+        <section id="sec-config" class="section">
+            <h2>⚙️ Configurações</h2>
+
+            <!-- Dados do Evento -->
+            <div class="painel-madeira">
+                <h3>📋 Dados do Evento</h3>
+                <p class="secao-desc">Essas informações aparecem no cabeçalho da página e na capa do relatório PDF.</p>
+                <div class="form-row">
+                    <input type="text" id="cfgNomeEvento" placeholder="Nome do Evento (ex: Arraiá da Basílica)">
+                    <input type="text" id="cfgEdicao" placeholder="Edição (ex: 2026)">
+                </div>
+                <div class="form-row">
+                    <input type="text" id="cfgDatas" placeholder="Datas (ex: 10 e 11 de Julho | 17 e 18 de Julho)">
+                </div>
+                <div class="form-row">
+                    <input type="text" id="cfgIgreja" placeholder="Nome da Igreja/Paróquia">
+                    <input type="text" id="cfgCidade" placeholder="Cidade - UF (ex: São José do Rio Preto - SP)">
+                </div>
+                <div class="form-row">
+                    <input type="text" id="cfgAss1Nome" placeholder="Assinatura 1 - Nome (ex: Pe. Fábio Aparecido da Silva Dungue)">
+                    <input type="text" id="cfgAss1Cargo" placeholder="Cargo (ex: Reitor)">
+                </div>
+                <div class="form-row">
+                    <input type="text" id="cfgAss2Nome" placeholder="Assinatura 2 - Nome (ex: Hélio Moura Marquezine)">
+                    <input type="text" id="cfgAss2Cargo" placeholder="Cargo (ex: Coordenador Geral do Arraiá)">
+                </div>
+                <div class="form-row">
+                    <input type="text" id="cfgAss3Nome" placeholder="Assinatura 3 - Nome (opcional)">
+                    <input type="text" id="cfgAss3Cargo" placeholder="Cargo (opcional)">
+                </div>
+                <div class="form-row">
+                    <button class="btn-venda" onclick="salvarConfigEvento()">Salvar Dados do Evento</button>
+                </div>
+            </div>
+
+            <!-- Barracas e Produtos -->
+            <div class="painel-madeira" style="margin-top:20px;">
+                <h3>🏪 Barracas e Produtos</h3>
+            <p class="secao-desc">Adicione novas barracas ou novos produtos a barracas existentes. As alterações ficam salvas para esta edição.</p>
+
+            <!-- Adicionar nova barraca -->
+            <div class="painel-madeira">
+                <h3>Adicionar Nova Barraca</h3>
+                <div class="form-row">
+                    <input type="text" id="novaBarracaId" placeholder="ID (sem espaço/acento, ex: churros)">
+                    <input type="text" id="novaBarracaNome" placeholder="Nome (ex: 🍩 Churros)">
+                    <button class="btn-venda" onclick="adicionarBarraca()">Criar Barraca</button>
+                </div>
+            </div>
+
+            <!-- Adicionar produto a barraca -->
+            <div class="painel-madeira">
+                <h3>Adicionar Produto a uma Barraca</h3>
+                <div class="form-row">
+                    <select id="configBarracaSelect"></select>
+                    <input type="text" id="novoProdutoNome" placeholder="Nome do produto (ex: Churros com Nutella)">
+                    <input type="number" id="novoProdutoPreco" placeholder="Preço R$" step="0.01" min="0">
+                    <button class="btn-venda" onclick="adicionarProduto()">Adicionar Produto</button>
+                </div>
+            </div>
+
+            <!-- Lista de barracas e seus produtos -->
+            <div class="tabela-box">
+                <h4>Barracas e Produtos Cadastrados</h4>
+                <div id="listaBarracasProdutos"></div>
+            </div>
+            </div>
+
+            <!-- Limpar dados -->
+            <div class="painel-madeira" style="margin-top:20px;border-color:rgba(244,67,54,0.3);">
+                <h3 style="color:#ef5350;">⚠️ Zona de Perigo</h3>
+                <p class="secao-desc">Cuidado: estas ações não podem ser desfeitas.</p>
+                <div class="form-row">
+                    <button class="btn-gasto" onclick="limparTodosDados()">🗑️ Limpar Todos os Dados</button>
+                </div>
+            </div>
+
+            <!-- Encerrar Edição -->
+            <div class="painel-madeira" style="margin-top:20px;border-color:rgba(21,101,192,0.4);">
+                <h3 style="color:#42a5f5;">📦 Encerrar Edição 2026</h3>
+                <p class="secao-desc">Ao encerrar a edição: gera backup automático do ano, salva os dados como "edição anterior" para comparação no próximo ano, e limpa vendas/despesas/patrocínios mantendo a configuração de barracas e produtos.</p>
+                <div class="form-row">
+                    <button class="btn-patrocinio" onclick="encerrarEdicao()">📦 Encerrar Edição e Preparar Próximo Ano</button>
+                </div>
+            </div>
+
+            <!-- Comparativo com ano anterior -->
+            <div class="painel-madeira" style="margin-top:20px;">
+                <h3>📊 Comparativo com Edição Anterior</h3>
+                <p class="secao-desc">Importe o backup da edição passada para comparar os resultados lado a lado no dashboard.</p>
+                <div class="form-row">
+                    <label class="btn-export btn-import">📂 Importar Edição Anterior
+                        <input type="file" accept=".json" onchange="importarEdicaoAnterior(event)" hidden>
+                    </label>
+                    <button class="btn-export" onclick="limparEdicaoAnterior()" id="btnLimparAnterior" style="display:none">🗑️ Remover Comparativo</button>
+                </div>
+                <div id="comparativoStatus"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>Basílica Menor Nossa Senhora da Conceição Aparecida</p>
+        <p>Arraiá da Basílica 2026 | Sistema Financeiro v5.0</p>
+        <p style="margin-top:4px;font-size:0.7rem;" id="footerSync">Última sincronização: --</p>
+        <p style="margin-top:8px"><a href="painel.html" target="_blank" style="color:var(--cor-amarelo);text-decoration:none;font-weight:700;">🔗 Abrir Painel de Visualização (somente leitura)</a></p>
+    </footer>
+
+    <!-- MODAL DE EDIÇÃO -->
+    <div class="modal-overlay" id="modalOverlay" onclick="fecharModal()" style="display:none">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3 id="modalTitulo">Editar Lançamento</h3>
+            <div id="modalConteudo"></div>
+            <div class="modal-btns">
+                <button class="btn-venda" onclick="salvarEdicao()">Salvar</button>
+                <button class="btn-gasto" onclick="fecharModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
