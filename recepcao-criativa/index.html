@@ -88,30 +88,45 @@
             font-size: 0.7rem;
         }
 
-        .hero-palestrante {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            display: inline-block;
-            backdrop-filter: blur(5px);
+        /* Palestrante com foto */
+        .palestrante-section {
+            background: #fff;
+            padding: 2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
         }
-        .hero-palestrante strong {
-            color: #fff;
-            font-size: 1rem;
+        .palestrante-foto {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #2952a3;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .palestrante-info {
+            text-align: left;
+        }
+        .palestrante-info strong {
             display: block;
+            font-size: 1.1rem;
+            color: #1a3a7a;
+            margin-bottom: 0.3rem;
         }
-        .hero-palestrante small {
-            color: #b8d4fe;
-            font-size: 0.8rem;
+        .palestrante-info small {
+            color: #64748b;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            display: block;
         }
 
         /* Público alvo */
         .publico {
             background: #1a3a7a;
-            padding: 0.8rem;
+            padding: 0.8rem 1.5rem;
             text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
         }
         .publico p {
             color: #b8d4fe;
@@ -124,10 +139,8 @@
         /* Formulário */
         .form-section {
             max-width: 600px;
-            margin: -1.5rem auto 2rem;
+            margin: 2rem auto;
             padding: 0 1rem;
-            position: relative;
-            z-index: 10;
         }
         .form-card {
             background: #fff;
@@ -255,7 +268,9 @@
             .hero h1 { font-size: 1.2rem; }
             .hero { padding: 2rem 1rem 1.5rem; }
             .form-card { padding: 1.5rem 1rem; }
-            .form-section { margin-top: -1rem; }
+            .palestrante-section { flex-direction: column; text-align: center; padding: 1.5rem 1rem; }
+            .palestrante-info { text-align: center; }
+            .palestrante-foto { width: 110px; height: 110px; }
         }
     </style>
 </head>
@@ -272,11 +287,17 @@
             <p><span class="icon">🕗</span> Das 8h às 11h30</p>
             <p><span class="icon">📍</span> Centro de Pastoral São José — Av. Constituição, 1373 - Boa Vista</p>
         </div>
-        <div class="hero-palestrante">
-            <strong>Pe. Wagner Carvalho</strong>
-            <small>Assessor da Comissão Bíblico-Catequética da CNBB</small>
         </div>
     </header>
+
+    <!-- Palestrante com foto -->
+    <section class="palestrante-section">
+        <img src="pe-wagner.jpg" alt="Pe. Wagner Carvalho" class="palestrante-foto">
+        <div class="palestrante-info">
+            <strong>Pe. Wagner Carvalho</strong>
+            <small>Assessor da Comissão Bíblico-Catequética<br>da Conferência Nacional dos Bispos do Brasil</small>
+        </div>
+    </section>
 
     <div class="publico">
         <p><strong>Lideranças convidadas:</strong> Padres, Diáconos, Seminaristas, Religiosos(as) e Lideranças Leigas</p>
