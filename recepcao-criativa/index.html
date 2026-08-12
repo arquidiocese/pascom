@@ -354,22 +354,17 @@
     </footer>
 
     <script>
-        // === DADOS - LocalStorage ===
-        const STORAGE_KEY = 'recepcao_criativa_inscritos';
-
-        function getInscritos() {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        }
-
-        function salvarInscritos(lista) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
-        }
+        // ============================================================
+        // CONFIGURAÇÃO - Cole aqui a URL do seu Google Apps Script
+        // ============================================================
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx85nfUyO3_OHy-JMybDG5w5fG3HmEwImD3fxr2l6OqBNzwgLYkUl-K9Rx836O6yq5QKQ/exec';
 
         // === FORMULÁRIO ===
         const form = document.getElementById('form-inscricao');
         const msgEl = document.getElementById('rc-msg');
+        const btnSubmit = form.querySelector('.btn-submit');
 
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const nome = document.getElementById('rc-nome').value.trim();
@@ -384,8 +379,16 @@
                 return;
             }
 
+            if (!SCRIPT_URL) {
+                mostrarMsg('Sistema em manutenção. Tente novamente mais tarde.', 'erro');
+                return;
+            }
+
+            // Desabilitar botão durante envio
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Enviando...';
+
             const inscrito = {
-                id: Date.now().toString(),
                 nome,
                 vocacao,
                 diocese,
@@ -395,38 +398,31 @@
                 dataInscricao: new Date().toLocaleString('pt-BR')
             };
 
-            const inscritos = getInscritos();
-            inscritos.push(inscrito);
-            salvarInscritos(inscritos);
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ acao: 'inserir', ...inscrito })
+                });
 
-            form.reset();
-            mostrarMsg('Inscrição realizada com sucesso! ✓', 'sucesso');
-
-            // Enviar para Google Sheets (se configurado)
-            enviarParaPlanilha(inscrito);
+                // Com mode: 'no-cors', a resposta é opaca (status 0),
+                // mas se não houve erro de rede, o dado foi enviado.
+                form.reset();
+                mostrarMsg('Inscrição realizada com sucesso! ✓', 'sucesso');
+            } catch (erro) {
+                mostrarMsg('Erro ao enviar. Verifique sua conexão e tente novamente.', 'erro');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = 'Realizar Inscrição';
+            }
         });
 
         function mostrarMsg(texto, tipo) {
             msgEl.textContent = texto;
             msgEl.className = 'msg msg-' + tipo;
             msgEl.style.display = 'block';
-            setTimeout(() => { msgEl.style.display = 'none'; }, 5000);
-        }
-
-        // === GOOGLE SHEETS (opcional) ===
-        const SCRIPT_URL = ''; // Cole aqui a URL do Google Apps Script Web App
-
-        function enviarParaPlanilha(inscrito) {
-            if (!SCRIPT_URL) return;
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    acao: 'recepcao_criativa',
-                    ...inscrito
-                })
-            }).catch(() => {});
+            setTimeout(() => { msgEl.style.display = 'none'; }, 6000);
         }
 
         // Máscara telefone

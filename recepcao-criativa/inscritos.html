@@ -524,6 +524,11 @@
     </div>
 
     <script>
+        // ============================================================
+        // CONFIGURAÇÃO - Mesma URL do Google Apps Script usada no index.html
+        // ============================================================
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx85nfUyO3_OHy-JMybDG5w5fG3HmEwImD3fxr2l6OqBNzwgLYkUl-K9Rx836O6yq5QKQ/exec';
+
         // === AUTENTICAÇÃO ===
         const SENHA_ADMIN = 'Pascom123456';
 
@@ -537,8 +542,7 @@
             if (senha === SENHA_ADMIN) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('painel').style.display = 'block';
-                renderStats();
-                renderLista();
+                carregarInscritos();
             } else {
                 document.getElementById('login-erro').style.display = 'block';
                 document.getElementById('login-senha').value = '';
@@ -546,20 +550,35 @@
             }
         }
 
-        // === DADOS ===
-        const STORAGE_KEY = 'recepcao_criativa_inscritos';
+        // === DADOS (vindos do Google Sheets) ===
+        let inscritosData = [];
 
-        function getInscritos() {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        }
+        async function carregarInscritos() {
+            if (!SCRIPT_URL) {
+                document.getElementById('lista-table').innerHTML = '<p class="vazio">URL do Google Apps Script não configurada.</p>';
+                document.getElementById('lista-mobile').innerHTML = '<p class="vazio">URL do Google Apps Script não configurada.</p>';
+                return;
+            }
 
-        function salvarInscritos(lista) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+            document.getElementById('lista-table').innerHTML = '<p class="vazio">Carregando inscritos...</p>';
+            document.getElementById('lista-mobile').innerHTML = '<p class="vazio">Carregando inscritos...</p>';
+
+            try {
+                const response = await fetch(SCRIPT_URL + '?acao=listar');
+                const dados = await response.json();
+                inscritosData = dados || [];
+                renderStats();
+                renderLista();
+            } catch (erro) {
+                console.error('Erro ao carregar:', erro);
+                document.getElementById('lista-table').innerHTML = '<p class="vazio">Erro ao carregar dados. Verifique a conexão.</p>';
+                document.getElementById('lista-mobile').innerHTML = '<p class="vazio">Erro ao carregar dados. Verifique a conexão.</p>';
+            }
         }
 
         // === ESTATÍSTICAS ===
         function renderStats() {
-            const inscritos = getInscritos();
+            const inscritos = inscritosData;
             const vocacoes = {};
             inscritos.forEach(i => {
                 vocacoes[i.vocacao] = (vocacoes[i.vocacao] || 0) + 1;
@@ -576,15 +595,15 @@
         function renderLista() {
             const busca = document.getElementById('busca').value.trim().toLowerCase();
             const filtroVocacao = document.getElementById('filtro-vocacao').value;
-            let inscritos = getInscritos();
+            let inscritos = [...inscritosData];
 
             if (busca) {
                 inscritos = inscritos.filter(i =>
-                    i.nome.toLowerCase().includes(busca) ||
-                    i.cidade.toLowerCase().includes(busca) ||
+                    (i.nome || '').toLowerCase().includes(busca) ||
+                    (i.cidade || '').toLowerCase().includes(busca) ||
                     (i.paroquia || '').toLowerCase().includes(busca) ||
-                    i.diocese.toLowerCase().includes(busca) ||
-                    i.telefone.includes(busca)
+                    (i.diocese || '').toLowerCase().includes(busca) ||
+                    (i.telefone || '').includes(busca)
                 );
             }
             if (filtroVocacao) {
@@ -609,17 +628,18 @@
                     <th>Ações</th>
                 </tr></thead><tbody>`;
 
-            inscritos.forEach(i => {
+            inscritos.forEach((i, idx) => {
+                const linha = i._linha || idx;
                 tableHtml += `<tr>
-                    <td class="nome-cell">${i.nome}</td>
-                    <td><span class="badge-vocacao">${i.vocacao}</span></td>
-                    <td>${i.diocese}</td>
-                    <td>${i.cidade}</td>
+                    <td class="nome-cell">${i.nome || ''}</td>
+                    <td><span class="badge-vocacao">${i.vocacao || ''}</span></td>
+                    <td>${i.diocese || ''}</td>
+                    <td>${i.cidade || ''}</td>
                     <td>${i.paroquia || '—'}</td>
-                    <td>${i.telefone}</td>
+                    <td>${i.telefone || ''}</td>
                     <td><div class="acoes-cell">
-                        <button class="btn-editar" onclick="abrirEdicao('${i.id}')">Editar</button>
-                        <button class="btn-remover" onclick="remover('${i.id}')">Excluir</button>
+                        <button class="btn-editar" onclick="abrirEdicao(${linha})">Editar</button>
+                        <button class="btn-remover" onclick="remover(${linha})">Excluir</button>
                     </div></td>
                 </tr>`;
             });
@@ -628,21 +648,22 @@
 
             // Cards mobile
             let mobileHtml = '';
-            inscritos.forEach(i => {
+            inscritos.forEach((i, idx) => {
+                const linha = i._linha || idx;
                 mobileHtml += `<div class="inscrito-card">
                     <div class="inscrito-card-header">
-                        <span class="inscrito-card-nome">${i.nome}</span>
-                        <span class="badge-vocacao">${i.vocacao}</span>
+                        <span class="inscrito-card-nome">${i.nome || ''}</span>
+                        <span class="badge-vocacao">${i.vocacao || ''}</span>
                     </div>
                     <div class="inscrito-card-info">
-                        <strong>Diocese:</strong> ${i.diocese}<br>
-                        <strong>Cidade:</strong> ${i.cidade}<br>
+                        <strong>Diocese:</strong> ${i.diocese || ''}<br>
+                        <strong>Cidade:</strong> ${i.cidade || ''}<br>
                         ${i.paroquia ? '<strong>Paróquia:</strong> ' + i.paroquia + '<br>' : ''}
-                        <strong>Telefone:</strong> ${i.telefone}
+                        <strong>Telefone:</strong> ${i.telefone || ''}
                     </div>
                     <div class="inscrito-card-acoes">
-                        <button class="btn-editar" onclick="abrirEdicao('${i.id}')">Editar</button>
-                        <button class="btn-remover" onclick="remover('${i.id}')">Excluir</button>
+                        <button class="btn-editar" onclick="abrirEdicao(${linha})">Editar</button>
+                        <button class="btn-remover" onclick="remover(${linha})">Excluir</button>
                     </div>
                 </div>`;
             });
@@ -650,18 +671,17 @@
         }
 
         // === EDITAR ===
-        function abrirEdicao(id) {
-            const inscritos = getInscritos();
-            const i = inscritos.find(x => x.id === id);
+        function abrirEdicao(linha) {
+            const i = inscritosData.find(x => x._linha === linha);
             if (!i) return;
 
-            document.getElementById('edit-id').value = i.id;
-            document.getElementById('edit-nome').value = i.nome;
-            document.getElementById('edit-vocacao').value = i.vocacao;
-            document.getElementById('edit-diocese').value = i.diocese;
-            document.getElementById('edit-cidade').value = i.cidade;
+            document.getElementById('edit-id').value = linha;
+            document.getElementById('edit-nome').value = i.nome || '';
+            document.getElementById('edit-vocacao').value = i.vocacao || '';
+            document.getElementById('edit-diocese').value = i.diocese || '';
+            document.getElementById('edit-cidade').value = i.cidade || '';
             document.getElementById('edit-paroquia').value = i.paroquia || '';
-            document.getElementById('edit-telefone').value = i.telefone;
+            document.getElementById('edit-telefone').value = i.telefone || '';
 
             document.getElementById('modal-editar').classList.add('ativo');
         }
@@ -670,23 +690,32 @@
             document.getElementById('modal-editar').classList.remove('ativo');
         }
 
-        function salvarEdicao() {
-            const id = document.getElementById('edit-id').value;
-            const inscritos = getInscritos();
-            const idx = inscritos.findIndex(i => i.id === id);
-            if (idx === -1) return;
+        async function salvarEdicao() {
+            const linha = parseInt(document.getElementById('edit-id').value);
+            const dados = {
+                acao: 'editar',
+                linha: linha,
+                nome: document.getElementById('edit-nome').value.trim(),
+                vocacao: document.getElementById('edit-vocacao').value,
+                diocese: document.getElementById('edit-diocese').value.trim(),
+                cidade: document.getElementById('edit-cidade').value.trim(),
+                paroquia: document.getElementById('edit-paroquia').value.trim(),
+                telefone: document.getElementById('edit-telefone').value.trim()
+            };
 
-            inscritos[idx].nome = document.getElementById('edit-nome').value.trim();
-            inscritos[idx].vocacao = document.getElementById('edit-vocacao').value;
-            inscritos[idx].diocese = document.getElementById('edit-diocese').value.trim();
-            inscritos[idx].cidade = document.getElementById('edit-cidade').value.trim();
-            inscritos[idx].paroquia = document.getElementById('edit-paroquia').value.trim();
-            inscritos[idx].telefone = document.getElementById('edit-telefone').value.trim();
-
-            salvarInscritos(inscritos);
-            fecharModal();
-            renderStats();
-            renderLista();
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+                fecharModal();
+                // Recarrega após breve espera para o script processar
+                setTimeout(() => carregarInscritos(), 1000);
+            } catch (erro) {
+                alert('Erro ao salvar. Tente novamente.');
+            }
         }
 
         // Fechar modal clicando fora
@@ -695,22 +724,31 @@
         });
 
         // === EXCLUIR ===
-        function remover(id) {
+        async function remover(linha) {
             if (!confirm('Tem certeza que deseja excluir esta inscrição?')) return;
-            const inscritos = getInscritos().filter(i => i.id !== id);
-            salvarInscritos(inscritos);
-            renderStats();
-            renderLista();
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ acao: 'excluir', linha: linha })
+                });
+                // Recarrega após breve espera para o script processar
+                setTimeout(() => carregarInscritos(), 1000);
+            } catch (erro) {
+                alert('Erro ao excluir. Tente novamente.');
+            }
         }
 
         // === EXPORTAR CSV ===
         function exportarCSV() {
-            const inscritos = getInscritos();
+            const inscritos = inscritosData;
             if (!inscritos.length) { alert('Nenhum inscrito para exportar.'); return; }
 
             let csv = 'Nome,Função,Diocese,Cidade,Paróquia,Telefone,Data Inscrição\n';
             inscritos.forEach(i => {
-                csv += `"${i.nome}","${i.vocacao}","${i.diocese}","${i.cidade}","${i.paroquia || ''}","${i.telefone}","${i.dataInscricao || ''}"\n`;
+                csv += `"${i.nome || ''}","${i.vocacao || ''}","${i.diocese || ''}","${i.cidade || ''}","${i.paroquia || ''}","${i.telefone || ''}","${i.dataInscricao || ''}"\n`;
             });
 
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
