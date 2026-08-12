@@ -564,16 +564,40 @@
             document.getElementById('lista-mobile').innerHTML = '<p class="vazio">Carregando inscritos...</p>';
 
             try {
-                const response = await fetch(SCRIPT_URL + '?acao=listar');
+                const response = await fetch(SCRIPT_URL + '?acao=listar', {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
                 const dados = await response.json();
                 inscritosData = dados || [];
                 renderStats();
                 renderLista();
             } catch (erro) {
                 console.error('Erro ao carregar:', erro);
-                document.getElementById('lista-table').innerHTML = '<p class="vazio">Erro ao carregar dados. Verifique a conexão.</p>';
-                document.getElementById('lista-mobile').innerHTML = '<p class="vazio">Erro ao carregar dados. Verifique a conexão.</p>';
+                // Fallback: tenta via JSONP caso CORS bloqueie
+                carregarViaScript();
             }
+        }
+
+        function carregarViaScript() {
+            // Fallback usando script tag (contorna CORS)
+            const callbackName = 'jsonpCallback_' + Date.now();
+            window[callbackName] = function(dados) {
+                inscritosData = dados || [];
+                renderStats();
+                renderLista();
+                delete window[callbackName];
+                document.getElementById('jsonp-script')?.remove();
+            };
+
+            const script = document.createElement('script');
+            script.id = 'jsonp-script';
+            script.src = SCRIPT_URL + '?acao=listar&callback=' + callbackName;
+            script.onerror = function() {
+                document.getElementById('lista-table').innerHTML = '<p class="vazio">Erro ao carregar dados. Verifique a conexão e a configuração do Apps Script.</p>';
+                document.getElementById('lista-mobile').innerHTML = '<p class="vazio">Erro ao carregar dados. Verifique a conexão e a configuração do Apps Script.</p>';
+            };
+            document.body.appendChild(script);
         }
 
         // === ESTATÍSTICAS ===
